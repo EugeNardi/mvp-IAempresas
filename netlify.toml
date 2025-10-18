@@ -1,0 +1,31 @@
+# Configuración de Netlify para el despliegue
+[build]
+  # Comando para construir el proyecto
+  command = "npm run build"
+  
+  # Directorio donde se generan los archivos de producción
+  publish = "dist"
+  
+  # Variables de entorno (se configurarán en el panel de Netlify)
+  # VITE_SUPABASE_URL
+  # VITE_SUPABASE_ANON_KEY
+  # VITE_OPENAI_API_KEY
+
+# Configuración para Single Page Application (SPA)
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Headers de seguridad
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    X-XSS-Protection = "1; mode=block"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+# Configuración de Node.js
+[build.environment]
+  NODE_VERSION = "18"
