@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Check, Sparkles, Zap, Crown, Loader2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { getPlans, createSubscription, getSubscriptionStatus } from '../services/subscriptionService';
+import { getPlans, getSubscriptionStatus } from '../services/subscriptionService';
 
 const Premium = () => {
   const navigate = useNavigate();
@@ -10,7 +10,6 @@ const Premium = () => {
   const [plans, setPlans] = useState([]);
   const [loading, setLoading] = useState(true);
   const [subscriptionStatus, setSubscriptionStatus] = useState(null);
-  const [creatingSubscription, setCreatingSubscription] = useState(null);
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -35,32 +34,14 @@ const Premium = () => {
     }
   };
 
-  const handleSubscribe = async (planType) => {
+  const handleSubscribe = (planType) => {
     if (!user) {
       navigate('/login', { state: { from: '/premium' } });
       return;
     }
 
-    try {
-      setCreatingSubscription(planType);
-      setError(null);
-
-      const result = await createSubscription(planType);
-      
-      // Redirect to Mercado Pago checkout
-      if (result.init_point) {
-        window.location.href = result.init_point;
-      } else if (result.sandbox_init_point) {
-        // For testing in sandbox mode
-        window.location.href = result.sandbox_init_point;
-      } else {
-        throw new Error('No se recibió URL de pago');
-      }
-    } catch (err) {
-      console.error('Error creating subscription:', err);
-      setError(err.message || 'Error al crear la suscripción. Por favor, intenta nuevamente.');
-      setCreatingSubscription(null);
-    }
+    // Redirect to checkout page
+    navigate(`/checkout?plan=${planType}`);
   };
 
   const formatPrice = (price) => {
@@ -157,7 +138,6 @@ const Premium = () => {
         <div className="grid sm:grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 max-w-6xl mx-auto">
           {plans.map((plan) => {
             const isAnnual = plan.id === 'annual';
-            const isCreating = creatingSubscription === plan.id;
             
             return (
               <div
@@ -215,9 +195,9 @@ const Premium = () => {
 
                   {/* Savings Badge */}
                   {isAnnual && (
-                    <div className="inline-block bg-gradient-to-r from-green-500/20 to-emerald-500/20 border border-green-500/30 rounded-full px-4 sm:px-6 py-2 mb-4">
+                    <div className="inline-block bg-gradient-to-r from-green-500/20 to-emerald-500/20 border border-green-500/20 rounded-full px-4 sm:px-6 py-2 mb-4">
                       <p className="text-sm sm:text-base text-green-400 font-bold">
-                        💰 Ahorrás {formatPrice(12000 * 12 - 120000)} al año
+                        💸 Ahorra {formatPrice(12000 * 12 - 120000)} al año
                       </p>
                     </div>
                   )}
@@ -227,28 +207,19 @@ const Premium = () => {
                   </p>
                 </div>
 
+                {/* Button */}
                 <button
                   onClick={() => handleSubscribe(plan.id)}
-                  disabled={isCreating}
                   className={`relative w-full py-4 sm:py-5 rounded-xl sm:rounded-2xl font-bold text-base sm:text-lg transition-all duration-300 mb-8 overflow-hidden group ${
                     isAnnual
                       ? 'bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 text-white hover:shadow-2xl hover:shadow-cyan-500/50 hover:scale-[1.02]'
-                      : 'bg-gradient-to-r from-dark-hover to-dark-border text-white hover:from-cyan-500/20 hover:to-blue-500/20 hover:shadow-xl hover:shadow-cyan-500/20 hover:scale-[1.02]'
-                  } disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-2`}
+                      : 'bg-gradient-to-r from-dark-500 to-dark-border text-white hover:from-cyan-500/20 hover:to-blue-500/20 hover:shadow-xl hover:shadow-cyan-500/20 hover:scale-[1.02]'
+                  } flex items-center justify-center gap-2`}
                 >
                   <span className={`absolute inset-0 ${isAnnual ? 'bg-white/20' : 'bg-cyan-500/10'} translate-y-full group-hover:translate-y-0 transition-transform duration-300`}></span>
                   <span className="relative flex items-center gap-2">
-                    {isCreating ? (
-                      <>
-                        <Loader2 className="w-5 h-5 animate-spin" />
-                        Procesando...
-                      </>
-                    ) : (
-                      <>
-                        <Sparkles className="w-5 h-5" />
-                        Suscribirme ahora
-                      </>
-                    )}
+                    <Sparkles className="w-5 h-5" />
+                    Suscribirme ahora
                   </span>
                 </button>
 
