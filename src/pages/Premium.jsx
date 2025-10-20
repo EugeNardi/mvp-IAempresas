@@ -101,19 +101,19 @@ const Premium = () => {
       {/* Header */}
       <div className="relative overflow-hidden">
         {/* Background decoration */}
-        <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/5 via-blue-500/5 to-purple-500/5"></div>
-        <div className="absolute top-0 left-1/4 w-64 h-64 bg-cyan-500/10 rounded-full filter blur-3xl"></div>
-        <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-blue-500/10 rounded-full filter blur-3xl"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-[#009EE3]/3 via-[#0077B5]/3 to-[#009EE3]/3"></div>
+        <div className="absolute top-0 left-1/4 w-64 h-64 bg-[#009EE3]/8 rounded-full filter blur-3xl"></div>
+        <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-[#0077B5]/8 rounded-full filter blur-3xl"></div>
         
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 lg:py-12 text-center">
-          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border border-cyan-500/30 rounded-full px-3 sm:px-4 py-1.5 mb-4 sm:mb-5 backdrop-blur-sm">
-            <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-cyan-400 animate-pulse" />
-            <span className="text-xs text-cyan-400 font-semibold tracking-wide">DESBLOQUEA TODO EL POTENCIAL</span>
+          <div className="inline-flex items-center gap-2 bg-[#009EE3]/10 border border-[#009EE3]/20 rounded-full px-3 sm:px-4 py-1.5 mb-4 sm:mb-5 backdrop-blur-sm">
+            <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-[#009EE3] animate-pulse" />
+            <span className="text-xs text-[#009EE3] font-semibold tracking-wide">DESBLOQUEA TODO EL POTENCIAL</span>
           </div>
           
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-3 sm:mb-4 leading-tight">
             Hazte{' '}
-            <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 bg-clip-text text-transparent animate-gradient">
+            <span className="bg-gradient-to-r from-[#009EE3] to-[#0077B5] bg-clip-text text-transparent">
               Premium
             </span>
           </h1>
@@ -144,14 +144,14 @@ const Premium = () => {
                 key={plan.id}
                 className={`relative group bg-gradient-to-br from-dark-card to-dark-bg border-2 rounded-2xl p-4 sm:p-6 lg:p-7 transition-all duration-300 hover:scale-[1.02] ${
                   isAnnual
-                    ? 'border-cyan-500/60 shadow-2xl shadow-cyan-500/30 ring-2 ring-cyan-500/20'
-                    : 'border-dark-border hover:border-cyan-500/40 hover:shadow-xl hover:shadow-cyan-500/10'
+                    ? 'border-[#009EE3]/40 shadow-2xl shadow-[#009EE3]/20 ring-2 ring-[#009EE3]/15'
+                    : 'border-dark-border hover:border-[#009EE3]/30 hover:shadow-xl hover:shadow-[#009EE3]/10'
                 }`}
               >
                 {/* Popular Badge */}
                 {isAnnual && (
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
-                    <div className="bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 text-white text-xs font-bold px-3 sm:px-4 py-1 sm:py-1.5 rounded-full shadow-lg animate-pulse">
+                    <div className="bg-gradient-to-r from-[#009EE3] to-[#0077B5] text-white text-xs font-bold px-3 sm:px-4 py-1 sm:py-1.5 rounded-full shadow-lg">
                       ⭐ MÁS POPULAR
                     </div>
                   </div>
@@ -159,20 +159,20 @@ const Premium = () => {
 
                 {/* Glow effect */}
                 <div className={`absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${
-                  isAnnual ? 'bg-gradient-to-br from-cyan-500/5 to-blue-500/5' : 'bg-gradient-to-br from-cyan-500/3 to-blue-500/3'
+                  isAnnual ? 'bg-gradient-to-br from-[#009EE3]/5 to-[#0077B5]/5' : 'bg-gradient-to-br from-[#009EE3]/3 to-[#0077B5]/3'
                 }`}></div>
 
                 <div className="relative text-center mb-5">
                   {/* Icon */}
                   <div className={`inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-xl mb-4 ${
                     isAnnual 
-                      ? 'bg-gradient-to-br from-cyan-500/30 to-blue-500/30 shadow-lg shadow-cyan-500/20' 
-                      : 'bg-gradient-to-br from-cyan-500/20 to-blue-500/20'
+                      ? 'bg-gradient-to-br from-[#009EE3]/25 to-[#0077B5]/25 shadow-lg shadow-[#009EE3]/15' 
+                      : 'bg-gradient-to-br from-[#009EE3]/15 to-[#0077B5]/15'
                   }`}>
                     {isAnnual ? (
-                      <Crown className="w-6 h-6 sm:w-7 sm:h-7 text-cyan-400" />
+                      <Crown className="w-6 h-6 sm:w-7 sm:h-7 text-[#009EE3]" />
                     ) : (
-                      <Zap className="w-6 h-6 sm:w-7 sm:h-7 text-cyan-400" />
+                      <Zap className="w-6 h-6 sm:w-7 sm:h-7 text-[#009EE3]" />
                     )}
                   </div>
                   
@@ -184,7 +184,7 @@ const Premium = () => {
                   {/* Price */}
                   <div className="mb-3">
                     <div className="flex items-baseline justify-center gap-1 mb-1">
-                      <span className="text-4xl sm:text-5xl lg:text-6xl font-black bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+                      <span className="text-4xl sm:text-5xl lg:text-6xl font-black bg-gradient-to-r from-[#009EE3] to-[#0077B5] bg-clip-text text-transparent">
                         {formatPrice(plan.price).split(',')[0]}
                       </span>
                     </div>
@@ -210,13 +210,9 @@ const Premium = () => {
                 {/* Button */}
                 <button
                   onClick={() => handleSubscribe(plan.id)}
-                  className={`relative w-full py-3 sm:py-4 rounded-xl font-bold text-sm sm:text-base transition-all duration-300 mb-5 overflow-hidden group ${
-                    isAnnual
-                      ? 'bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 text-white hover:shadow-2xl hover:shadow-cyan-500/50 hover:scale-[1.02]'
-                      : 'bg-gradient-to-r from-dark-hover to-dark-border text-white hover:from-cyan-500/20 hover:to-blue-500/20 hover:shadow-xl hover:shadow-cyan-500/20 hover:scale-[1.02]'
-                  } flex items-center justify-center gap-2`}
+                  className="relative w-full py-3 sm:py-4 rounded-xl font-bold text-sm sm:text-base transition-all duration-300 mb-5 overflow-hidden group bg-gradient-to-r from-[#009EE3] to-[#0077B5] text-white hover:shadow-2xl hover:shadow-[#009EE3]/30 hover:scale-[1.02] flex items-center justify-center gap-2"
                 >
-                  <span className={`absolute inset-0 ${isAnnual ? 'bg-white/20' : 'bg-cyan-500/10'} translate-y-full group-hover:translate-y-0 transition-transform duration-300`}></span>
+                  <span className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></span>
                   <span className="relative flex items-center gap-2">
                     <Sparkles className="w-4 h-4" />
                     Suscribirme ahora
@@ -225,9 +221,9 @@ const Premium = () => {
 
                 <div className="space-y-2">
                   {features.map((feature, index) => (
-                    <div key={index} className="flex items-start gap-2 p-1.5 rounded-lg hover:bg-cyan-500/5 transition-colors">
-                      <div className="flex-shrink-0 w-5 h-5 rounded-full bg-cyan-500/20 flex items-center justify-center mt-0.5">
-                        <Check className="w-3 h-3 text-cyan-400" />
+                    <div key={index} className="flex items-start gap-2 p-1.5 rounded-lg hover:bg-[#009EE3]/5 transition-colors">
+                      <div className="flex-shrink-0 w-5 h-5 rounded-full bg-[#009EE3]/15 flex items-center justify-center mt-0.5">
+                        <Check className="w-3 h-3 text-[#009EE3]" />
                       </div>
                       <span className="text-gray-300 text-xs sm:text-sm leading-relaxed">{feature}</span>
                     </div>
@@ -254,14 +250,12 @@ const Premium = () => {
                 </div>
               </div>
               <div className="h-10 w-px bg-dark-border mx-1 sm:mx-2"></div>
-              <svg className="h-6 sm:h-8" viewBox="0 0 200 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <text x="0" y="35" fill="#009EE3" fontSize="28" fontWeight="bold" fontFamily="Arial, sans-serif">
-                  Mercado
-                </text>
-                <text x="0" y="50" fill="#FFD700" fontSize="18" fontWeight="bold" fontFamily="Arial, sans-serif">
-                  Pago
-                </text>
-              </svg>
+              {/* Mercado Pago Logo */}
+              <img 
+                src="https://http2.mlstatic.com/frontend-assets/ml-web-navigation/ui-navigation/5.21.22/mercadopago/logo__large_plus.png" 
+                alt="Mercado Pago" 
+                className="h-6 sm:h-8 object-contain"
+              />
             </div>
           </div>
 
@@ -269,15 +263,15 @@ const Premium = () => {
           <div className="text-center space-y-2">
             <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 text-xs text-gray-400">
               <div className="flex items-center gap-1.5">
-                <Check className="w-3 h-3 text-green-400" />
+                <Check className="w-3 h-3 text-[#009EE3]" />
                 <span>Tarjetas de crédito y débito</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <Check className="w-3 h-3 text-green-400" />
+                <Check className="w-3 h-3 text-[#009EE3]" />
                 <span>Renovación automática</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <Check className="w-3 h-3 text-green-400" />
+                <Check className="w-3 h-3 text-[#009EE3]" />
                 <span>Cancela cuando quieras</span>
               </div>
             </div>
