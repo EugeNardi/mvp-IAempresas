@@ -8,6 +8,8 @@ import Login from './pages/Login'
 import Register from './pages/Register'
 import Dashboard from './pages/Dashboard'
 import Chat from './pages/Chat'
+import Premium from './pages/Premium'
+import Perfil from './pages/Perfil'
 
 function App() {
   return (
@@ -31,6 +33,15 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Chat />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="/premium" element={<Premium />} />
+            <Route
+              path="/perfil"
+              element={
+                <ProtectedRoute>
+                  <Perfil />
                 </ProtectedRoute>
               }
             />
