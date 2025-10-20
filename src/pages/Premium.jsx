@@ -115,7 +115,7 @@ const Premium = () => {
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight inline-flex items-baseline gap-2 sm:gap-3">
               <span>Hazte</span>
               <span className="bg-gradient-to-r from-[#009EE3] to-[#0077B5] bg-clip-text text-transparent">
-                Premium
+                Acceso Premium
               </span>
             </h1>
           </div>
