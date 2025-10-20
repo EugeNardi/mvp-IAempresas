@@ -105,13 +105,13 @@ const Premium = () => {
         <div className="absolute top-0 left-1/4 w-64 h-64 bg-[#009EE3]/8 rounded-full filter blur-3xl"></div>
         <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-[#0077B5]/8 rounded-full filter blur-3xl"></div>
         
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 lg:py-12 text-center">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 lg:py-12 flex flex-col items-center justify-center text-center">
           <div className="inline-flex items-center gap-2 bg-[#009EE3]/10 border border-[#009EE3]/20 rounded-full px-3 sm:px-4 py-1.5 mb-4 sm:mb-5 backdrop-blur-sm">
             <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-[#009EE3] animate-pulse" />
             <span className="text-xs text-[#009EE3] font-semibold tracking-wide">DESBLOQUEA TODO EL POTENCIAL</span>
           </div>
           
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-3 sm:mb-4 leading-tight">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-3 sm:mb-4 leading-tight text-center w-full">
             Hazte{' '}
             <span className="bg-gradient-to-r from-[#009EE3] to-[#0077B5] bg-clip-text text-transparent">
               Premium
@@ -151,7 +151,7 @@ const Premium = () => {
                 {/* Popular Badge */}
                 {isAnnual && (
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
-                    <div className="bg-gradient-to-r from-[#009EE3] to-[#0077B5] text-white text-xs font-bold px-3 sm:px-4 py-1 sm:py-1.5 rounded-full shadow-lg">
+                    <div className="bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-black text-xs font-bold px-3 sm:px-4 py-1 sm:py-1.5 rounded-full shadow-lg">
                       ⭐ MÁS POPULAR
                     </div>
                   </div>
@@ -250,16 +250,24 @@ const Premium = () => {
                 </div>
               </div>
               <div className="hidden sm:block h-10 w-px bg-dark-border mx-1 sm:mx-2"></div>
-              {/* Mercado Pago Logo SVG */}
+              {/* Mercado Pago Logo */}
               <div className="flex items-center justify-center">
-                <svg className="h-8 sm:h-10 w-auto" viewBox="0 0 200 80" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
-                  {/* M */}
-                  <path d="M10 60 L10 25 L20 40 L30 25 L30 60" stroke="#009EE3" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
-                  {/* P */}
-                  <path d="M40 60 L40 25 L55 25 Q65 25 65 35 Q65 45 55 45 L40 45" stroke="#009EE3" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
-                  {/* Circle with check */}
-                  <circle cx="170" cy="40" r="25" fill="#009EE3"/>
-                  <path d="M160 40 L167 47 L180 34" stroke="white" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+                <svg className="h-8 sm:h-10 w-auto" viewBox="0 0 900 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  {/* Handshake Icon Circle */}
+                  <ellipse cx="200" cy="200" rx="180" ry="100" fill="#009EE3" transform="rotate(-15 200 200)"/>
+                  <ellipse cx="200" cy="200" rx="180" ry="100" fill="#00BFFF" transform="rotate(-15 200 200)" opacity="0.6"/>
+                  
+                  {/* Handshake */}
+                  <path d="M150 180 Q160 160 180 160 L220 160 Q240 160 250 180" stroke="#001F5C" strokeWidth="8" fill="none" strokeLinecap="round"/>
+                  <path d="M180 160 L180 200 M220 160 L220 200" stroke="#001F5C" strokeWidth="8" strokeLinecap="round"/>
+                  <circle cx="190" cy="210" r="8" fill="white"/>
+                  <circle cx="210" cy="210" r="8" fill="white"/>
+                  
+                  {/* Text: mercado */}
+                  <text x="320" y="180" fill="#001F5C" fontSize="90" fontWeight="600" fontFamily="Arial, sans-serif">mercado</text>
+                  
+                  {/* Text: pago */}
+                  <text x="320" y="280" fill="#001F5C" fontSize="90" fontWeight="600" fontFamily="Arial, sans-serif">pago</text>
                 </svg>
               </div>
             </div>
