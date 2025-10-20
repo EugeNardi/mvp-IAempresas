@@ -134,15 +134,15 @@ const Premium = () => {
       )}
 
       {/* Pricing Plans */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-10">
-        <div className="grid sm:grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 max-w-5xl mx-auto">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-10">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 max-w-5xl mx-auto">
           {plans.map((plan) => {
             const isAnnual = plan.id === 'annual';
             
             return (
               <div
                 key={plan.id}
-                className={`relative group bg-gradient-to-br from-dark-card to-dark-bg border-2 rounded-2xl p-4 sm:p-6 lg:p-7 transition-all duration-300 hover:scale-[1.02] ${
+                className={`relative group bg-gradient-to-br from-dark-card to-dark-bg border-2 rounded-2xl p-4 sm:p-6 lg:p-7 transition-all duration-300 hover:scale-[1.02] w-full ${
                   isAnnual
                     ? 'border-[#009EE3]/40 shadow-2xl shadow-[#009EE3]/20 ring-2 ring-[#009EE3]/15'
                     : 'border-dark-border hover:border-[#009EE3]/30 hover:shadow-xl hover:shadow-[#009EE3]/10'
@@ -237,8 +237,8 @@ const Premium = () => {
         {/* Additional Info with Mercado Pago Logo */}
         <div className="mt-6 sm:mt-8 lg:mt-10">
           {/* Trust Badges */}
-          <div className="flex flex-col items-center gap-4 mb-6">
-            <div className="flex items-center gap-2 sm:gap-3 bg-dark-card border border-dark-border rounded-xl px-4 sm:px-6 py-3 sm:py-4 shadow-lg">
+          <div className="flex flex-col items-center gap-4 mb-6 px-2">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-3 bg-dark-card border border-dark-border rounded-xl px-4 sm:px-6 py-3 sm:py-4 shadow-lg w-full max-w-md sm:max-w-none sm:w-auto">
               <div className="flex items-center gap-1.5 sm:gap-2">
                 <svg className="w-6 h-6 sm:w-8 sm:h-8" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <rect width="100" height="100" rx="20" fill="#009EE3"/>
@@ -249,13 +249,19 @@ const Premium = () => {
                   <p className="text-gray-400 text-xs">Procesado por</p>
                 </div>
               </div>
-              <div className="h-10 w-px bg-dark-border mx-1 sm:mx-2"></div>
-              {/* Mercado Pago Logo */}
-              <img 
-                src="https://http2.mlstatic.com/frontend-assets/ml-web-navigation/ui-navigation/5.21.22/mercadopago/logo__large_plus.png" 
-                alt="Mercado Pago" 
-                className="h-6 sm:h-8 object-contain"
-              />
+              <div className="hidden sm:block h-10 w-px bg-dark-border mx-1 sm:mx-2"></div>
+              {/* Mercado Pago Logo SVG */}
+              <div className="flex items-center justify-center">
+                <svg className="h-8 sm:h-10 w-auto" viewBox="0 0 200 80" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+                  {/* M */}
+                  <path d="M10 60 L10 25 L20 40 L30 25 L30 60" stroke="#009EE3" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+                  {/* P */}
+                  <path d="M40 60 L40 25 L55 25 Q65 25 65 35 Q65 45 55 45 L40 45" stroke="#009EE3" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+                  {/* Circle with check */}
+                  <circle cx="170" cy="40" r="25" fill="#009EE3"/>
+                  <path d="M160 40 L167 47 L180 34" stroke="white" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+                </svg>
+              </div>
             </div>
           </div>
 
