@@ -9,7 +9,9 @@ import {
   Crown,
   Zap,
   Lock,
-  AlertCircle
+  AlertCircle,
+  Mail,
+  Key
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { createSubscription } from '../services/subscriptionService';
@@ -17,9 +19,12 @@ import { createSubscription } from '../services/subscriptionService';
 const Checkout = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { user } = useAuth();
+  const { user, signUp } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [registering, setRegistering] = useState(false);
 
   const planType = searchParams.get('plan');
   
@@ -59,11 +64,12 @@ const Checkout = () => {
   const plan = planDetails[planType];
 
   useEffect(() => {
+    // Require user to be logged in - they need to register first for 7-day trial
     if (!user) {
-      navigate('/login', { state: { from: `/checkout?plan=${planType}` } });
+      navigate('/register', { state: { from: `/checkout?plan=${planType}`, message: 'Crea tu cuenta para comenzar tu prueba gratuita de 7 días' } });
       return;
     }
-
+    
     if (!planType || !plan) {
       navigate('/premium');
     }
@@ -75,6 +81,22 @@ const Checkout = () => {
       currency: 'ARS',
       minimumFractionDigits: 0
     }).format(price);
+  };
+
+  const handleQuickRegister = async (e) => {
+    e.preventDefault();
+    try {
+      setRegistering(true);
+      setError(null);
+      
+      await signUp(email, password);
+      // After registration, proceed to payment
+      await handleConfirmPayment();
+    } catch (err) {
+      console.error('Error:', err);
+      setError(err.message || 'Error al registrar. Por favor, intenta nuevamente.');
+      setRegistering(false);
+    }
   };
 
   const handleConfirmPayment = async () => {
@@ -106,63 +128,63 @@ const Checkout = () => {
   const Icon = plan.icon;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-dark-bg via-dark-card to-dark-bg">
+    <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-dark-card border-b border-dark-border">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+      <div className="bg-white border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <button
             onClick={() => navigate('/premium')}
-            className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
+            className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
           >
-            <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
-            <span className="text-sm sm:text-base">Volver a planes</span>
+            <ArrowLeft className="w-5 h-5" />
+            <span className="text-sm font-medium">Volver a planes</span>
           </button>
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
-        <div className="grid lg:grid-cols-2 gap-6 lg:gap-8">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="grid lg:grid-cols-2 gap-8">
           {/* Left Column - Plan Details */}
-          <div className="space-y-4">
+          <div className="space-y-6">
             <div>
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-1">
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">
                 Confirmar Suscripción
               </h1>
-              <p className="text-gray-400 text-xs sm:text-sm">
+              <p className="text-gray-600 text-sm">
                 Revisa los detalles de tu plan antes de continuar
               </p>
             </div>
 
             {/* Plan Card */}
-            <div className="bg-gradient-to-br from-dark-card to-dark-bg border-2 border-cyan-500/40 rounded-xl p-4 sm:p-6 shadow-xl shadow-cyan-500/10">
-              <div className="flex items-start gap-3 mb-4">
-                <div className="flex-shrink-0 w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-cyan-500/30 to-blue-500/30 rounded-xl flex items-center justify-center">
-                  <Icon className="w-6 h-6 sm:w-7 sm:h-7 text-cyan-400" />
+            <div className="bg-white border-2 border-cyan-200 rounded-lg p-6 shadow-sm">
+              <div className="flex items-start gap-4 mb-4">
+                <div className="flex-shrink-0 w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                  <Icon className="w-6 h-6 text-gray-700" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-lg sm:text-xl font-bold text-white mb-0.5">
+                  <h3 className="text-xl font-bold text-gray-900 mb-1">
                     {plan.name}
                   </h3>
-                  <p className="text-gray-400 text-xs sm:text-sm">
+                  <p className="text-gray-600 text-sm">
                     Renovación automática cada {plan.period}
                   </p>
                 </div>
               </div>
 
-              <div className="border-t border-dark-border pt-4 mb-4">
+              <div className="border-t border-gray-200 pt-4 mb-4">
                 <div className="flex items-baseline justify-between mb-2">
-                  <span className="text-gray-400 text-xs sm:text-sm">Precio</span>
+                  <span className="text-gray-600 text-sm">Precio</span>
                   <div className="text-right">
-                    <span className="text-2xl sm:text-3xl font-black bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+                    <span className="text-3xl font-bold text-gray-900">
                       {formatPrice(plan.price)}
                     </span>
-                    <span className="text-gray-400 text-xs ml-1">/ {plan.period}</span>
+                    <span className="text-gray-500 text-sm ml-1">/ {plan.period}</span>
                   </div>
                 </div>
                 
                 {plan.savings && (
-                  <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-2 mt-3">
-                    <p className="text-green-400 text-xs sm:text-sm font-semibold text-center">
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-3 mt-3">
+                    <p className="text-green-700 text-sm font-semibold text-center">
                       💰 Ahorras {formatPrice(plan.savings)} al año
                     </p>
                   </div>
@@ -170,29 +192,27 @@ const Checkout = () => {
               </div>
 
               <div className="space-y-2">
-                <p className="text-white font-semibold text-xs sm:text-sm mb-2">
+                <p className="text-gray-900 font-semibold text-sm mb-2">
                   Incluye:
                 </p>
                 {plan.features.map((feature, index) => (
                   <div key={index} className="flex items-start gap-2">
-                    <div className="flex-shrink-0 w-4 h-4 rounded-full bg-cyan-500/20 flex items-center justify-center mt-0.5">
-                      <Check className="w-2.5 h-2.5 text-cyan-400" />
-                    </div>
-                    <span className="text-gray-300 text-xs sm:text-sm">{feature}</span>
+                    <Check className="w-5 h-5 text-gray-700 flex-shrink-0 mt-0.5" />
+                    <span className="text-gray-600 text-sm">{feature}</span>
                   </div>
                 ))}
               </div>
             </div>
 
             {/* Security Info */}
-            <div className="bg-dark-card border border-dark-border rounded-xl p-3 sm:p-4">
-              <div className="flex items-start gap-2">
-                <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-green-400 flex-shrink-0 mt-0.5" />
+            <div className="bg-white border border-gray-200 rounded-lg p-4">
+              <div className="flex items-start gap-3">
+                <Shield className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
                 <div>
-                  <h4 className="text-white font-semibold text-xs sm:text-sm mb-0.5">
+                  <h4 className="text-gray-900 font-semibold text-sm mb-1">
                     Pago 100% Seguro
                   </h4>
-                  <p className="text-gray-400 text-xs leading-relaxed">
+                  <p className="text-gray-600 text-sm">
                     Protegido con encriptación bancaria. Procesado por Mercado Pago.
                   </p>
                 </div>
@@ -202,39 +222,46 @@ const Checkout = () => {
 
           {/* Right Column - Payment Confirmation */}
           <div className="lg:sticky lg:top-4 lg:self-start">
-            <div className="bg-dark-card border border-dark-border rounded-xl p-4 sm:p-6 shadow-xl">
-              <h2 className="text-lg sm:text-xl font-bold text-white mb-4">
+            <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+              <h2 className="text-xl font-bold text-gray-900 mb-4">
                 Resumen del Pedido
               </h2>
 
               {/* User Info */}
-              <div className="bg-dark-bg rounded-lg p-3 mb-4">
-                <p className="text-gray-400 text-xs mb-0.5">Cuenta</p>
-                <p className="text-white font-semibold text-xs sm:text-sm">{user?.email}</p>
+              <div className="bg-gray-50 rounded-lg p-3 mb-4 border border-gray-200">
+                <p className="text-gray-600 text-xs mb-0.5">Cuenta</p>
+                <p className="text-gray-900 font-semibold text-sm">{user?.email}</p>
+              </div>
+              
+              {/* Trial Info */}
+              <div className="bg-cyan-50 border border-cyan-200 rounded-lg p-3 mb-4">
+                <p className="text-cyan-700 text-sm font-semibold text-center">
+                  🎉 Incluye 7 días de prueba gratuita
+                </p>
               </div>
 
               {/* Price Summary */}
               <div className="space-y-3 mb-4">
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-400 text-xs sm:text-sm">Subtotal</span>
-                  <span className="text-white font-semibold text-xs sm:text-sm">
+                  <span className="text-gray-600 text-sm">Subtotal</span>
+                  <span className="text-gray-900 font-semibold text-sm">
                     {formatPrice(plan.price)}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-400 text-xs sm:text-sm">Impuestos</span>
-                  <span className="text-white font-semibold text-xs sm:text-sm">
+                  <span className="text-gray-600 text-sm">Impuestos</span>
+                  <span className="text-gray-900 font-semibold text-sm">
                     Incluidos
                   </span>
                 </div>
-                <div className="border-t border-dark-border pt-3">
+                <div className="border-t border-gray-200 pt-3">
                   <div className="flex justify-between items-center">
-                    <span className="text-white font-bold text-sm sm:text-base">Total</span>
-                    <span className="text-xl sm:text-2xl font-black bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+                    <span className="text-gray-900 font-bold text-base">Total</span>
+                    <span className="text-2xl font-bold text-gray-900">
                       {formatPrice(plan.price)}
                     </span>
                   </div>
-                  <p className="text-gray-400 text-xs mt-0.5 text-right">
+                  <p className="text-gray-500 text-xs mt-0.5 text-right">
                     por {plan.period}
                   </p>
                 </div>
@@ -242,9 +269,9 @@ const Checkout = () => {
 
               {/* Error Message */}
               {error && (
-                <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3 mb-4 flex items-start gap-2">
-                  <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
-                  <p className="text-red-400 text-xs">{error}</p>
+                <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-4 flex items-start gap-2">
+                  <AlertCircle className="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5" />
+                  <p className="text-red-600 text-sm">{error}</p>
                 </div>
               )}
 
@@ -252,54 +279,47 @@ const Checkout = () => {
               <button
                 onClick={handleConfirmPayment}
                 disabled={loading}
-                className="w-full bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 text-white py-3 sm:py-4 rounded-xl font-bold text-sm sm:text-base hover:shadow-2xl hover:shadow-cyan-500/50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mb-3 group hover:scale-[1.02]"
+                className="w-full bg-gray-900 text-white py-3 rounded-md font-semibold hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mb-3"
               >
                 {loading ? (
                   <>
-                    <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
+                    <Loader2 className="w-5 h-5 animate-spin" />
                     Procesando...
                   </>
                 ) : (
                   <>
-                    <Lock className="w-4 h-4 sm:w-5 sm:h-5 group-hover:scale-110 transition-transform" />
-                    Proceder al Pago Seguro
+                    <Lock className="w-5 h-5" />
+                    Comenzar Prueba Gratuita
                   </>
                 )}
               </button>
 
               {/* Mercado Pago Logo */}
               <div className="flex items-center justify-center gap-2 mb-4">
-                <span className="text-gray-400 text-xs">Procesado por</span>
-                <svg className="h-5 sm:h-6" viewBox="0 0 200 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <text x="0" y="35" fill="#009EE3" fontSize="28" fontWeight="bold" fontFamily="Arial, sans-serif">
-                    Mercado
-                  </text>
-                  <text x="0" y="50" fill="#FFD700" fontSize="18" fontWeight="bold" fontFamily="Arial, sans-serif">
-                    Pago
-                  </text>
-                </svg>
+                <span className="text-gray-500 text-xs">Procesado por</span>
+                <span className="text-sm font-semibold text-cyan-600">Mercado Pago</span>
               </div>
 
               {/* Payment Methods */}
-              <div className="border-t border-dark-border pt-4">
-                <p className="text-gray-400 text-xs mb-2 text-center">
+              <div className="border-t border-gray-200 pt-4">
+                <p className="text-gray-600 text-xs mb-2 text-center">
                   Métodos de pago aceptados
                 </p>
                 <div className="flex items-center justify-center gap-2 flex-wrap">
-                  <div className="bg-dark-bg border border-dark-border rounded-lg px-2 py-1.5 flex items-center gap-1.5">
-                    <CreditCard className="w-3 h-3 text-cyan-400" />
-                    <span className="text-white text-xs font-medium">Crédito</span>
+                  <div className="bg-gray-50 border border-gray-200 rounded-md px-3 py-1.5 flex items-center gap-1.5">
+                    <CreditCard className="w-4 h-4 text-gray-600" />
+                    <span className="text-gray-700 text-xs font-medium">Crédito</span>
                   </div>
-                  <div className="bg-dark-bg border border-dark-border rounded-lg px-2 py-1.5 flex items-center gap-1.5">
-                    <CreditCard className="w-3 h-3 text-blue-400" />
-                    <span className="text-white text-xs font-medium">Débito</span>
+                  <div className="bg-gray-50 border border-gray-200 rounded-md px-3 py-1.5 flex items-center gap-1.5">
+                    <CreditCard className="w-4 h-4 text-gray-600" />
+                    <span className="text-gray-700 text-xs font-medium">Débito</span>
                   </div>
                 </div>
               </div>
 
               {/* Terms */}
               <p className="text-gray-500 text-xs text-center mt-4 leading-relaxed">
-                Al continuar, aceptas la renovación automática. Cancela cuando quieras.
+                Comienza con 7 días gratis. Después se cobrará automáticamente. Cancela cuando quieras.
               </p>
             </div>
           </div>

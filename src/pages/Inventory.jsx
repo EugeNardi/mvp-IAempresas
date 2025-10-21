@@ -193,51 +193,51 @@ const Inventory = () => {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+        <div className="bg-white rounded-lg p-5 shadow-lg border border-gray-200 hover:shadow-xl transition-shadow">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Total Productos</p>
-              <p className="text-2xl font-bold text-gray-900 mt-1">{stats.totalProducts}</p>
+              <p className="text-xs font-medium text-gray-600 uppercase tracking-wide">Total Productos</p>
+              <p className="text-3xl font-bold text-gray-900 mt-2">{stats.totalProducts}</p>
             </div>
-            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-              <Package className="w-6 h-6 text-blue-600" />
+            <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center shadow-sm">
+              <Package className="w-6 h-6 text-gray-700" />
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+        <div className="bg-white rounded-lg p-5 shadow-lg border border-gray-200 hover:shadow-xl transition-shadow">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Valor Total</p>
-              <p className="text-2xl font-bold text-gray-900 mt-1">
-                ${stats.totalValue.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
+              <p className="text-xs font-medium text-gray-600 uppercase tracking-wide">Valor Total</p>
+              <p className="text-3xl font-bold text-gray-900 mt-2">
+                ${stats.totalValue.toLocaleString('es-AR', { minimumFractionDigits: 0 })}
               </p>
             </div>
-            <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-              <TrendingDown className="w-6 h-6 text-green-600" />
+            <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center shadow-sm">
+              <TrendingDown className="w-6 h-6 text-gray-700" />
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+        <div className="bg-white rounded-lg p-5 shadow-lg border border-gray-200 hover:shadow-xl transition-shadow">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Stock Bajo</p>
-              <p className="text-2xl font-bold text-orange-600 mt-1">{stats.lowStock}</p>
+              <p className="text-xs font-medium text-gray-600 uppercase tracking-wide">Stock Bajo</p>
+              <p className="text-3xl font-bold text-orange-600 mt-2">{stats.lowStock}</p>
             </div>
-            <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+            <div className="w-12 h-12 bg-orange-50 rounded-lg flex items-center justify-center shadow-sm">
               <AlertTriangle className="w-6 h-6 text-orange-600" />
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+        <div className="bg-white rounded-lg p-5 shadow-lg border border-gray-200 hover:shadow-xl transition-shadow">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Sin Stock</p>
-              <p className="text-2xl font-bold text-red-600 mt-1">{stats.outOfStock}</p>
+              <p className="text-xs font-medium text-gray-600 uppercase tracking-wide">Sin Stock</p>
+              <p className="text-3xl font-bold text-red-600 mt-2">{stats.outOfStock}</p>
             </div>
-            <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+            <div className="w-12 h-12 bg-red-50 rounded-lg flex items-center justify-center shadow-sm">
               <AlertTriangle className="w-6 h-6 text-red-600" />
             </div>
           </div>
@@ -245,17 +245,17 @@ const Inventory = () => {
       </div>
 
       {/* Tabs */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+      <div className="bg-white rounded-lg shadow-lg border border-gray-200">
         <div className="border-b border-gray-200">
-          <div className="flex space-x-1 p-2">
+          <div className="flex space-x-1 p-1">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all ${
+                className={`flex items-center space-x-2 px-4 py-2.5 rounded-md transition-all font-medium text-sm ${
                   activeTab === tab.id
-                    ? 'bg-blue-50 text-blue-600 font-medium'
-                    : 'text-gray-600 hover:bg-gray-50'
+                    ? 'bg-gray-900 text-white shadow-md'
+                    : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
                 }`}
               >
                 <tab.icon className="w-4 h-4" />
@@ -276,14 +276,14 @@ const Inventory = () => {
                       setEditingProduct(null)
                       setShowProductForm(true)
                     }}
-                    className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                    className="flex items-center space-x-2 px-4 py-2.5 bg-gray-900 text-white rounded-md hover:bg-gray-800 transition-colors font-medium text-sm shadow-md hover:shadow-lg"
                   >
                     <Plus className="w-4 h-4" />
                     <span>Nuevo Producto</span>
                   </button>
                   <button
                     onClick={() => setShowBulkImport(true)}
-                    className="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                    className="flex items-center space-x-2 px-4 py-2.5 bg-white text-gray-900 border-2 border-gray-900 rounded-md hover:bg-gray-50 transition-colors font-medium text-sm shadow-md hover:shadow-lg"
                   >
                     <Upload className="w-4 h-4" />
                     <span>Importar Excel</span>

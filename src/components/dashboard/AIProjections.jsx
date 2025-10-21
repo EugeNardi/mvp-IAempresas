@@ -157,7 +157,7 @@ const AIProjections = ({ invoices }) => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 tracking-tight flex items-center">
             <Brain className="w-8 h-8 mr-3 text-gray-900" />
@@ -168,7 +168,7 @@ const AIProjections = ({ invoices }) => {
         <select
           value={projectionPeriod}
           onChange={(e) => setProjectionPeriod(Number(e.target.value))}
-          className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium"
+          className="px-4 py-2.5 border-2 border-gray-900 rounded-md text-sm font-medium bg-white hover:bg-gray-50 transition-colors shadow-md"
         >
           <option value={3}>3 meses</option>
           <option value={6}>6 meses</option>
@@ -177,7 +177,7 @@ const AIProjections = ({ invoices }) => {
       </div>
 
       {/* Contexto Económico */}
-      <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-2xl p-6">
+      <div className="bg-white border-2 border-gray-900 rounded-lg p-6 shadow-lg">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Contexto Económico Argentina 2024-2025</h3>
         <div className="grid md:grid-cols-3 gap-4">
           <div>

@@ -49,22 +49,22 @@ const CompanyProfile = () => {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+      <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-6 md:p-8">
         {/* Header */}
-        <div className="flex items-center space-x-3 mb-8">
-          <div className="w-12 h-12 bg-gray-700 rounded-xl flex items-center justify-center">
+        <div className="flex items-center space-x-4 mb-8 pb-6 border-b border-gray-200">
+          <div className="w-12 h-12 bg-gray-900 rounded-lg flex items-center justify-center shadow-md">
             <Building2 className="w-6 h-6 text-white" />
           </div>
           <div>
             <h3 className="text-2xl font-bold text-gray-900">Datos de la Empresa</h3>
-            <p className="text-gray-600">Configura la información básica de tu empresa</p>
+            <p className="text-sm text-gray-600">Configura la información básica de tu empresa</p>
           </div>
         </div>
 
         {saved && (
-          <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl flex items-center space-x-3">
+          <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center space-x-3 shadow-sm">
             <CheckCircle className="w-5 h-5 text-green-600" />
-            <p className="text-green-800 font-medium">Datos guardados exitosamente</p>
+            <p className="text-green-800 font-medium text-sm">Datos guardados exitosamente</p>
           </div>
         )}
 
@@ -82,7 +82,7 @@ const CompanyProfile = () => {
                 value={formData.name}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-300 text-gray-900 placeholder-gray-400 focus:border-gray-600 focus:ring-2 focus:ring-gray-200 outline-none transition-all"
+                className="w-full px-4 py-2.5 rounded-md bg-white border border-gray-300 text-gray-900 placeholder-gray-400 focus:border-gray-900 focus:ring-1 focus:ring-gray-900 outline-none transition-colors shadow-sm"
                 placeholder="Mi Empresa S.A."
               />
             </div>
@@ -98,7 +98,7 @@ const CompanyProfile = () => {
                 value={formData.cuit}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-300 text-gray-900 placeholder-gray-400 focus:border-gray-600 focus:ring-2 focus:ring-gray-200 outline-none transition-all"
+                className="w-full px-4 py-2.5 rounded-md bg-white border border-gray-300 text-gray-900 placeholder-gray-400 focus:border-gray-900 focus:ring-1 focus:ring-gray-900 outline-none transition-colors shadow-sm"
                 placeholder="20-12345678-9"
               />
             </div>
@@ -134,7 +134,7 @@ const CompanyProfile = () => {
                 value={formData.city}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-300 text-gray-900 placeholder-gray-400 focus:border-gray-600 focus:ring-2 focus:ring-gray-200 outline-none transition-all"
+                className="w-full px-4 py-2.5 rounded-md bg-white border border-gray-300 text-gray-900 placeholder-gray-400 focus:border-gray-900 focus:ring-1 focus:ring-gray-900 outline-none transition-colors shadow-sm"
                 placeholder="Córdoba"
               />
             </div>
@@ -150,7 +150,7 @@ const CompanyProfile = () => {
                 value={formData.province}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-300 text-gray-900 placeholder-gray-400 focus:border-gray-600 focus:ring-2 focus:ring-gray-200 outline-none transition-all"
+                className="w-full px-4 py-2.5 rounded-md bg-white border border-gray-300 text-gray-900 placeholder-gray-400 focus:border-gray-900 focus:ring-1 focus:ring-gray-900 outline-none transition-colors shadow-sm"
                 placeholder="Córdoba"
               />
             </div>
@@ -166,7 +166,7 @@ const CompanyProfile = () => {
                 value={formData.country}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-300 text-gray-900 placeholder-gray-400 focus:border-gray-600 focus:ring-2 focus:ring-gray-200 outline-none transition-all"
+                className="w-full px-4 py-2.5 rounded-md bg-white border border-gray-300 text-gray-900 placeholder-gray-400 focus:border-gray-900 focus:ring-1 focus:ring-gray-900 outline-none transition-colors shadow-sm"
               />
             </div>
           </div>
@@ -237,11 +237,11 @@ const CompanyProfile = () => {
           </div>
 
           {/* Submit Button */}
-          <div className="pt-4">
+          <div className="pt-6 border-t border-gray-200">
             <button
               type="submit"
               disabled={saving}
-              className="w-full bg-black text-white px-8 py-4 rounded-xl font-semibold hover:bg-gray-800 transition-all duration-300 flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-gray-900 text-white px-8 py-3 rounded-md font-semibold hover:bg-gray-800 transition-colors flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
             >
               {saving ? (
                 <>

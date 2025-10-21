@@ -126,12 +126,12 @@ const ProductForm = ({ product, categories, onClose, onSave }) => {
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 p-2 sm:p-4 overflow-y-auto">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-5xl w-full my-4 sm:my-8">
-        <div className="sticky top-0 bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 border-b border-gray-200 px-4 sm:px-6 py-4 sm:py-5 rounded-t-2xl z-10">
+    <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-2 sm:p-4 overflow-y-auto">
+      <div className="bg-white rounded-lg shadow-2xl max-w-5xl w-full my-4 sm:my-8 border border-gray-200">
+        <div className="sticky top-0 bg-white border-b-2 border-gray-900 px-4 sm:px-6 py-4 rounded-t-lg z-10">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+              <div className="w-12 h-12 bg-gray-900 rounded-lg flex items-center justify-center shadow-md">
                 <Package className="w-6 h-6 text-white" />
               </div>
               <div>
@@ -143,19 +143,19 @@ const ProductForm = ({ product, categories, onClose, onSave }) => {
             </div>
             <button
               onClick={onClose}
-              className="p-2 hover:bg-white/50 rounded-lg transition-all duration-200 hover:scale-110"
+              className="p-2 hover:bg-gray-100 rounded-md transition-colors"
               aria-label="Cerrar"
             >
-              <X className="w-5 h-5 text-gray-500" />
+              <X className="w-5 h-5 text-gray-600" />
             </button>
           </div>
         </div>
 
         <form onSubmit={handleSubmit} className="p-4 sm:p-6 md:p-8 space-y-6 sm:space-y-8 max-h-[calc(100vh-200px)] overflow-y-auto">
           {/* Información Básica */}
-          <div className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-xl p-4 sm:p-6 border border-gray-200">
+          <div className="bg-gray-50 rounded-lg p-4 sm:p-6 border border-gray-200">
             <h4 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 flex items-center space-x-2">
-              <span className="w-8 h-8 bg-blue-600 text-white rounded-lg flex items-center justify-center text-sm font-bold">1</span>
+              <span className="w-8 h-8 bg-gray-900 text-white rounded-md flex items-center justify-center text-sm font-bold shadow-sm">1</span>
               <span>Información Básica</span>
             </h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

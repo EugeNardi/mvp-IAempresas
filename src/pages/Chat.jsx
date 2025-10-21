@@ -12,31 +12,34 @@ const Chat = () => {
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
-      content: `👋 ¡Hola! Soy tu **CFO Virtual** potenciado por GPT-4 Turbo.
+      content: `👋 ¡Hola! Soy tu **Asistente de Inteligencia Financiera** especializado en ARCA 2025 y análisis empresarial.
 
-Puedo ayudarte con análisis financiero avanzado:
+**🏛️ Sistema ARCA 2025 (AFIP)**
+• Consultas sobre obligaciones fiscales
+• Cálculo de impuestos (IVA, Ganancias, Ingresos Brutos)
+• Vencimientos y calendario fiscal
+• Régimen de información y facturación electrónica
 
-📊 **Estados Financieros Completos**
-- Balance General con ratios
-- Estado de Resultados detallado
-- Flujo de Caja proyectado
+**📊 Análisis de tus Números**
+• Estado de resultados en tiempo real
+• Análisis de rentabilidad por producto/servicio
+• Flujo de caja y proyecciones
+• Comparativas mensuales y tendencias
 
-📈 **Proyecciones e Inversiones**
-- Escenarios a 3, 6 y 12 meses
-- Análisis de ROI y TIR
-- Valoración de empresa
+**💼 Gestión Financiera**
+• KPIs personalizados de tu empresa
+• Análisis de clientes y proveedores
+• Optimización de costos operativos
+• Estrategias de crecimiento
 
-💼 **KPIs y Ratios**
-- Liquidez, Rentabilidad, Solvencia
-- Análisis de tendencias
-- Benchmarking
+**🎯 Preguntas Rápidas**
+Puedes preguntarme cosas como:
+• "¿Cuánto debo pagar de IVA este mes?"
+• "¿Cuál es mi margen de ganancia actual?"
+• "¿Qué clientes me generan más ingresos?"
+• "¿Cuándo vencen mis obligaciones fiscales?"
 
-🎯 **Recomendaciones Estratégicas**
-- Optimización de costos
-- Oportunidades de crecimiento
-- Gestión de riesgos
-
-¿Qué análisis te gustaría que realice?`,
+¿En qué puedo ayudarte hoy?`,
     },
   ])
   const [input, setInput] = useState('')
@@ -130,52 +133,56 @@ Puedo ayudarte con análisis financiero avanzado:
     setMessages([
       {
         role: 'assistant',
-        content: `👋 ¡Hola! Soy tu **CFO Virtual** potenciado por GPT-4 Turbo.
+        content: `👋 ¡Hola! Soy tu **Asistente de Inteligencia Financiera** especializado en ARCA 2025 y análisis empresarial.
 
-Puedo ayudarte con análisis financiero avanzado:
+**🏛️ Sistema ARCA 2025 (AFIP)**
+• Consultas sobre obligaciones fiscales
+• Cálculo de impuestos (IVA, Ganancias, Ingresos Brutos)
+• Vencimientos y calendario fiscal
+• Régimen de información y facturación electrónica
 
-📊 **Estados Financieros Completos**
-- Balance General con ratios
-- Estado de Resultados detallado
-- Flujo de Caja proyectado
+**📊 Análisis de tus Números**
+• Estado de resultados en tiempo real
+• Análisis de rentabilidad por producto/servicio
+• Flujo de caja y proyecciones
+• Comparativas mensuales y tendencias
 
-📈 **Proyecciones e Inversiones**
-- Escenarios a 3, 6 y 12 meses
-- Análisis de ROI y TIR
-- Valoración de empresa
+**💼 Gestión Financiera**
+• KPIs personalizados de tu empresa
+• Análisis de clientes y proveedores
+• Optimización de costos operativos
+• Estrategias de crecimiento
 
-💼 **KPIs y Ratios**
-- Liquidez, Rentabilidad, Solvencia
-- Análisis de tendencias
-- Benchmarking
+**🎯 Preguntas Rápidas**
+Puedes preguntarme cosas como:
+• "¿Cuánto debo pagar de IVA este mes?"
+• "¿Cuál es mi margen de ganancia actual?"
+• "¿Qué clientes me generan más ingresos?"
+• "¿Cuándo vencen mis obligaciones fiscales?"
 
-🎯 **Recomendaciones Estratégicas**
-- Optimización de costos
-- Oportunidades de crecimiento
-- Gestión de riesgos
-
-¿Qué análisis te gustaría que realice?`,
+¿En qué puedo ayudarte hoy?`,
       },
     ])
     setError(null)
   }
 
   return (
-    <div className="flex h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className="flex h-screen bg-gray-50">
       {/* Sidebar */}
       <div
         className={`${
           sidebarOpen ? 'w-72' : 'w-0'
-        } bg-white/80 backdrop-blur-xl border-r border-gray-200/50 transition-all duration-300 overflow-hidden flex flex-col shadow-2xl`}
+        } bg-white border-r border-gray-200 transition-all duration-300 overflow-hidden flex flex-col`}
       >
         {/* Sidebar Header */}
-        <div className="p-6 border-b border-gray-200/50">
-          <h1 className="text-lg font-semibold text-gray-900 text-center mb-4">Chat IA</h1>
+        <div className="p-4 border-b border-gray-200">
+          <h1 className="text-sm font-semibold text-gray-900 mb-1">Inteligencia Financiera</h1>
+          <p className="text-xs text-gray-500 mb-3">ARCA 2025 + Análisis Empresarial</p>
           <button
             onClick={handleNewChat}
-            className="w-full flex items-center justify-center space-x-2 bg-gray-900 text-white px-4 py-3 rounded-xl font-semibold hover:bg-gray-800 transition-all shadow-lg"
+            className="w-full flex items-center justify-center gap-2 bg-gray-900 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-800 transition-colors"
           >
-            <Plus className="w-5 h-5" />
+            <Plus className="w-4 h-4" />
             <span>Nueva Conversación</span>
           </button>
         </div>
@@ -221,17 +228,54 @@ Puedo ayudarte con análisis financiero avanzado:
             </div>
           </div>
 
+          {/* Quick Questions about Numbers */}
+          <div>
+            <div className="text-xs font-semibold text-gray-700 mb-2">
+              💡 Preguntas sobre tus Números
+            </div>
+            <div className="space-y-2">
+              <button
+                onClick={() => handleSuggestedQuestion("¿Cuál es mi margen de ganancia actual?")}
+                className="w-full text-left px-3 py-2 rounded-md bg-gray-50 hover:bg-gray-100 transition-colors text-xs text-gray-700 border border-gray-200"
+                disabled={isLoading}
+              >
+                📊 Margen de ganancia
+              </button>
+              <button
+                onClick={() => handleSuggestedQuestion("¿Cuánto debo pagar de IVA este mes?")}
+                className="w-full text-left px-3 py-2 rounded-md bg-gray-50 hover:bg-gray-100 transition-colors text-xs text-gray-700 border border-gray-200"
+                disabled={isLoading}
+              >
+                🏛️ Cálculo de IVA
+              </button>
+              <button
+                onClick={() => handleSuggestedQuestion("¿Qué clientes me generan más ingresos?")}
+                className="w-full text-left px-3 py-2 rounded-md bg-gray-50 hover:bg-gray-100 transition-colors text-xs text-gray-700 border border-gray-200"
+                disabled={isLoading}
+              >
+                👥 Top clientes
+              </button>
+              <button
+                onClick={() => handleSuggestedQuestion("Analiza mi flujo de caja del último mes")}
+                className="w-full text-left px-3 py-2 rounded-md bg-gray-50 hover:bg-gray-100 transition-colors text-xs text-gray-700 border border-gray-200"
+                disabled={isLoading}
+              >
+                💰 Flujo de caja
+              </button>
+            </div>
+          </div>
+
           {suggestedQuestions.length > 0 && (
             <div>
-              <div className="text-xs font-semibold text-gray-500 uppercase mb-2">
-                Análisis Avanzados
+              <div className="text-xs font-semibold text-gray-700 mb-2">
+                🎯 Análisis Avanzados
               </div>
-              <div className="space-y-2 max-h-96 overflow-y-auto">
+              <div className="space-y-2 max-h-64 overflow-y-auto">
                 {suggestedQuestions.map((question, index) => (
                   <button
                     key={index}
                     onClick={() => handleSuggestedQuestion(question)}
-                    className="w-full text-left px-3 py-2 rounded-lg bg-gradient-to-r from-gray-50 to-gray-100 hover:from-gray-100 hover:to-gray-200 transition-all text-xs text-gray-700 border border-gray-200 hover:border-gray-300 shadow-sm"
+                    className="w-full text-left px-3 py-2 rounded-md bg-gray-50 hover:bg-gray-100 transition-colors text-xs text-gray-700 border border-gray-200"
                     disabled={isLoading}
                   >
                     {question}
@@ -267,35 +311,31 @@ Puedo ayudarte con análisis financiero avanzado:
       {/* Main Chat Area */}
       <div className="flex-1 flex flex-col">
         {/* Header */}
-        <div className="h-20 bg-white/80 backdrop-blur-xl border-b border-gray-200/50 flex items-center justify-between px-8 shadow-sm">
-          <div className="flex items-center space-x-3">
+        <div className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6">
+          <div className="flex items-center gap-3">
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="p-2.5 hover:bg-gray-100 rounded-xl transition-all"
+              className="p-2 hover:bg-gray-100 rounded-md transition-colors"
             >
               <Menu className="w-5 h-5 text-gray-700" />
             </button>
-            <div className="flex items-center space-x-2">
-              <div className="w-10 h-10 bg-gradient-to-br from-gray-900 to-gray-700 rounded-2xl flex items-center justify-center shadow-lg">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 bg-gray-900 rounded-md flex items-center justify-center">
                 <Sparkles className="w-5 h-5 text-white" />
               </div>
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Chat IA</h2>
-              </div>
+              <h2 className="text-lg font-semibold text-gray-900">Asistente IA</h2>
             </div>
           </div>
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center gap-4">
             {error && (
-              <div className="flex items-center space-x-2 text-sm text-red-600">
+              <div className="flex items-center gap-2 text-sm text-red-600">
                 <AlertCircle className="w-4 h-4" />
-                <span>Error de conexión</span>
+                <span>Error</span>
               </div>
             )}
-            <div className="flex items-center space-x-2 text-sm">
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-              <span className="font-semibold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-                GPT-4 Turbo
-              </span>
+            <div className="flex items-center gap-2 text-sm px-3 py-1 bg-gray-50 rounded-md border border-gray-200">
+              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+              <span className="font-medium text-gray-700">GPT-4 Turbo</span>
             </div>
           </div>
         </div>
@@ -365,31 +405,31 @@ Puedo ayudarte con análisis financiero avanzado:
         </div>
 
         {/* Input Area */}
-        <div className="border-t border-gray-200 p-6 bg-white">
-          <form onSubmit={handleSubmit} className="max-w-4xl mx-auto">
+        <div className="border-t border-gray-200 p-4 bg-white">
+          <form onSubmit={handleSubmit} className="max-w-3xl mx-auto">
             <div className="relative flex items-center">
               <input
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="Escribe tu mensaje..."
+                placeholder="Pregunta sobre tus finanzas..."
                 disabled={isLoading}
-                className="w-full px-6 py-4 bg-white border border-gray-300 rounded-2xl text-gray-900 placeholder-gray-400 focus:border-black focus:ring-2 focus:ring-gray-200 outline-none transition-all pr-14 disabled:opacity-50"
+                className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:border-gray-900 focus:ring-1 focus:ring-gray-900 outline-none transition-all pr-12 disabled:opacity-50"
               />
               <button
                 type="submit"
                 disabled={!input.trim() || isLoading}
-                className="absolute right-2 p-3 bg-black rounded-xl hover:bg-gray-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="absolute right-2 p-2 bg-gray-900 rounded-md hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading ? (
-                  <Loader2 className="w-5 h-5 text-white animate-spin" />
+                  <Loader2 className="w-4 h-4 text-white animate-spin" />
                 ) : (
-                  <Send className="w-5 h-5 text-white" />
+                  <Send className="w-4 h-4 text-white" />
                 )}
               </button>
             </div>
-            <p className="text-xs text-gray-500 mt-3 text-center">
-              Este es un asistente de demostración. Las respuestas son simuladas.
+            <p className="text-xs text-gray-500 mt-2 text-center">
+              Asistente IA con acceso a tus datos financieros
             </p>
           </form>
         </div>

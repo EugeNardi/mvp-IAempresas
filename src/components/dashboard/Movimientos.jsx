@@ -135,6 +135,7 @@ const Movimientos = ({ companyData }) => {
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
+      {/* Modales especializados */}
       {showCompraForm && (
         <MovimientosCompra 
           onClose={() => setShowCompraForm(false)}
@@ -185,17 +186,18 @@ const Movimientos = ({ companyData }) => {
         />
       )}
 
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Movimientos Financieros</h1>
-          <p className="text-sm text-gray-600 mt-1">Centro de gestión de operaciones</p>
+          <h1 className="text-2xl font-semibold text-gray-900">Movimientos Financieros</h1>
+          <p className="text-sm text-gray-600 mt-1">Gestiona todas tus operaciones</p>
         </div>
         <button
           onClick={() => setShowForm(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-lg font-semibold hover:bg-gray-800"
+          className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-md text-sm font-medium hover:bg-gray-800 transition-colors"
         >
-          <Plus className="w-5 h-5" />
-          Nuevo
+          <Plus className="w-4 h-4" />
+          Nuevo Movimiento
         </button>
       </div>
 
@@ -214,129 +216,51 @@ const Movimientos = ({ companyData }) => {
       )}
 
       {showForm && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="sticky top-0 bg-white border-b p-6 flex items-center justify-between">
-              <h2 className="text-xl font-bold">Nuevo Movimiento</h2>
-              <button onClick={() => setShowForm(false)} className="p-2 hover:bg-gray-100 rounded-lg">
-                <X className="w-5 h-5" />
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg max-w-2xl w-full shadow-2xl">
+            <div className="p-6 border-b border-gray-200 flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-semibold text-gray-900">Nuevo Movimiento</h2>
+                <p className="text-sm text-gray-600 mt-1">Selecciona el tipo de operación</p>
+              </div>
+              <button onClick={() => setShowForm(false)} className="p-2 hover:bg-gray-100 rounded-md transition-colors">
+                <X className="w-5 h-5 text-gray-500" />
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-6 space-y-6">
-              <div>
-                <label className="block text-sm font-medium mb-3">Tipo de Movimiento *</label>
-                <div className="grid grid-cols-5 gap-3">
-                  {Object.entries(movementTypes).map(([key, type]) => {
-                    const Icon = type.icon
-                    return (
-                      <button
-                        key={key}
-                        type="button"
-                        onClick={() => {
-                          setShowForm(false)
-                          if (key === 'compra') {
-                            setShowCompraForm(true)
-                          } else if (key === 'venta') {
-                            setShowVentaForm(true)
-                          } else if (key === 'gasto') {
-                            setShowGastoForm(true)
-                          } else if (key === 'aporte') {
-                            setShowAporteForm(true)
-                          } else if (key === 'retiro') {
-                            setShowRetiroForm(true)
-                          }
-                        }}
-                        className={`p-4 rounded-lg border-2 ${formData.type === key ? 'border-gray-900 bg-gray-50' : 'border-gray-300'}`}
-                      >
-                        <Icon className="w-6 h-6 mx-auto mb-2" />
-                        <p className="text-sm font-semibold">{type.label}</p>
-                      </button>
-                    )
-                  })}
-                </div>
+            <div className="p-6">
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                {Object.entries(movementTypes).map(([key, type]) => {
+                  const Icon = type.icon
+                  const colors = {
+                    venta: 'hover:border-green-500 hover:bg-green-50',
+                    compra: 'hover:border-blue-500 hover:bg-blue-50',
+                    gasto: 'hover:border-red-500 hover:bg-red-50',
+                    aporte: 'hover:border-purple-500 hover:bg-purple-50',
+                    retiro: 'hover:border-orange-500 hover:bg-orange-50'
+                  }
+                  
+                  return (
+                    <button
+                      key={key}
+                      type="button"
+                      onClick={() => {
+                        setShowForm(false)
+                        if (key === 'compra') setShowCompraForm(true)
+                        else if (key === 'venta') setShowVentaForm(true)
+                        else if (key === 'gasto') setShowGastoForm(true)
+                        else if (key === 'aporte') setShowAporteForm(true)
+                        else if (key === 'retiro') setShowRetiroForm(true)
+                      }}
+                      className={`p-6 rounded-lg border-2 border-gray-200 ${colors[key]} transition-all group`}
+                    >
+                      <Icon className="w-8 h-8 mx-auto mb-2 text-gray-400 group-hover:text-gray-700" />
+                      <p className="text-sm font-medium text-gray-700">{type.label}</p>
+                    </button>
+                  )
+                })}
               </div>
-
-              <div className="grid md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium mb-2">Fecha *</label>
-                  <input type="date" name="date" value={formData.date} onChange={handleInputChange} required
-                    className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:border-gray-500 outline-none" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2">Número</label>
-                  <input type="text" name="number" value={formData.number} onChange={handleInputChange}
-                    className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:border-gray-500 outline-none" />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-2">Categoría *</label>
-                <select name="category" value={formData.category} onChange={handleInputChange} required
-                  className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:border-gray-500 outline-none">
-                  <option value="">Seleccionar</option>
-                  {categoriesByType[formData.type].map(cat => (
-                    <option key={cat} value={cat}>{cat}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium mb-2">{formData.type === 'venta' ? 'Cliente' : 'Proveedor'}</label>
-                  <input type="text" name="provider" value={formData.provider} onChange={handleInputChange}
-                    className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:border-gray-500 outline-none" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2">Producto/Servicio</label>
-                  <input type="text" name="product" value={formData.product} onChange={handleInputChange}
-                    className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:border-gray-500 outline-none" />
-                </div>
-              </div>
-
-              <div className="grid md:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-sm font-medium mb-2">Cantidad</label>
-                  <input type="number" name="quantity" value={formData.quantity} onChange={handleInputChange} min="1" step="0.01"
-                    className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:border-gray-500 outline-none" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2">Precio Unit.</label>
-                  <input type="number" name="unitPrice" value={formData.unitPrice} onChange={handleInputChange} step="0.01"
-                    className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:border-gray-500 outline-none" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2">Monto Total *</label>
-                  <input type="number" name="amount" value={formData.amount} onChange={handleInputChange} required step="0.01"
-                    className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:border-gray-500 outline-none font-bold" />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-2">Descripción *</label>
-                <textarea name="description" value={formData.description} onChange={handleInputChange} required rows="3"
-                  className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:border-gray-500 outline-none resize-none" />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-2">Método de Pago</label>
-                <select name="paymentMethod" value={formData.paymentMethod} onChange={handleInputChange}
-                  className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:border-gray-500 outline-none">
-                  {paymentMethods.map(m => (<option key={m.value} value={m.value}>{m.label}</option>))}
-                </select>
-              </div>
-
-              <div className="flex gap-3 pt-4 border-t">
-                <button type="button" onClick={() => setShowForm(false)}
-                  className="flex-1 px-4 py-3 border border-gray-300 rounded-lg font-semibold hover:bg-gray-50">
-                  Cancelar
-                </button>
-                <button type="submit" disabled={loading}
-                  className="flex-1 px-4 py-3 bg-gray-900 text-white rounded-lg font-semibold hover:bg-gray-800 disabled:opacity-50 flex items-center justify-center gap-2">
-                  {loading ? 'Guardando...' : (<><Save className="w-5 h-5" />Guardar</>)}
-                </button>
-              </div>
-            </form>
+            </div>
           </div>
         </div>
       )}

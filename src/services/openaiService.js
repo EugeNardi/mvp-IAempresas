@@ -14,13 +14,29 @@ function generateFinancialContext(companyData, invoices) {
     return 'El usuario aún no ha cargado facturas.'
   }
   
-
   const salesInvoices = invoices.filter(inv => inv.type === 'income')
   const purchaseInvoices = invoices.filter(inv => inv.type === 'expense')
+  
+  // Análisis de movimientos específicos
+  const compras = invoices.filter(inv => inv.metadata?.movementType === 'compra')
+  const ventas = invoices.filter(inv => inv.metadata?.movementType === 'venta')
+  const gastos = invoices.filter(inv => inv.metadata?.movementType === 'gasto')
+  const aportes = invoices.filter(inv => inv.metadata?.movementType === 'aporte')
+  const retiros = invoices.filter(inv => inv.metadata?.movementType === 'retiro')
 
   const totalIncome = salesInvoices.reduce((sum, inv) => sum + parseFloat(inv.amount), 0)
   const totalExpenses = purchaseInvoices.reduce((sum, inv) => sum + parseFloat(inv.amount), 0)
   const balance = totalIncome - totalExpenses
+  
+  const totalCompras = compras.reduce((sum, inv) => sum + parseFloat(inv.amount || 0), 0)
+  const totalVentas = ventas.reduce((sum, inv) => sum + parseFloat(inv.amount || 0), 0)
+  const totalGastos = gastos.reduce((sum, inv) => sum + parseFloat(inv.amount || 0), 0)
+  const totalAportes = aportes.reduce((sum, inv) => sum + parseFloat(inv.amount || 0), 0)
+  const totalRetiros = retiros.reduce((sum, inv) => sum + parseFloat(inv.amount || 0), 0)
+  
+  // Análisis de clientes y proveedores
+  const clientes = new Set(ventas.map(v => v.metadata?.cliente).filter(Boolean))
+  const proveedores = new Set(compras.map(c => c.metadata?.provider).filter(Boolean))
 
   // Agrupar por categoría
   const incomeByCategory = salesInvoices.reduce((acc, inv) => {
@@ -49,7 +65,21 @@ function generateFinancialContext(companyData, invoices) {
   context += `- Facturas de Compra: ${purchaseInvoices.length}\n`
   context += `- Total Ingresos: $${totalIncome.toFixed(2)}\n`
   context += `- Total Gastos: $${totalExpenses.toFixed(2)}\n`
-  context += `- Balance: $${balance.toFixed(2)} ${balance >= 0 ? '(Positivo)' : '(Negativo)'}\n\n`
+  context += `- Balance: $${balance.toFixed(2)} ${balance >= 0 ? '(Positivo)' : '(Negativo)'}\n`
+  context += `- Margen de Ganancia: ${totalIncome > 0 ? ((balance / totalIncome) * 100).toFixed(2) : 0}%\n\n`
+  
+  context += `ANÁLISIS POR TIPO DE MOVIMIENTO:\n`
+  context += `- Compras: ${compras.length} operaciones - Total: $${totalCompras.toFixed(2)}\n`
+  context += `- Ventas: ${ventas.length} operaciones - Total: $${totalVentas.toFixed(2)}\n`
+  context += `- Gastos: ${gastos.length} operaciones - Total: $${totalGastos.toFixed(2)}\n`
+  context += `- Aportes de Capital: ${aportes.length} operaciones - Total: $${totalAportes.toFixed(2)}\n`
+  context += `- Retiros: ${retiros.length} operaciones - Total: $${totalRetiros.toFixed(2)}\n\n`
+  
+  context += `ANÁLISIS DE CLIENTES Y PROVEEDORES:\n`
+  context += `- Clientes Únicos: ${clientes.size}\n`
+  context += `- Venta Promedio por Cliente: $${clientes.size > 0 ? (totalVentas / clientes.size).toFixed(2) : 0}\n`
+  context += `- Proveedores Únicos: ${proveedores.size}\n`
+  context += `- Compra Promedio por Proveedor: $${proveedores.size > 0 ? (totalCompras / proveedores.size).toFixed(2) : 0}\n\n`
 
   if (Object.keys(incomeByCategory).length > 0) {
     context += `INGRESOS POR CATEGORÍA:\n`
@@ -90,40 +120,56 @@ export async function sendMessageToGPT(userMessage, companyData, invoices, conve
     const messages = [
       {
         role: 'system',
-        content: `Eres un CFO (Chief Financial Officer) experto y analista financiero senior especializado en PyMEs argentinas con más de 20 años de experiencia en contabilidad, finanzas corporativas, análisis de inversiones y planificación estratégica.
+        content: `Eres un Asistente de Inteligencia Financiera especializado en PyMEs argentinas con expertise en:
+1. Sistema ARCA 2025 (AFIP) - Régimen de información contable y fiscal
+2. Análisis financiero empresarial profundo
+3. Contabilidad y tributación argentina
+4. Planificación estratégica y optimización fiscal
 
-CAPACIDADES AVANZADAS:
-1. 📊 Análisis Financiero Profundo
-   - Estados de Resultados detallados con análisis vertical y horizontal
-   - Balance General con ratios financieros clave
-   - Flujo de Caja proyectado
-   - Análisis de tendencias y variaciones
+CONOCIMIENTO ESPECÍFICO ARCA 2025 (AFIP):
+🏛️ Sistema ARCA - Régimen de Información Contable
+   - Obligaciones de presentación mensual de información contable
+   - Libro IVA Digital (compras y ventas)
+   - Régimen de información de compras y ventas
+   - Facturación electrónica y puntos de venta
+   - Calendario de vencimientos AFIP
+   - Categorías de monotributo y responsables inscriptos
+   
+💰 Impuestos Argentinos:
+   - IVA (21%, 10.5%, 27%) - Cálculo y liquidación
+   - Impuesto a las Ganancias (empresas y personas)
+   - Ingresos Brutos (provincial)
+   - Contribuciones patronales y cargas sociales
+   - Retenciones y percepciones
+   - Regímenes de información (SIRADIG, SICORE, SIRE)
 
-2. 📈 Proyecciones e Inversiones
+CAPACIDADES DE ANÁLISIS:
+1. 📊 Análisis Financiero de tus Números
+   - Estado de Resultados con tus datos reales
+   - Balance General personalizado
+   - Flujo de Caja y proyecciones
+   - Análisis de rentabilidad por cliente/producto
+   - Comparativas mensuales y tendencias
+
+2. 💼 KPIs Personalizados
+   - Margen de ganancia actual
+   - Ratios de liquidez y solvencia
+   - ROI y rentabilidad
+   - Análisis de clientes y proveedores
+   - Eficiencia operativa
+
+3. 🎯 Consultas sobre tus Operaciones
+   - "¿Cuánto debo pagar de IVA?"
+   - "¿Cuál es mi margen de ganancia?"
+   - "¿Qué clientes me generan más ingresos?"
+   - "¿Cuándo vencen mis obligaciones?"
+   - "¿Cómo optimizar mis costos?"
+
+4. 📈 Proyecciones y Estrategia
    - Proyecciones financieras a 3, 6 y 12 meses
-   - Análisis de escenarios (optimista, realista, pesimista)
-   - ROI y TIR de inversiones potenciales
-   - Punto de equilibrio y análisis de sensibilidad
-   - Valoración de empresa
-
-3. 💼 Indicadores Clave (KPIs)
-   - Ratios de liquidez (corriente, ácida, inmediata)
-   - Ratios de rentabilidad (ROE, ROA, margen neto, EBITDA)
-   - Ratios de endeudamiento y solvencia
-   - Ciclo de conversión de efectivo
-   - Capital de trabajo
-
-4. 📉 Análisis de Riesgos
-   - Identificación de riesgos financieros
-   - Análisis de concentración (clientes/proveedores)
-   - Evaluación de sostenibilidad
-   - Alertas tempranas
-
-5. 🎯 Recomendaciones Estratégicas
-   - Optimización de estructura de costos
-   - Estrategias de crecimiento
-   - Mejora de márgenes
-   - Gestión de capital de trabajo
+   - Escenarios optimista/realista/pesimista
+   - Recomendaciones de crecimiento
+   - Optimización fiscal y tributaria
 
 FORMATO DE RESPUESTAS:
 - Usa tablas ASCII para presentar datos financieros
@@ -211,10 +257,10 @@ export function generateSuggestedQuestions(companyData, invoices) {
 
   if (!invoices || invoices.length === 0) {
     return [
-      '📊 Crea un estado de resultados completo',
-      '📈 ¿Qué proyecciones financieras puedo hacer?',
-      '💼 ¿Qué KPIs debería monitorear?',
-      '🎯 ¿Cómo estructurar mi contabilidad?'
+      '🏛️ ¿Qué obligaciones tengo con ARCA 2025?',
+      '📊 ¿Cómo estructurar mi contabilidad?',
+      '💰 ¿Qué impuestos debo pagar como PyME?',
+      '📈 ¿Cómo empezar con facturación electrónica?'
     ]
   }
 
@@ -229,28 +275,28 @@ export function generateSuggestedQuestions(companyData, invoices) {
   const balance = totalIncome - totalExpenses
   const profitMargin = totalIncome > 0 ? (balance / totalIncome) * 100 : 0
 
-  // Sugerencias avanzadas basadas en datos
-  suggestions.push('📊 Genera un estado de resultados completo con análisis')
+  // Sugerencias específicas sobre números de la empresa
+  suggestions.push('🏛️ ¿Cuánto debo pagar de IVA este mes con mis números?')
+  suggestions.push('📊 Estado de resultados completo con mis datos')
+  suggestions.push('👥 ¿Qué clientes me generan más ingresos?')
   
   if (balance > 0) {
-    suggestions.push('📈 Proyecta mis finanzas a 6 meses con escenarios')
-    suggestions.push('💰 ¿En qué debería invertir mis ganancias?')
+    suggestions.push('💰 ¿Cómo optimizar fiscalmente mis ganancias?')
+    suggestions.push('📈 Proyecta mi crecimiento a 6 meses')
   } else {
-    suggestions.push('⚠️ Análisis de riesgos y plan de recuperación')
-    suggestions.push('💡 Estrategias para mejorar rentabilidad')
+    suggestions.push('⚠️ Plan de acción para mejorar mi rentabilidad')
+    suggestions.push('💡 ¿Dónde puedo reducir costos?')
   }
 
   if (profitMargin < 15) {
-    suggestions.push('📉 ¿Por qué mi margen es bajo? Análisis profundo')
+    suggestions.push('📉 ¿Por qué mi margen es bajo? Análisis detallado')
   } else {
-    suggestions.push('🎯 ¿Cómo maximizar mi margen actual?')
+    suggestions.push('🎯 ¿Cómo aumentar aún más mi margen?')
   }
 
-  suggestions.push('💼 Calcula todos mis ratios financieros (ROE, ROA, liquidez)')
-  suggestions.push('🔮 Proyección de flujo de caja para los próximos 3 meses')
-  suggestions.push('📋 Balance general con análisis de activos y pasivos')
-  suggestions.push('🎲 Análisis de escenarios: optimista vs pesimista')
-  suggestions.push('💎 ¿Cuál es la valoración de mi empresa?')
+  suggestions.push('🔮 Flujo de caja proyectado próximos 3 meses')
+  suggestions.push('📅 ¿Cuándo vencen mis obligaciones fiscales?')
+  suggestions.push('💼 Análisis completo de proveedores y costos')
 
   return suggestions.slice(0, 6)
 }

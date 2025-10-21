@@ -110,6 +110,25 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
     else if (volatilityScore < 40) healthScore += 7
     else if (volatilityScore < 60) healthScore += 4
 
+    // Análisis de compras y ventas
+    const compras = invoices.filter(inv => inv.metadata?.movementType === 'compra')
+    const ventas = invoices.filter(inv => inv.metadata?.movementType === 'venta')
+    const totalCompras = compras.reduce((sum, inv) => sum + parseFloat(inv.amount || 0), 0)
+    const totalVentas = ventas.reduce((sum, inv) => sum + parseFloat(inv.amount || 0), 0)
+    
+    const porcentajeCompras = totalIncome > 0 ? (totalCompras / totalIncome) * 100 : 0
+    const porcentajeVentas = totalIncome > 0 ? (totalVentas / totalIncome) * 100 : 0
+    
+    // Análisis de clientes
+    const clientes = new Set(ventas.map(v => v.metadata?.cliente).filter(Boolean))
+    const clientesUnicos = clientes.size
+    const ventaPromedioPorCliente = clientesUnicos > 0 ? totalVentas / clientesUnicos : 0
+    
+    // Análisis de proveedores
+    const proveedores = new Set(compras.map(c => c.metadata?.provider).filter(Boolean))
+    const proveedoresUnicos = proveedores.size
+    const compraPromedioPorProveedor = proveedoresUnicos > 0 ? totalCompras / proveedoresUnicos : 0
+
     setKpis({
       totalIncome,
       totalExpenses,
@@ -130,7 +149,17 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
       topCategories,
       concentrationRisk,
       volatilityScore,
-      healthScore: Math.min(healthScore, 100)
+      // Nuevos KPIs
+      totalCompras,
+      totalVentas,
+      porcentajeCompras,
+      porcentajeVentas,
+      clientesUnicos,
+      ventaPromedioPorCliente,
+      proveedoresUnicos,
+      compraPromedioPorProveedor,
+      cantidadCompras: compras.length,
+      cantidadVentas: ventas.length
     })
 
     setLoading(false)
@@ -260,91 +289,146 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
   return (
     <div className="max-w-7xl mx-auto space-y-6">
       {/* Header */}
-      <div className="mb-10">
-        <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Métricas Financieras</h1>
-        <p className="text-base text-gray-500 mt-2">Análisis inteligente de tu situación financiera</p>
+      <div className="mb-6">
+        <h1 className="text-2xl font-semibold text-gray-900">Análisis Financiero</h1>
+        <p className="text-sm text-gray-600 mt-1">Métricas clave de tu negocio</p>
       </div>
 
-      {/* Score */}
-      <div className="bg-gradient-to-br from-white to-gray-50 border border-gray-200 rounded-3xl p-10 mb-8 shadow-xl hover:shadow-2xl transition-all">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-4">Score de Salud Financiera</p>
-            <p className="text-6xl font-bold text-gray-900 tracking-tight">{kpis.healthScore}</p>
-            <p className="text-base text-gray-500 mt-3">de 100 puntos</p>
+      {/* Análisis de Compras y Ventas */}
+      <div className="grid md:grid-cols-3 gap-6">
+        <div className="bg-white border border-gray-200 rounded-lg p-6">
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-sm font-medium text-gray-600">Total Compras</p>
+            <ShoppingCart className="w-5 h-5 text-blue-600" />
           </div>
-          <div className="w-32 h-32">
-            <svg className="transform -rotate-90 w-32 h-32">
-              <circle cx="64" cy="64" r="58" stroke="#f3f4f6" strokeWidth="6" fill="none" />
-              <circle
-                cx="64"
-                cy="64"
-                r="58"
-                stroke="url(#gradient)"
-                strokeWidth="6"
-                fill="none"
-                strokeDasharray={`${(kpis.healthScore / 100) * 364.42} 364.42`}
-                strokeLinecap="round"
+          <p className="text-3xl font-bold text-gray-900 mb-2">
+            ${kpis.totalCompras.toLocaleString('es-AR', { maximumFractionDigits: 0 })}
+          </p>
+          <div className="flex items-center gap-2">
+            <div className="flex-1 bg-gray-200 rounded-full h-2">
+              <div 
+                className="bg-blue-600 h-2 rounded-full" 
+                style={{ width: `${Math.min(kpis.porcentajeCompras, 100)}%` }}
               />
-              <defs>
-                <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" style={{ stopColor: '#111827', stopOpacity: 1 }} />
-                  <stop offset="100%" style={{ stopColor: '#4b5563', stopOpacity: 1 }} />
-                </linearGradient>
-              </defs>
-            </svg>
+            </div>
+            <span className="text-sm font-medium text-gray-600">{kpis.porcentajeCompras.toFixed(1)}%</span>
           </div>
+          <p className="text-xs text-gray-500 mt-2">{kpis.cantidadCompras} compras realizadas</p>
+        </div>
+
+        <div className="bg-white border border-gray-200 rounded-lg p-6">
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-sm font-medium text-gray-600">Total Ventas</p>
+            <DollarSign className="w-5 h-5 text-green-600" />
+          </div>
+          <p className="text-3xl font-bold text-gray-900 mb-2">
+            ${kpis.totalVentas.toLocaleString('es-AR', { maximumFractionDigits: 0 })}
+          </p>
+          <div className="flex items-center gap-2">
+            <div className="flex-1 bg-gray-200 rounded-full h-2">
+              <div 
+                className="bg-green-600 h-2 rounded-full" 
+                style={{ width: `${Math.min(kpis.porcentajeVentas, 100)}%` }}
+              />
+            </div>
+            <span className="text-sm font-medium text-gray-600">{kpis.porcentajeVentas.toFixed(1)}%</span>
+          </div>
+          <p className="text-xs text-gray-500 mt-2">{kpis.cantidadVentas} ventas realizadas</p>
+        </div>
+
+        <div className="bg-white border border-gray-200 rounded-lg p-6">
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-sm font-medium text-gray-600">Clientes Únicos</p>
+            <Users className="w-5 h-5 text-purple-600" />
+          </div>
+          <p className="text-3xl font-bold text-gray-900 mb-2">{kpis.clientesUnicos}</p>
+          <p className="text-sm text-gray-600 mt-2">
+            Promedio por cliente: <span className="font-semibold text-gray-900">
+              ${kpis.ventaPromedioPorCliente.toLocaleString('es-AR', { maximumFractionDigits: 0 })}
+            </span>
+          </p>
         </div>
       </div>
 
       {/* KPIs Principales */}
-      <div className="grid md:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white/80 backdrop-blur-sm border border-gray-200 rounded-2xl p-7 hover:shadow-xl transition-all group">
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-4">Margen</p>
-          <p className="text-4xl font-bold text-gray-900 tracking-tight group-hover:scale-105 transition-transform">{kpis.profitMargin.toFixed(1)}%</p>
+      <div className="grid md:grid-cols-4 gap-6">
+        <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-all">
+          <p className="text-sm font-medium text-gray-600 mb-2">Margen de Ganancia</p>
+          <p className="text-3xl font-bold text-gray-900">{kpis.profitMargin.toFixed(1)}%</p>
         </div>
 
-        <div className="bg-white/80 backdrop-blur-sm border border-gray-200 rounded-2xl p-7 hover:shadow-xl transition-all group">
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-4">ROI</p>
-          <p className="text-4xl font-bold text-gray-900 tracking-tight group-hover:scale-105 transition-transform">{kpis.roi.toFixed(1)}%</p>
+        <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-all">
+          <p className="text-sm font-medium text-gray-600 mb-2">ROI</p>
+          <p className="text-3xl font-bold text-gray-900">{kpis.roi.toFixed(1)}%</p>
         </div>
 
-        <div className="bg-white/80 backdrop-blur-sm border border-gray-200 rounded-2xl p-7 hover:shadow-xl transition-all group">
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-4">Liquidez</p>
-          <p className="text-4xl font-bold text-gray-900 tracking-tight group-hover:scale-105 transition-transform">{kpis.currentRatio.toFixed(2)}</p>
+        <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-all">
+          <p className="text-sm font-medium text-gray-600 mb-2">Ratio de Liquidez</p>
+          <p className="text-3xl font-bold text-gray-900">{kpis.currentRatio.toFixed(2)}</p>
         </div>
 
-        <div className="bg-white/80 backdrop-blur-sm border border-gray-200 rounded-2xl p-7 hover:shadow-xl transition-all group">
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-4">Crecimiento</p>
-          <p className="text-4xl font-bold text-gray-900 tracking-tight group-hover:scale-105 transition-transform">{kpis.growthRate > 0 ? '+' : ''}{kpis.growthRate.toFixed(1)}%</p>
-        </div>
-      </div>
-
-      {/* Métricas Detalladas */}
-      <div className="grid md:grid-cols-2 gap-6 mb-8">
-        <div className="bg-gradient-to-br from-white to-gray-50 border border-gray-200 rounded-2xl p-8 hover:shadow-xl transition-all">
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-4">Eficiencia Operativa</p>
-          <p className="text-3xl font-bold text-gray-900 mb-3 tracking-tight">{kpis.operatingEfficiency.toFixed(1)}%</p>
-          <p className="text-sm text-gray-500">Ingreso promedio: <span className="font-semibold text-gray-700">${kpis.revenuePerTransaction.toLocaleString('es-AR', { maximumFractionDigits: 0 })}</span></p>
-        </div>
-
-        <div className="bg-gradient-to-br from-white to-gray-50 border border-gray-200 rounded-2xl p-8 hover:shadow-xl transition-all">
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-4">Proyección de Runway</p>
-          <p className="text-3xl font-bold text-gray-900 mb-3 tracking-tight">{kpis.runway > 0 ? `${kpis.runway.toFixed(1)} meses` : 'N/A'}</p>
-          <p className="text-sm text-gray-500">Burn rate: <span className="font-semibold text-gray-700">${kpis.burnRate.toLocaleString('es-AR', { maximumFractionDigits: 0 })}</span></p>
+        <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-all">
+          <p className="text-sm font-medium text-gray-600 mb-2">Crecimiento</p>
+          <p className={`text-3xl font-bold ${kpis.growthRate >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+            {kpis.growthRate > 0 ? '+' : ''}{kpis.growthRate.toFixed(1)}%
+          </p>
         </div>
       </div>
 
-      {/* Categorías */}
-      <div className="bg-gradient-to-br from-white to-gray-50 border border-gray-200 rounded-2xl p-8 hover:shadow-xl transition-all">
-        <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-6">Principales Categorías</p>
-        <div className="space-y-4">
-          {kpis.topCategories.slice(0, 3).map((cat, idx) => (
-            <div key={idx} className="flex items-center justify-between py-4 border-b border-gray-200 last:border-0 hover:bg-gray-50 px-3 rounded-xl transition-all">
-              <span className="text-base font-semibold text-gray-900">{cat.category}</span>
-              <span className="text-base font-bold text-gray-700">${cat.total.toLocaleString('es-AR', { maximumFractionDigits: 0 })}</span>
+      {/* Métricas Adicionales */}
+      <div className="grid md:grid-cols-2 gap-6">
+        <div className="bg-white border border-gray-200 rounded-lg p-6">
+          <p className="text-sm font-medium text-gray-600 mb-4">Eficiencia Operativa</p>
+          <p className="text-3xl font-bold text-gray-900 mb-3">{kpis.operatingEfficiency.toFixed(1)}%</p>
+          <div className="space-y-2 text-sm">
+            <div className="flex justify-between">
+              <span className="text-gray-600">Ingreso promedio:</span>
+              <span className="font-semibold text-gray-900">${kpis.revenuePerTransaction.toLocaleString('es-AR', { maximumFractionDigits: 0 })}</span>
             </div>
-          ))}
+            <div className="flex justify-between">
+              <span className="text-gray-600">Costo promedio:</span>
+              <span className="font-semibold text-gray-900">${kpis.costPerTransaction.toLocaleString('es-AR', { maximumFractionDigits: 0 })}</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white border border-gray-200 rounded-lg p-6">
+          <p className="text-sm font-medium text-gray-600 mb-4">Proveedores</p>
+          <p className="text-3xl font-bold text-gray-900 mb-3">{kpis.proveedoresUnicos}</p>
+          <div className="text-sm">
+            <div className="flex justify-between">
+              <span className="text-gray-600">Compra promedio:</span>
+              <span className="font-semibold text-gray-900">${kpis.compraPromedioPorProveedor.toLocaleString('es-AR', { maximumFractionDigits: 0 })}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Top Categorías */}
+      <div className="bg-white border border-gray-200 rounded-lg p-6">
+        <p className="text-sm font-medium text-gray-900 mb-4">Top 5 Categorías</p>
+        <div className="space-y-3">
+          {kpis.topCategories.slice(0, 5).map((cat, idx) => {
+            const maxTotal = kpis.topCategories[0].total
+            const percentage = (cat.total / maxTotal) * 100
+            
+            return (
+              <div key={idx}>
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-sm font-medium text-gray-700">{cat.category}</span>
+                  <span className="text-sm font-semibold text-gray-900">
+                    ${cat.total.toLocaleString('es-AR', { maximumFractionDigits: 0 })}
+                  </span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div
+                    className="bg-gray-900 h-2 rounded-full transition-all"
+                    style={{ width: `${percentage}%` }}
+                  />
+                </div>
+              </div>
+            )
+          })}
         </div>
       </div>
     </div>
