@@ -1,16 +1,45 @@
-import React, { useState, useEffect } from 'react'
-import { Calculator, TrendingUp, AlertCircle, Loader2, Sparkles, DollarSign, Calendar, FileText } from 'lucide-react'
-import { sendMessageToGPT } from '../../services/openaiService'
+import React, { useState, useEffect, useMemo } from 'react'
+import { Calculator, TrendingUp, AlertCircle, DollarSign, Calendar, FileText, Building2, Percent } from 'lucide-react'
 
 const TaxManagement = ({ invoices, companyData }) => {
-  const [taxAnalysis, setTaxAnalysis] = useState(null)
-  const [loading, setLoading] = useState(false)
-  const [projectionPeriod, setProjectionPeriod] = useState('3') // meses
-  const [taxData, setTaxData] = useState({
-    iva: { collected: 0, paid: 0, balance: 0 },
-    ganancias: { estimated: 0, rate: 0 },
-    total: 0
-  })
+  const [selectedPeriod, setSelectedPeriod] = useState('month')
+  const [condicionIVA, setCondicionIVA] = useState('responsable_inscripto')
+  const [provincia, setProvincia] = useState('buenos_aires')
+  
+  // Alícuotas de ARCA Argentina
+  const taxRates = {
+    iva: {
+      general: 0.21,
+      reducido: 0.105,
+      exento: 0
+    },
+    iibb: {
+      buenos_aires: 0.03,
+      caba: 0.025,
+      cordoba: 0.035,
+      santa_fe: 0.03,
+      mendoza: 0.03,
+      otras: 0.03
+    },
+    ganancias: {
+      sociedades: 0.35,
+      monotributo: 0,
+      autonomo: 0.35
+    },
+    percepciones: {
+      iva: 0.021,
+      ganancias: 0.02,
+      iibb: 0.03
+    },
+    retenciones: {
+      iva: 0.021,
+      ganancias: 0.02,
+      iibb: 0.03
+    },
+    contribuciones: {
+      seguridad_social: 0.21
+    }
+  }
 
   // Calcular impuestos de las facturas
   useEffect(() => {

@@ -24,16 +24,14 @@ import {
   Package
 } from 'lucide-react'
 import CompanyProfile from '../components/dashboard/CompanyProfile'
-import UploadInvoices from '../components/dashboard/UploadInvoices'
-import FinancialReports from '../components/dashboard/FinancialReports'
-import TaxManagement from '../components/dashboard/TaxManagement'
+import Movimientos from '../components/dashboard/Movimientos'
+import Remitos from '../components/dashboard/Remitos'
+import TaxManagement from '../components/dashboard/TaxManagementNew'
 import FinancialIntelligence from '../components/dashboard/FinancialIntelligence'
-import ExecutiveDashboard from '../components/dashboard/ExecutiveDashboard'
-import PowerBIIntegration from '../components/dashboard/PowerBIIntegration'
+import CombinedDashboard from '../components/dashboard/CombinedDashboard'
 import AIProjections from '../components/dashboard/AIProjections'
 import CreditCalculator from '../components/dashboard/CreditCalculator'
 import Inventory from './Inventory'
-import Sales from '../components/dashboard/Sales'
 
 const Dashboard = () => {
   const { user, signOut } = useAuth()
@@ -48,16 +46,14 @@ const Dashboard = () => {
   }
 
   const tabs = [
-    { id: 'profile', name: 'Empresa', icon: Building2 },
+    { id: 'profile', name: 'Mi Empresa', icon: Building2 },
+    { id: 'movimientos', name: 'Movimientos', icon: FileText },
     { id: 'dashboard', name: 'Dashboard', icon: LayoutDashboard },
     { id: 'inventory', name: 'Inventario', icon: Package },
-    { id: 'sales', name: 'Ventas', icon: TrendingUp },
-    { id: 'upload', name: 'Facturas', icon: Upload },
-    { id: 'intelligence', name: 'Métricas', icon: BarChart3 },
-    { id: 'projections', name: 'Proyecciones IA', icon: Brain },
+    { id: 'intelligence', name: 'Análisis', icon: BarChart3 },
+    { id: 'projections', name: 'IA Proyecciones', icon: Brain },
     { id: 'credit', name: 'Créditos', icon: Calculator },
-    { id: 'reports', name: 'Reportes', icon: FileText },
-    { id: 'powerbi', name: 'Análisis', icon: LineChart },
+    { id: 'remitos', name: 'Remitos', icon: Upload },
     { id: 'taxes', name: 'Impuestos', icon: Target },
   ]
 
@@ -75,7 +71,7 @@ const Dashboard = () => {
       <aside
         className={`
           fixed lg:static inset-y-0 left-0 z-50
-          w-72 lg:w-64 xl:w-72
+          w-80 lg:w-72 xl:w-80
           bg-white/95 lg:bg-white/80 backdrop-blur-xl 
           border-r border-gray-200/50 
           transition-transform duration-300 ease-in-out
@@ -88,8 +84,8 @@ const Dashboard = () => {
         `}
       >
         {/* Sidebar Header */}
-        <div className="p-4 lg:p-6 border-b border-gray-200/50 flex items-center justify-between">
-          <h1 className="text-base lg:text-lg font-semibold text-gray-900">Sistema de Gestión</h1>
+        <div className="p-5 lg:p-6 border-b border-gray-200/50 flex items-center justify-between">
+          <h1 className="text-lg lg:text-xl font-bold text-gray-900">Sistema de Gestión</h1>
           <button
             onClick={() => setSidebarOpen(false)}
             className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"
@@ -99,7 +95,7 @@ const Dashboard = () => {
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto p-3 lg:p-4 space-y-1">
+        <nav className="flex-1 flex flex-col justify-center p-2 lg:p-3 space-y-1">
           {tabs.map((tab) => (
             <button
               key={tab.id}
@@ -108,18 +104,18 @@ const Dashboard = () => {
                 setSidebarOpen(false) // Cerrar sidebar en móvil al seleccionar
               }}
               className={`
-                w-full flex items-center space-x-3 
-                px-3 lg:px-4 py-2.5 lg:py-3 
-                rounded-xl transition-all text-sm group
+                w-full flex items-center space-x-2.5 
+                px-3 py-2 lg:py-2.5 
+                rounded-lg transition-all text-xs lg:text-sm font-medium group
                 ${
                   activeTab === tab.id
-                    ? 'bg-gray-900 text-white font-semibold shadow-lg'
-                    : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 active:bg-gray-200'
+                    ? 'bg-gray-900 text-white shadow-lg'
+                    : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900 active:bg-gray-200'
                 }
               `}
             >
-              <tab.icon className={`w-5 h-5 flex-shrink-0 ${
-                activeTab === tab.id ? 'text-white' : 'text-gray-400 group-hover:text-gray-600'
+              <tab.icon className={`w-4 h-4 flex-shrink-0 ${
+                activeTab === tab.id ? 'text-white' : 'text-gray-500 group-hover:text-gray-700'
               }`} />
               <span className="truncate">{tab.name}</span>
             </button>
@@ -213,20 +209,16 @@ const Dashboard = () => {
           {activeTab === 'profile' && (
             <CompanyProfile />
           )}
-          {activeTab === 'inventory' && (
-            <Inventory />
-          )}
-          {activeTab === 'sales' && (
-            <Sales />
-          )}
-          {activeTab === 'upload' && (
-            <UploadInvoices 
+          {activeTab === 'movimientos' && (
+            <Movimientos 
               companyData={companyData}
             />
           )}
-          {activeTab === 'reports' && (
-            <FinancialReports 
-              invoices={invoices}
+          {activeTab === 'inventory' && (
+            <Inventory />
+          )}
+          {activeTab === 'remitos' && (
+            <Remitos 
               companyData={companyData}
             />
           )}
@@ -243,7 +235,7 @@ const Dashboard = () => {
             />
           )}
           {activeTab === 'dashboard' && (
-            <ExecutiveDashboard 
+            <CombinedDashboard 
               invoices={invoices}
               companyData={companyData}
             />
@@ -256,12 +248,6 @@ const Dashboard = () => {
           {activeTab === 'credit' && (
             <CreditCalculator 
               invoices={invoices}
-            />
-          )}
-          {activeTab === 'powerbi' && (
-            <PowerBIIntegration 
-              invoices={invoices}
-              companyData={companyData}
             />
           )}
         </main>
