@@ -123,26 +123,26 @@ const MovimientosAporte = ({ onClose, onSuccess }) => {
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 overflow-y-auto">
-      <div className="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-xl max-w-4xl w-full max-h-[95vh] overflow-y-auto shadow-2xl border-2 border-purple-200">
-        <div className="sticky top-0 bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-6 flex items-center justify-between z-10 rounded-t-xl">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+      <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[95vh] overflow-y-auto shadow-xl border border-gray-200">
+        <div className="sticky top-0 bg-white border-b border-gray-200 p-6 flex items-center justify-between z-10 rounded-t-2xl">
           <div className="flex items-center gap-3">
-            <div className="p-3 bg-white/20 rounded-lg backdrop-blur-sm">
-              <DollarSign className="w-7 h-7" />
+            <div className="p-2.5 bg-purple-50 rounded-lg">
+              <DollarSign className="w-6 h-6 text-purple-600" />
             </div>
             <div>
-              <h2 className="text-2xl font-bold">Nuevo Aporte</h2>
-              <p className="text-purple-100 text-sm">Registra un aporte de capital o inversión</p>
+              <h2 className="text-xl font-semibold text-gray-900">Nuevo Aporte</h2>
+              <p className="text-gray-500 text-sm">Registra un aporte de capital o inversión</p>
             </div>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-white/20 rounded-lg transition-all">
-            <X className="w-6 h-6" />
+          <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+            <X className="w-5 h-5 text-gray-500" />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           {/* IA Analysis */}
-          <div className="bg-white border-2 border-purple-200 rounded-lg p-6 shadow-sm">
+          <div className="bg-gray-50 border border-gray-200 rounded-xl p-5 shadow-sm">
             <div className="flex items-center gap-3 mb-4">
               <Sparkles className="w-6 h-6 text-purple-600" />
               <div>
@@ -198,11 +198,8 @@ const MovimientosAporte = ({ onClose, onSuccess }) => {
           )}
 
           {/* Datos del Aporte */}
-          <div className="bg-white rounded-lg p-6 space-y-4 shadow-sm border-2 border-purple-100">
-            <h3 className="font-semibold text-gray-900 text-lg flex items-center gap-2">
-              <div className="w-2 h-2 bg-purple-600 rounded-full"></div>
-              Información del Aporte
-            </h3>
+          <div className="bg-white rounded-xl p-5 space-y-4 border border-gray-200">
+            <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">Información del Aporte</h3>
             
             <div className="grid md:grid-cols-2 gap-4">
               <div>
@@ -291,11 +288,8 @@ const MovimientosAporte = ({ onClose, onSuccess }) => {
           </div>
 
           {/* Detalles Adicionales */}
-          <div className="bg-white rounded-lg p-6 space-y-4 shadow-sm border-2 border-purple-100">
-            <h3 className="font-semibold text-gray-900 text-lg flex items-center gap-2">
-              <div className="w-2 h-2 bg-purple-600 rounded-full"></div>
-              Detalles Adicionales
-            </h3>
+          <div className="bg-white rounded-xl p-5 space-y-4 border border-gray-200">
+            <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">Detalles Adicionales</h3>
 
             <div className="grid md:grid-cols-2 gap-4">
               <div>
@@ -328,7 +322,7 @@ const MovimientosAporte = ({ onClose, onSuccess }) => {
           </div>
 
           {/* Resumen */}
-          <div className="bg-gradient-to-r from-purple-100 to-indigo-100 p-6 rounded-lg border-2 border-purple-300">
+          <div className="bg-purple-50 p-5 rounded-xl border border-purple-200">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-purple-800 font-medium mb-1">Aporte Total</p>
@@ -343,18 +337,18 @@ const MovimientosAporte = ({ onClose, onSuccess }) => {
           </div>
 
           {/* Botones */}
-          <div className="flex gap-3 pt-4 border-t-2 border-purple-200 sticky bottom-0 bg-gradient-to-br from-purple-50 to-indigo-50 pb-2">
+          <div className="flex gap-3 pt-5 border-t border-gray-200 sticky bottom-0 bg-white pb-2">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-3 border-2 border-gray-300 rounded-lg font-semibold hover:bg-gray-50 transition-all"
+              className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
             >
               Cancelar
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 px-4 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg font-semibold hover:from-purple-700 hover:to-indigo-700 disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transition-all"
+              className="flex-1 px-4 py-2.5 bg-purple-600 text-white text-sm rounded-lg font-medium hover:bg-purple-700 disabled:opacity-50 flex items-center justify-center gap-2 transition-colors"
             >
               {loading ? (
                 <>

@@ -5,36 +5,67 @@ import {
   TrendingUp, AlertCircle, CheckCircle, Image as ImageIcon, Trash2
 } from 'lucide-react'
 
-const MovimientosVenta = ({ onClose, onSuccess }) => {
-  const { addInvoice, invoices, inventoryItems, updateInventoryItem } = useData()
+const MovimientosVenta = ({ movimiento, onClose, onSuccess }) => {
+  const { addInvoice, updateInvoice, invoices, inventoryItems, updateInventoryItem } = useData()
+  const isEditing = !!movimiento
   const [loading, setLoading] = useState(false)
   const [analyzing, setAnalyzing] = useState(false)
   const [error, setError] = useState('')
   const [aiAnalyzed, setAiAnalyzed] = useState(false)
 
-  const [formData, setFormData] = useState({
-    fecha: new Date().toISOString().split('T')[0],
-    tipo: 'minorista',
-    cliente: '',
-    medio: 'efectivo',
-    cobrado: 'si',
-    deuda: '',
-    montoTotal: '',
-    comprobante: null,
-    productos: []
+  const [formData, setFormData] = useState(() => {
+    if (isEditing && movimiento) {
+      return {
+        fecha: movimiento.date || movimiento.invoice_date || new Date().toISOString().split('T')[0],
+        tipo: movimiento.metadata?.tipoVenta || 'minorista',
+        cliente: movimiento.metadata?.cliente || '',
+        medio: movimiento.metadata?.paymentMethod || 'efectivo',
+        cobrado: movimiento.metadata?.cobrado ? 'si' : 'no',
+        deuda: movimiento.metadata?.deuda || '',
+        montoTotal: movimiento.amount?.toString() || '',
+        comprobante: null,
+        productos: movimiento.metadata?.productos || []
+      }
+    }
+    return {
+      fecha: new Date().toISOString().split('T')[0],
+      tipo: 'minorista',
+      cliente: '',
+      medio: 'efectivo',
+      cobrado: 'si',
+      deuda: '',
+      montoTotal: '',
+      comprobante: null,
+      productos: []
+    }
   })
 
-  const [productos, setProductos] = useState([{
-    id: Date.now(),
-    productoId: '',
-    nombre: '',
-    descripcion: '',
-    cantidad: 1,
-    precioUnitario: '',
-    precioTotal: '',
-    descuento: 0,
-    stockDisponible: 0
-  }])
+  const [productos, setProductos] = useState(() => {
+    if (isEditing && movimiento?.metadata?.productos && movimiento.metadata.productos.length > 0) {
+      return movimiento.metadata.productos.map(p => ({
+        id: p.id || Date.now() + Math.random(),
+        productoId: p.productoId || '',
+        nombre: p.nombre || '',
+        descripcion: p.descripcion || '',
+        cantidad: p.cantidad || 1,
+        precioUnitario: p.precioUnitario?.toString() || '',
+        precioTotal: p.precioTotal?.toString() || '',
+        descuento: p.descuento || 0,
+        stockDisponible: p.stockDisponible || 0
+      }))
+    }
+    return [{
+      id: Date.now(),
+      productoId: '',
+      nombre: '',
+      descripcion: '',
+      cantidad: 1,
+      precioUnitario: '',
+      precioTotal: '',
+      descuento: 0,
+      stockDisponible: 0
+    }]
+  })
 
   const mediosPago = ['efectivo', 'transferencia', 'tarjeta_debito', 'tarjeta_credito', 'cheque', 'mercadopago']
   
@@ -182,35 +213,39 @@ const MovimientosVenta = ({ onClose, onSuccess }) => {
         }
       }
 
-      const venta = {
+      const invoiceData = {
         type: 'income',
+        number: isEditing ? (movimiento.number || movimiento.invoice_number) : `VENTA-${Date.now()}`,
         date: formData.fecha,
-        amount: parseFloat(montoCalculado),
         description: `Venta ${formData.tipo} - ${formData.cliente}`,
-        category: 'Productos',
-        number: `VENTA-${Date.now()}`,
+        amount: parseFloat(calcularMontoTotal()),
+        category: 'Ventas',
+        fileName: formData.comprobante?.name || 'Manual',
+        processed: true,
+        taxes: [],
         metadata: {
           movementType: 'venta',
           tipoVenta: formData.tipo,
           cliente: formData.cliente,
           paymentMethod: formData.medio,
           cobrado: formData.cobrado === 'si',
-          deuda: formData.cobrado === 'no' ? parseFloat(formData.deuda) : 0,
+          deuda: formData.cobrado === 'no' ? parseFloat(formData.deuda || 0) : 0,
           productos: productos.map(p => ({
             productoId: p.productoId,
             nombre: p.nombre,
-            descripcion: p.descripcion,
             cantidad: parseFloat(p.cantidad),
             precioUnitario: parseFloat(p.precioUnitario),
             precioTotal: parseFloat(p.precioTotal),
-            descuento: parseFloat(p.descuento) || 0
-          })),
-          comprobante: formData.comprobante,
-          aiAnalyzed: aiAnalyzed
+            descuento: parseFloat(p.descuento || 0)
+          }))
         }
       }
 
-      await addInvoice(venta)
+      if (isEditing) {
+        await updateInvoice(movimiento.id, invoiceData)
+      } else {
+        await addInvoice(invoiceData)
+      }
       
       // Actualizar inventario (descontar stock)
       for (const prod of productos) {
@@ -224,7 +259,7 @@ const MovimientosVenta = ({ onClose, onSuccess }) => {
         }
       }
       
-      onSuccess?.('Venta registrada exitosamente. Inventario actualizado.')
+      onSuccess?.(isEditing ? 'Venta actualizada exitosamente.' : 'Venta registrada exitosamente. Inventario actualizado.')
       onClose?.()
     } catch (err) {
       setError(err.message)
@@ -234,28 +269,28 @@ const MovimientosVenta = ({ onClose, onSuccess }) => {
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 overflow-y-auto">
-      <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl max-w-5xl w-full max-h-[95vh] overflow-y-auto shadow-2xl border-2 border-green-200">
-        <div className="sticky top-0 bg-gradient-to-r from-green-600 to-emerald-600 text-white p-6 flex items-center justify-between z-10 rounded-t-xl">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+      <div className="bg-white rounded-2xl max-w-5xl w-full max-h-[95vh] overflow-y-auto shadow-xl border border-gray-200">
+        <div className="sticky top-0 bg-white border-b border-gray-200 p-6 flex items-center justify-between z-10 rounded-t-2xl">
           <div className="flex items-center gap-3">
-            <div className="p-3 bg-white/20 rounded-lg backdrop-blur-sm">
-              <TrendingUp className="w-7 h-7" />
+            <div className="p-2.5 bg-green-50 rounded-lg">
+              <TrendingUp className="w-6 h-6 text-green-600" />
             </div>
             <div>
-              <h2 className="text-2xl font-bold">Nueva Venta</h2>
-              <p className="text-green-100 text-sm">Registra una venta y actualiza el inventario</p>
+              <h2 className="text-xl font-semibold text-gray-900">{isEditing ? 'Editar Venta' : 'Nueva Venta'}</h2>
+              <p className="text-gray-500 text-sm">{isEditing ? 'Modifica los datos de la venta' : 'Registra una venta y actualiza el inventario'}</p>
             </div>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-white/20 rounded-lg transition-all">
-            <X className="w-6 h-6" />
+          <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+            <X className="w-5 h-5 text-gray-500" />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           {/* IA Analysis */}
-          <div className="bg-white border-2 border-green-200 rounded-lg p-6 shadow-sm">
+          <div className="bg-gray-50 border border-gray-200 rounded-xl p-5 shadow-sm">
             <div className="flex items-center gap-3 mb-4">
-              <Sparkles className="w-6 h-6 text-green-600" />
+              <Sparkles className="w-5 h-5 text-green-600" />
               <div>
                 <h3 className="font-semibold text-gray-900">Análisis Automático con IA</h3>
                 <p className="text-sm text-gray-600">Sube un comprobante o graba un audio</p>
@@ -263,25 +298,25 @@ const MovimientosVenta = ({ onClose, onSuccess }) => {
             </div>
 
             {analyzing && (
-              <div className="flex items-center gap-3 p-4 bg-green-50 rounded-lg mb-4 border border-green-200">
-                <Loader className="w-5 h-5 text-green-600 animate-spin" />
-                <p className="text-sm font-medium text-green-800">Analizando con IA...</p>
+              <div className="flex items-center gap-3 p-3.5 bg-green-50 rounded-lg mb-4 border border-green-100">
+                <Loader className="w-4 h-4 text-green-600 animate-spin" />
+                <p className="text-sm text-green-700">Analizando con IA...</p>
               </div>
             )}
 
             {aiAnalyzed && (
-              <div className="flex items-center gap-3 p-4 bg-green-100 border-2 border-green-300 rounded-lg mb-4">
-                <CheckCircle className="w-5 h-5 text-green-700" />
-                <p className="text-sm font-medium text-green-900">Formulario completado por IA. Revisa y ajusta.</p>
+              <div className="flex items-center gap-3 p-3.5 bg-green-50 border border-green-200 rounded-lg mb-4">
+                <CheckCircle className="w-4 h-4 text-green-600" />
+                <p className="text-sm text-green-700">Formulario completado por IA. Revisa y ajusta.</p>
               </div>
             )}
 
-            <div className="grid md:grid-cols-2 gap-4">
-              <label className="flex items-center gap-3 p-4 bg-white border-2 border-green-300 rounded-lg cursor-pointer hover:border-green-500 hover:shadow-md transition-all">
-                <Upload className="w-5 h-5 text-green-600" />
+            <div className="grid md:grid-cols-2 gap-3">
+              <label className="flex items-center gap-3 p-3.5 bg-white border border-gray-300 rounded-lg cursor-pointer hover:border-green-500 hover:bg-gray-50 transition-all">
+                <Upload className="w-4 h-4 text-gray-600" />
                 <div className="flex-1">
-                  <p className="font-medium text-gray-900">Subir Comprobante</p>
-                  <p className="text-xs text-gray-600">PDF o Imagen</p>
+                  <p className="text-sm font-medium text-gray-900">Subir Comprobante</p>
+                  <p className="text-xs text-gray-500">PDF o Imagen</p>
                 </div>
                 <input type="file" accept=".pdf,image/*" onChange={handleFileUpload} className="hidden" disabled={analyzing} />
               </label>
@@ -290,30 +325,27 @@ const MovimientosVenta = ({ onClose, onSuccess }) => {
                 type="button"
                 onClick={() => setError('Función de audio en desarrollo')}
                 disabled={analyzing}
-                className="flex items-center gap-3 p-4 bg-white border-2 border-green-300 rounded-lg hover:border-green-500 hover:shadow-md transition-all disabled:opacity-50"
+                className="flex items-center gap-3 p-3.5 bg-white border border-gray-300 rounded-lg hover:border-green-500 hover:bg-gray-50 transition-all disabled:opacity-50"
               >
-                <Mic className="w-5 h-5 text-green-600" />
+                <Mic className="w-4 h-4 text-gray-600" />
                 <div className="flex-1 text-left">
-                  <p className="font-medium text-gray-900">Grabar Audio</p>
-                  <p className="text-xs text-gray-600">Describe la venta</p>
+                  <p className="text-sm font-medium text-gray-900">Grabar Audio</p>
+                  <p className="text-xs text-gray-500">Describe la venta</p>
                 </div>
               </button>
             </div>
           </div>
 
           {error && (
-            <div className="bg-red-50 border-2 border-red-200 rounded-lg p-4 flex items-center gap-2">
-              <AlertCircle className="w-5 h-5 text-red-600" />
-              <p className="text-red-800 font-medium">{error}</p>
+            <div className="bg-red-50 border border-red-200 rounded-lg p-3.5 flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 text-red-600" />
+              <p className="text-sm text-red-700">{error}</p>
             </div>
           )}
 
           {/* Datos Generales */}
-          <div className="bg-white rounded-lg p-6 space-y-4 shadow-sm border-2 border-green-100">
-            <h3 className="font-semibold text-gray-900 text-lg flex items-center gap-2">
-              <div className="w-2 h-2 bg-green-600 rounded-full"></div>
-              Datos Generales
-            </h3>
+          <div className="bg-white rounded-xl p-5 space-y-4 border border-gray-200">
+            <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">Datos Generales</h3>
             
             <div className="grid md:grid-cols-3 gap-4">
               <div>
@@ -323,7 +355,7 @@ const MovimientosVenta = ({ onClose, onSuccess }) => {
                   value={formData.fecha}
                   onChange={(e) => setFormData({...formData, fecha: e.target.value})}
                   required
-                  className="w-full px-4 py-2.5 rounded-lg border-2 border-gray-300 focus:border-green-500 focus:ring-2 focus:ring-green-200 outline-none transition-all"
+                  className="w-full px-3.5 py-2 rounded-lg border border-gray-300 focus:border-green-500 focus:ring-1 focus:ring-green-500 outline-none transition-all text-sm"
                 />
               </div>
 
@@ -332,7 +364,7 @@ const MovimientosVenta = ({ onClose, onSuccess }) => {
                 <select
                   value={formData.tipo}
                   onChange={(e) => setFormData({...formData, tipo: e.target.value})}
-                  className="w-full px-4 py-2.5 rounded-lg border-2 border-gray-300 focus:border-green-500 focus:ring-2 focus:ring-green-200 outline-none transition-all"
+                  className="w-full px-3.5 py-2 rounded-lg border border-gray-300 focus:border-green-500 focus:ring-1 focus:ring-green-500 outline-none transition-all text-sm"
                 >
                   <option value="minorista">Minorista</option>
                   <option value="mayorista">Mayorista</option>
@@ -348,7 +380,7 @@ const MovimientosVenta = ({ onClose, onSuccess }) => {
                   onChange={(e) => setFormData({...formData, cliente: e.target.value})}
                   required
                   placeholder="Nombre del cliente"
-                  className="w-full px-4 py-2.5 rounded-lg border-2 border-gray-300 focus:border-green-500 focus:ring-2 focus:ring-green-200 outline-none transition-all"
+                  className="w-full px-3.5 py-2 rounded-lg border border-gray-300 focus:border-green-500 focus:ring-1 focus:ring-green-500 outline-none transition-all text-sm"
                 />
                 <datalist id="clientes">
                   {clientesSugeridos.map((cli, idx) => (
@@ -364,7 +396,7 @@ const MovimientosVenta = ({ onClose, onSuccess }) => {
                 <select
                   value={formData.medio}
                   onChange={(e) => setFormData({...formData, medio: e.target.value})}
-                  className="w-full px-4 py-2.5 rounded-lg border-2 border-gray-300 focus:border-green-500 focus:ring-2 focus:ring-green-200 outline-none transition-all"
+                  className="w-full px-3.5 py-2 rounded-lg border border-gray-300 focus:border-green-500 focus:ring-1 focus:ring-green-500 outline-none transition-all text-sm"
                 >
                   {mediosPago.map(medio => (
                     <option key={medio} value={medio}>{medio.replace('_', ' ').toUpperCase()}</option>
@@ -402,9 +434,9 @@ const MovimientosVenta = ({ onClose, onSuccess }) => {
               )}
             </div>
 
-            <div className="bg-gradient-to-r from-green-100 to-emerald-100 p-6 rounded-lg border-2 border-green-300">
-              <p className="text-sm text-green-800 font-medium mb-2">Monto Total</p>
-              <p className="text-4xl font-bold text-green-700">
+            <div className="bg-green-50 p-5 rounded-xl border border-green-200">
+              <p className="text-xs text-gray-600 font-medium mb-1.5">Monto Total</p>
+              <p className="text-3xl font-bold text-green-600">
                 ${calcularMontoTotal()}
               </p>
             </div>
@@ -413,14 +445,11 @@ const MovimientosVenta = ({ onClose, onSuccess }) => {
           {/* Productos */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="font-semibold text-gray-900 text-lg flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-600 rounded-full"></div>
-                Productos
-              </h3>
+              <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">Productos</h3>
               <button
                 type="button"
                 onClick={agregarProducto}
-                className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 shadow-md hover:shadow-lg transition-all"
+                className="flex items-center gap-2 px-3.5 py-2 bg-green-600 text-white text-sm rounded-lg font-medium hover:bg-green-700 transition-colors"
               >
                 <Plus className="w-4 h-4" />
                 Agregar Producto
@@ -428,14 +457,14 @@ const MovimientosVenta = ({ onClose, onSuccess }) => {
             </div>
 
             {productos.map((producto, index) => (
-              <div key={producto.id} className="bg-white border-2 border-green-200 rounded-lg p-6 space-y-4 shadow-sm hover:shadow-md transition-all">
-                <div className="flex items-center justify-between mb-4">
-                  <h4 className="font-semibold text-gray-900">Producto #{index + 1}</h4>
+              <div key={producto.id} className="bg-gray-50 border border-gray-200 rounded-xl p-5 space-y-4">
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="text-sm font-medium text-gray-700">Producto #{index + 1}</h4>
                   {productos.length > 1 && (
                     <button
                       type="button"
                       onClick={() => eliminarProducto(producto.id)}
-                      className="p-2 hover:bg-red-100 rounded-lg text-red-600 transition-all"
+                      className="p-1.5 hover:bg-red-50 rounded-lg text-red-600 transition-colors"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -444,7 +473,7 @@ const MovimientosVenta = ({ onClose, onSuccess }) => {
 
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium mb-2">Producto del Inventario</label>
+                    <label className="block text-xs font-medium mb-1.5 text-gray-700">Producto del Inventario</label>
                     <select
                       value={producto.productoId}
                       onChange={(e) => actualizarProducto(producto.id, 'productoId', e.target.value)}
@@ -460,7 +489,7 @@ const MovimientosVenta = ({ onClose, onSuccess }) => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium mb-2">Nombre *</label>
+                    <label className="block text-xs font-medium mb-1.5 text-gray-700">Nombre *</label>
                     <input
                       type="text"
                       value={producto.nombre}
@@ -473,7 +502,7 @@ const MovimientosVenta = ({ onClose, onSuccess }) => {
 
                 <div className="grid md:grid-cols-4 gap-4">
                   <div>
-                    <label className="block text-sm font-medium mb-2">Cantidad *</label>
+                    <label className="block text-xs font-medium mb-1.5 text-gray-700">Cantidad *</label>
                     <input
                       type="number"
                       value={producto.cantidad}
@@ -489,7 +518,7 @@ const MovimientosVenta = ({ onClose, onSuccess }) => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium mb-2">Precio Unit. *</label>
+                    <label className="block text-xs font-medium mb-1.5 text-gray-700">Precio Unit. *</label>
                     <input
                       type="number"
                       value={producto.precioUnitario}
@@ -501,7 +530,7 @@ const MovimientosVenta = ({ onClose, onSuccess }) => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium mb-2">Descuento %</label>
+                    <label className="block text-xs font-medium mb-1.5 text-gray-700">Descuento %</label>
                     <input
                       type="number"
                       value={producto.descuento}
@@ -514,12 +543,12 @@ const MovimientosVenta = ({ onClose, onSuccess }) => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium mb-2">Total</label>
+                    <label className="block text-xs font-medium mb-1.5 text-gray-700">Total</label>
                     <input
                       type="text"
                       value={producto.precioTotal}
                       readOnly
-                      className="w-full px-4 py-2.5 rounded-lg border-2 border-green-300 bg-green-50 font-bold text-green-800"
+                      className="w-full px-3.5 py-2 rounded-lg border border-green-300 bg-green-50 font-semibold text-green-700 text-sm"
                     />
                   </div>
                 </div>
@@ -528,18 +557,18 @@ const MovimientosVenta = ({ onClose, onSuccess }) => {
           </div>
 
           {/* Botones */}
-          <div className="flex gap-3 pt-4 border-t-2 border-green-200 sticky bottom-0 bg-gradient-to-br from-green-50 to-emerald-50 pb-2">
+          <div className="flex gap-3 pt-5 border-t border-gray-200 sticky bottom-0 bg-white pb-2">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-3 border-2 border-gray-300 rounded-lg font-semibold hover:bg-gray-50 transition-all"
+              className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
             >
               Cancelar
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 px-4 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg font-semibold hover:from-green-700 hover:to-emerald-700 disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transition-all"
+              className="flex-1 px-4 py-2.5 bg-green-600 text-white text-sm rounded-lg font-medium hover:bg-green-700 disabled:opacity-50 flex items-center justify-center gap-2 transition-colors"
             >
               {loading ? (
                 <>
@@ -549,7 +578,7 @@ const MovimientosVenta = ({ onClose, onSuccess }) => {
               ) : (
                 <>
                   <Save className="w-5 h-5" />
-                  Registrar Venta
+                  {isEditing ? 'Actualizar Venta' : 'Registrar Venta'}
                 </>
               )}
             </button>

@@ -262,28 +262,28 @@ const MovimientosCompra = ({ onClose, onSuccess }) => {
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 overflow-y-auto">
-      <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl max-w-5xl w-full max-h-[95vh] overflow-y-auto shadow-2xl border-2 border-blue-200">
-        <div className="sticky top-0 bg-gradient-to-r from-blue-600 to-cyan-600 text-white p-6 flex items-center justify-between z-10 rounded-t-xl">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+      <div className="bg-white rounded-2xl max-w-5xl w-full max-h-[95vh] overflow-y-auto shadow-xl border border-gray-200">
+        <div className="sticky top-0 bg-white border-b border-gray-200 p-6 flex items-center justify-between z-10 rounded-t-2xl">
           <div className="flex items-center gap-3">
-            <div className="p-3 bg-white/20 rounded-lg backdrop-blur-sm">
-              <ShoppingCart className="w-7 h-7" />
+            <div className="p-2.5 bg-blue-50 rounded-lg">
+              <ShoppingCart className="w-6 h-6 text-blue-600" />
             </div>
             <div>
-              <h2 className="text-2xl font-bold">Nueva Compra</h2>
-              <p className="text-blue-100 text-sm">Registra una compra y actualiza el inventario</p>
+              <h2 className="text-xl font-semibold text-gray-900">Nueva Compra</h2>
+              <p className="text-gray-500 text-sm">Registra una compra y actualiza el inventario</p>
             </div>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-white/20 rounded-lg transition-all">
-            <X className="w-6 h-6" />
+          <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+            <X className="w-5 h-5 text-gray-500" />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           {/* Análisis con IA */}
-          <div className="bg-white border-2 border-blue-200 rounded-lg p-6 shadow-sm">
+          <div className="bg-gray-50 border border-gray-200 rounded-xl p-5 shadow-sm">
             <div className="flex items-center gap-3 mb-4">
-              <Sparkles className="w-6 h-6 text-blue-600" />
+              <Sparkles className="w-5 h-5 text-blue-600" />
               <div>
                 <h3 className="font-semibold text-gray-900">Análisis Automático con IA</h3>
                 <p className="text-sm text-gray-600">Sube un comprobante o graba un audio para autocompletar</p>
@@ -291,25 +291,25 @@ const MovimientosCompra = ({ onClose, onSuccess }) => {
             </div>
 
             {analyzing && (
-              <div className="flex items-center gap-3 p-4 bg-blue-50 rounded-lg mb-4 border border-blue-200">
-                <Loader className="w-5 h-5 text-blue-600 animate-spin" />
-                <p className="text-sm font-medium text-blue-800">Analizando con IA...</p>
+              <div className="flex items-center gap-3 p-3.5 bg-blue-50 rounded-lg mb-4 border border-blue-100">
+                <Loader className="w-4 h-4 text-blue-600 animate-spin" />
+                <p className="text-sm text-blue-700">Analizando con IA...</p>
               </div>
             )}
 
             {aiAnalyzed && (
-              <div className="flex items-center gap-3 p-4 bg-blue-100 border-2 border-blue-300 rounded-lg mb-4">
-                <CheckCircle className="w-5 h-5 text-blue-700" />
-                <p className="text-sm font-medium text-blue-900">Formulario completado por IA. Revisa y ajusta si es necesario.</p>
+              <div className="flex items-center gap-3 p-3.5 bg-blue-50 border border-blue-200 rounded-lg mb-4">
+                <CheckCircle className="w-4 h-4 text-blue-600" />
+                <p className="text-sm text-blue-700">Formulario completado por IA. Revisa y ajusta si es necesario.</p>
               </div>
             )}
 
-            <div className="grid md:grid-cols-2 gap-4">
-              <label className="flex items-center gap-3 p-4 bg-white border-2 border-blue-300 rounded-lg cursor-pointer hover:border-blue-500 hover:shadow-md transition-all">
-                <Upload className="w-5 h-5 text-blue-600" />
+            <div className="grid md:grid-cols-2 gap-3">
+              <label className="flex items-center gap-3 p-3.5 bg-white border border-gray-300 rounded-lg cursor-pointer hover:border-blue-500 hover:bg-gray-50 transition-all">
+                <Upload className="w-4 h-4 text-gray-600" />
                 <div className="flex-1">
-                  <p className="font-medium text-gray-900">Subir Comprobante</p>
-                  <p className="text-xs text-gray-600">PDF o Imagen</p>
+                  <p className="text-sm font-medium text-gray-900">Subir Comprobante</p>
+                  <p className="text-xs text-gray-500">PDF o Imagen</p>
                 </div>
                 <input type="file" accept=".pdf,image/*" onChange={handleFileUpload} className="hidden" disabled={analyzing} />
               </label>
@@ -318,30 +318,27 @@ const MovimientosCompra = ({ onClose, onSuccess }) => {
                 type="button"
                 onClick={handleAudioRecord}
                 disabled={analyzing}
-                className="flex items-center gap-3 p-4 bg-white border-2 border-blue-300 rounded-lg hover:border-blue-500 hover:shadow-md transition-all disabled:opacity-50"
+                className="flex items-center gap-3 p-3.5 bg-white border border-gray-300 rounded-lg hover:border-blue-500 hover:bg-gray-50 transition-all disabled:opacity-50"
               >
-                <Mic className="w-5 h-5 text-blue-600" />
+                <Mic className="w-4 h-4 text-gray-600" />
                 <div className="flex-1 text-left">
-                  <p className="font-medium text-gray-900">Grabar Audio</p>
-                  <p className="text-xs text-gray-600">Describe la compra</p>
+                  <p className="text-sm font-medium text-gray-900">Grabar Audio</p>
+                  <p className="text-xs text-gray-500">Describe la compra</p>
                 </div>
               </button>
             </div>
           </div>
 
           {error && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center gap-2">
-              <AlertCircle className="w-5 h-5 text-red-600" />
-              <p className="text-red-800">{error}</p>
+            <div className="bg-red-50 border border-red-200 rounded-lg p-3.5 flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 text-red-600" />
+              <p className="text-sm text-red-700">{error}</p>
             </div>
           )}
 
           {/* Datos Generales */}
-          <div className="bg-white rounded-lg p-6 space-y-4 shadow-sm border-2 border-blue-100">
-            <h3 className="font-semibold text-gray-900 text-lg flex items-center gap-2">
-              <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
-              Datos Generales
-            </h3>
+          <div className="bg-white rounded-xl p-5 space-y-4 border border-gray-200">
+            <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">Datos Generales</h3>
             
             <div className="grid md:grid-cols-3 gap-4">
               <div>
@@ -351,7 +348,7 @@ const MovimientosCompra = ({ onClose, onSuccess }) => {
                   value={formData.fecha}
                   onChange={(e) => setFormData({...formData, fecha: e.target.value})}
                   required
-                  className="w-full px-4 py-2.5 rounded-lg border-2 border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all"
+                  className="w-full px-3.5 py-2 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all text-sm"
                 />
               </div>
 
@@ -360,7 +357,7 @@ const MovimientosCompra = ({ onClose, onSuccess }) => {
                 <select
                   value={formData.tipo}
                   onChange={(e) => setFormData({...formData, tipo: e.target.value})}
-                  className="w-full px-4 py-2.5 rounded-lg border-2 border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all"
+                  className="w-full px-3.5 py-2 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all text-sm"
                 >
                   <option value="minorista">Minorista</option>
                   <option value="mayorista">Mayorista</option>
@@ -376,7 +373,7 @@ const MovimientosCompra = ({ onClose, onSuccess }) => {
                   onChange={(e) => setFormData({...formData, proveedor: e.target.value})}
                   required
                   placeholder="Nombre del proveedor"
-                  className="w-full px-4 py-2.5 rounded-lg border-2 border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all"
+                  className="w-full px-3.5 py-2 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all text-sm"
                 />
                 <datalist id="proveedores">
                   {proveedoresSugeridos.map((prov, idx) => (
@@ -392,7 +389,7 @@ const MovimientosCompra = ({ onClose, onSuccess }) => {
                 <select
                   value={formData.medio}
                   onChange={(e) => setFormData({...formData, medio: e.target.value})}
-                  className="w-full px-4 py-2.5 rounded-lg border-2 border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all"
+                  className="w-full px-3.5 py-2 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all text-sm"
                 >
                   {mediosPago.map(medio => (
                     <option key={medio} value={medio}>{medio.replace('_', ' ').toUpperCase()}</option>
@@ -430,9 +427,9 @@ const MovimientosCompra = ({ onClose, onSuccess }) => {
               )}
             </div>
 
-            <div className="bg-gradient-to-r from-blue-100 to-cyan-100 p-6 rounded-lg border-2 border-blue-300">
-              <p className="text-sm text-blue-800 font-medium mb-2">Monto Total Calculado</p>
-              <p className="text-4xl font-bold text-blue-700">
+            <div className="bg-blue-50 p-5 rounded-xl border border-blue-200">
+              <p className="text-xs text-gray-600 font-medium mb-1.5">Monto Total Calculado</p>
+              <p className="text-3xl font-bold text-blue-600">
                 ${calcularMontoTotal()}
               </p>
             </div>
@@ -441,11 +438,11 @@ const MovimientosCompra = ({ onClose, onSuccess }) => {
           {/* Productos */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="font-semibold text-gray-900">Productos</h3>
+              <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">Productos</h3>
               <button
                 type="button"
                 onClick={agregarProducto}
-                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700"
+                className="flex items-center gap-2 px-3.5 py-2 bg-blue-600 text-white text-sm rounded-lg font-medium hover:bg-blue-700 transition-colors"
               >
                 <Plus className="w-4 h-4" />
                 Agregar Producto
@@ -453,14 +450,14 @@ const MovimientosCompra = ({ onClose, onSuccess }) => {
             </div>
 
             {productos.map((producto, index) => (
-              <div key={producto.id} className="bg-white border-2 border-gray-300 rounded-lg p-6 space-y-4">
-                <div className="flex items-center justify-between mb-4">
-                  <h4 className="font-semibold text-gray-900">Producto #{index + 1}</h4>
+              <div key={producto.id} className="bg-gray-50 border border-gray-200 rounded-xl p-5 space-y-4">
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="text-sm font-medium text-gray-700">Producto #{index + 1}</h4>
                   {productos.length > 1 && (
                     <button
                       type="button"
                       onClick={() => eliminarProducto(producto.id)}
-                      className="p-2 hover:bg-red-100 rounded-lg text-red-600"
+                      className="p-1.5 hover:bg-red-50 rounded-lg text-red-600 transition-colors"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -589,18 +586,18 @@ const MovimientosCompra = ({ onClose, onSuccess }) => {
           </div>
 
           {/* Botones */}
-          <div className="flex gap-3 pt-4 border-t-2 border-blue-200 sticky bottom-0 bg-gradient-to-br from-blue-50 to-cyan-50 pb-2">
+          <div className="flex gap-3 pt-5 border-t border-gray-200 sticky bottom-0 bg-white pb-2">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-3 border border-gray-300 rounded-lg font-semibold hover:bg-gray-50"
+              className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
             >
               Cancelar
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 px-4 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-lg font-semibold hover:from-blue-700 hover:to-cyan-700 disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transition-all"
+              className="flex-1 px-4 py-2.5 bg-blue-600 text-white text-sm rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center gap-2 transition-colors"
             >
               {loading ? (
                 <>

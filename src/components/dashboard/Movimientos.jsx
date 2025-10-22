@@ -3,16 +3,18 @@ import { useData } from '../../context/DataContext'
 import { 
   Plus, Save, X, Search, 
   TrendingUp, TrendingDown, DollarSign, ShoppingCart, 
-  FileText, AlertCircle
+  FileText, AlertCircle, Trash2, Eye, Edit
 } from 'lucide-react'
 import MovimientosCompra from './MovimientosCompra'
 import MovimientosVenta from './MovimientosVenta'
 import MovimientosGasto from './MovimientosGasto'
 import MovimientosAporte from './MovimientosAporte'
 import MovimientosRetiro from './MovimientosRetiro'
+import MovimientoDetalle from './MovimientoDetalle'
+import ModalEliminar from './ModalEliminar'
 
 const Movimientos = ({ companyData }) => {
-  const { invoices, addInvoice } = useData()
+  const { invoices, addInvoice, updateInvoice, deleteInvoice } = useData()
   const [showForm, setShowForm] = useState(false)
   const [showCompraForm, setShowCompraForm] = useState(false)
   const [showVentaForm, setShowVentaForm] = useState(false)
@@ -24,6 +26,12 @@ const Movimientos = ({ companyData }) => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const [selectedMovimiento, setSelectedMovimiento] = useState(null)
+  const [showDetalle, setShowDetalle] = useState(false)
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [movimientoToDelete, setMovimientoToDelete] = useState(null)
+  const [deleteLoading, setDeleteLoading] = useState(false)
+  const [editingMovimiento, setEditingMovimiento] = useState(null)
 
   const [formData, setFormData] = useState({
     type: 'venta',
@@ -126,6 +134,52 @@ const Movimientos = ({ companyData }) => {
     }
   }
 
+  const handleDeleteClick = (movimiento) => {
+    setMovimientoToDelete(movimiento)
+    setShowDeleteModal(true)
+  }
+
+  const handleDeleteConfirm = async () => {
+    if (!movimientoToDelete) return
+
+    setDeleteLoading(true)
+    try {
+      await deleteInvoice(movimientoToDelete.id)
+      setSuccess('Movimiento eliminado exitosamente')
+      setShowDeleteModal(false)
+      setMovimientoToDelete(null)
+      setTimeout(() => setSuccess(''), 3000)
+    } catch (err) {
+      setError('Error al eliminar el movimiento: ' + err.message)
+      setTimeout(() => setError(''), 3000)
+    } finally {
+      setDeleteLoading(false)
+    }
+  }
+
+  const handleDeleteCancel = () => {
+    setShowDeleteModal(false)
+    setMovimientoToDelete(null)
+  }
+
+  const handleViewDetalle = (movimiento) => {
+    setSelectedMovimiento(movimiento)
+    setShowDetalle(true)
+  }
+
+  const handleEdit = (movimiento) => {
+    setShowDetalle(false)
+    setEditingMovimiento(movimiento)
+    
+    const movementType = movimiento.metadata?.movementType || (movimiento.type === 'income' ? 'venta' : 'gasto')
+    
+    if (movementType === 'venta') setShowVentaForm(true)
+    else if (movementType === 'compra') setShowCompraForm(true)
+    else if (movementType === 'gasto') setShowGastoForm(true)
+    else if (movementType === 'aporte') setShowAporteForm(true)
+    else if (movementType === 'retiro') setShowRetiroForm(true)
+  }
+
   const filteredMovements = invoices.filter(inv => {
     const matchesSearch = inv.description?.toLowerCase().includes(searchTerm.toLowerCase())
     if (filterType === 'all') return matchesSearch
@@ -138,9 +192,14 @@ const Movimientos = ({ companyData }) => {
       {/* Modales especializados */}
       {showCompraForm && (
         <MovimientosCompra 
-          onClose={() => setShowCompraForm(false)}
+          movimiento={editingMovimiento}
+          onClose={() => {
+            setShowCompraForm(false)
+            setEditingMovimiento(null)
+          }}
           onSuccess={(msg) => {
             setSuccess(msg)
+            setEditingMovimiento(null)
             setTimeout(() => setSuccess(''), 3000)
           }}
         />
@@ -148,9 +207,14 @@ const Movimientos = ({ companyData }) => {
 
       {showVentaForm && (
         <MovimientosVenta 
-          onClose={() => setShowVentaForm(false)}
+          movimiento={editingMovimiento}
+          onClose={() => {
+            setShowVentaForm(false)
+            setEditingMovimiento(null)
+          }}
           onSuccess={(msg) => {
             setSuccess(msg)
+            setEditingMovimiento(null)
             setTimeout(() => setSuccess(''), 3000)
           }}
         />
@@ -158,9 +222,14 @@ const Movimientos = ({ companyData }) => {
 
       {showGastoForm && (
         <MovimientosGasto 
-          onClose={() => setShowGastoForm(false)}
+          movimiento={editingMovimiento}
+          onClose={() => {
+            setShowGastoForm(false)
+            setEditingMovimiento(null)
+          }}
           onSuccess={(msg) => {
             setSuccess(msg)
+            setEditingMovimiento(null)
             setTimeout(() => setSuccess(''), 3000)
           }}
         />
@@ -168,9 +237,14 @@ const Movimientos = ({ companyData }) => {
 
       {showAporteForm && (
         <MovimientosAporte 
-          onClose={() => setShowAporteForm(false)}
+          movimiento={editingMovimiento}
+          onClose={() => {
+            setShowAporteForm(false)
+            setEditingMovimiento(null)
+          }}
           onSuccess={(msg) => {
             setSuccess(msg)
+            setEditingMovimiento(null)
             setTimeout(() => setSuccess(''), 3000)
           }}
         />
@@ -178,11 +252,38 @@ const Movimientos = ({ companyData }) => {
 
       {showRetiroForm && (
         <MovimientosRetiro 
-          onClose={() => setShowRetiroForm(false)}
+          movimiento={editingMovimiento}
+          onClose={() => {
+            setShowRetiroForm(false)
+            setEditingMovimiento(null)
+          }}
           onSuccess={(msg) => {
             setSuccess(msg)
+            setEditingMovimiento(null)
             setTimeout(() => setSuccess(''), 3000)
           }}
+        />
+      )}
+
+      {/* Modal de Detalle */}
+      {showDetalle && selectedMovimiento && (
+        <MovimientoDetalle
+          movimiento={selectedMovimiento}
+          onClose={() => {
+            setShowDetalle(false)
+            setSelectedMovimiento(null)
+          }}
+          onEdit={handleEdit}
+        />
+      )}
+
+      {/* Modal de Eliminación */}
+      {showDeleteModal && movimientoToDelete && (
+        <ModalEliminar
+          movimiento={movimientoToDelete}
+          onConfirm={handleDeleteConfirm}
+          onCancel={handleDeleteCancel}
+          loading={deleteLoading}
         />
       )}
 
@@ -291,11 +392,12 @@ const Movimientos = ({ companyData }) => {
               <th className="text-left py-3 px-4 text-sm font-semibold">Descripción</th>
               <th className="text-left py-3 px-4 text-sm font-semibold">Categoría</th>
               <th className="text-right py-3 px-4 text-sm font-semibold">Monto</th>
+              <th className="text-right py-3 px-4 text-sm font-semibold">Acciones</th>
             </tr>
           </thead>
           <tbody>
             {filteredMovements.length === 0 ? (
-              <tr><td colSpan="5" className="text-center py-12 text-gray-500">
+              <tr><td colSpan="6" className="text-center py-12 text-gray-500">
                 <FileText className="w-12 h-12 mx-auto mb-3 text-gray-400" />
                 <p>No hay movimientos</p>
               </td></tr>
@@ -316,6 +418,31 @@ const Movimientos = ({ companyData }) => {
                     mov.type === 'income' ? 'text-green-600' : 'text-red-600'
                   }`}>
                     ${parseFloat(mov.amount).toLocaleString('es-AR')}
+                  </td>
+                  <td className="py-3 px-4 text-sm text-right">
+                    <div className="flex items-center justify-end gap-1">
+                      <button
+                        onClick={() => handleViewDetalle(mov)}
+                        className="p-1.5 hover:bg-blue-50 rounded-lg text-blue-600 transition-colors"
+                        title="Ver detalle"
+                      >
+                        <Eye className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => handleEdit(mov)}
+                        className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-600 transition-colors"
+                        title="Editar movimiento"
+                      >
+                        <Edit className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteClick(mov)}
+                        className="p-1.5 hover:bg-red-50 rounded-lg text-red-600 transition-colors"
+                        title="Eliminar movimiento"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))

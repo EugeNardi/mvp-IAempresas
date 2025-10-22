@@ -154,6 +154,7 @@ export const DataProvider = ({ children }) => {
       const { data, error } = await supabase
         .from('invoices')
         .select('*')
+        .eq('user_id', user.id)
         .eq('is_active', true)
         .order('invoice_date', { ascending: false })
 
@@ -187,7 +188,8 @@ export const DataProvider = ({ children }) => {
         category: invoice.category,
         fileName: invoice.file_name || 'Manual',
         processed: invoice.processed,
-        taxes: invoice.taxes || []
+        taxes: invoice.taxes || [],
+        metadata: invoice.metadata || {}
       }))
       
       setInvoices(transformedInvoices)
@@ -218,7 +220,8 @@ export const DataProvider = ({ children }) => {
         category: invoice.category,
         file_name: invoice.fileName || 'Manual',
         processed: invoice.processed || true,
-        taxes: invoice.taxes || []
+        taxes: invoice.taxes || [],
+        metadata: invoice.metadata || {}
       }
 
       const { data, error } = await supabase
@@ -326,6 +329,82 @@ export const DataProvider = ({ children }) => {
     }
   }
 
+  const updateInvoice = async (invoiceId, updatedData) => {
+    try {
+      if (!tableExists) {
+        throw new Error('La tabla "invoices" no existe. Ejecuta el script SQL primero.')
+      }
+
+      console.log(`📝 Actualizando factura: ${invoiceId}`)
+      
+      const invoiceData = {
+        invoice_number: updatedData.number,
+        invoice_type: updatedData.type,
+        invoice_date: updatedData.date,
+        description: updatedData.description,
+        amount: parseFloat(updatedData.amount),
+        category: updatedData.category,
+        file_name: updatedData.fileName || 'Manual',
+        processed: updatedData.processed || true,
+        taxes: updatedData.taxes || [],
+        metadata: updatedData.metadata || {}
+      }
+
+      const { data, error } = await supabase
+        .from('invoices')
+        .update(invoiceData)
+        .eq('id', invoiceId)
+        .select()
+        .single()
+
+      if (error) {
+        console.error('❌ Error actualizando factura:', error)
+        throw error
+      }
+
+      console.log('✅ Factura actualizada correctamente')
+      
+      // Recargar facturas
+      await loadInvoices()
+      
+      return data
+    } catch (error) {
+      console.error('Error updating invoice:', error)
+      throw error
+    }
+  }
+
+  // Alias para compatibilidad
+  const addInvoice = saveInvoice
+  
+  // Función para agregar items al inventario
+  const addInventoryItem = async (item) => {
+    try {
+      console.log('📦 Agregando item al inventario...')
+      
+      const { data, error } = await supabase
+        .from('products')
+        .insert([{
+          user_id: user.id,
+          ...item
+        }])
+        .select()
+        .single()
+
+      if (error) {
+        console.error('❌ Error agregando item:', error)
+        throw error
+      }
+
+      console.log('✅ Item agregado correctamente')
+      await loadInventoryItems()
+      return data
+    } catch (error) {
+      console.error('Error adding inventory item:', error)
+      throw error
+    }
+  }
+
   const value = {
     companyData,
     setCompanyData,
@@ -336,10 +415,13 @@ export const DataProvider = ({ children }) => {
     loading,
     loadInvoices,
     saveInvoice,
+    addInvoice,
+    updateInvoice,
     deleteInvoice,
     inventoryItems,
     setInventoryItems,
     loadInventoryItems,
+    addInventoryItem,
     updateInventoryItem,
     tableExists
   }
