@@ -4,24 +4,42 @@ import {
   Save, X, Upload, Sparkles, Loader, 
   TrendingDown, AlertCircle, CheckCircle, Wallet
 } from 'lucide-react'
+import AudioRecorderComponent from '../common/AudioRecorder'
+import { processAudioForMovement, isOpenAIConfigured } from '../../services/aiService'
 
-const MovimientosRetiro = ({ onClose, onSuccess }) => {
-  const { addInvoice, invoices } = useData()
+const MovimientosRetiro = ({ movimiento, onClose, onSuccess }) => {
+  const { addInvoice, updateInvoice, invoices } = useData()
+  const isEditing = !!movimiento
   const [loading, setLoading] = useState(false)
   const [analyzing, setAnalyzing] = useState(false)
   const [error, setError] = useState('')
   const [aiAnalyzed, setAiAnalyzed] = useState(false)
 
-  const [formData, setFormData] = useState({
-    fecha: new Date().toISOString().split('T')[0],
-    tipoRetiro: '',
-    beneficiario: '',
-    descripcion: '',
-    medio: 'transferencia',
-    monto: '',
-    comprobante: null,
-    autorizadoPor: '',
-    concepto: ''
+  const [formData, setFormData] = useState(() => {
+    if (isEditing && movimiento) {
+      return {
+        fecha: movimiento.date || movimiento.invoice_date || new Date().toISOString().split('T')[0],
+        tipoRetiro: movimiento.category || '',
+        beneficiario: movimiento.metadata?.beneficiario || '',
+        descripcion: movimiento.description || '',
+        medio: movimiento.metadata?.paymentMethod || 'transferencia',
+        monto: movimiento.amount?.toString() || '',
+        comprobante: null,
+        autorizadoPor: movimiento.metadata?.autorizadoPor || '',
+        concepto: movimiento.metadata?.concepto || ''
+      }
+    }
+    return {
+      fecha: new Date().toISOString().split('T')[0],
+      tipoRetiro: '',
+      beneficiario: '',
+      descripcion: '',
+      medio: 'transferencia',
+      monto: '',
+      comprobante: null,
+      autorizadoPor: '',
+      concepto: ''
+    }
   })
 
   const tiposRetiro = [
@@ -41,28 +59,58 @@ const MovimientosRetiro = ({ onClose, onSuccess }) => {
       .map(inv => inv.metadata.beneficiario)
   )]
 
-  const analyzeWithAI = async (file) => {
+  const analyzeWithAI = async (file, type) => {
     setAnalyzing(true)
     setError('')
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 2500))
+      if (type === 'audio') {
+        if (!isOpenAIConfigured()) {
+          throw new Error('API de OpenAI no configurada. Agrega tu VITE_OPENAI_API_KEY en el archivo .env')
+        }
 
-      const aiData = {
-        fecha: new Date().toISOString().split('T')[0],
-        tipoRetiro: 'Dividendos',
-        beneficiario: 'Socio Principal',
-        descripcion: 'Retiro de utilidades del trimestre',
-        medio: 'transferencia',
-        monto: '150000',
-        autorizadoPor: 'Gerencia General',
-        concepto: 'Distribución de utilidades Q1 2025'
+        const result = await processAudioForMovement(file, 'retiro')
+        
+        if (!result.success) {
+          throw new Error(result.error)
+        }
+
+        const aiData = result.data
+        
+        const mappedData = {
+          fecha: aiData.fecha || new Date().toISOString().split('T')[0],
+          tipoRetiro: aiData.tipoRetiro || '',
+          beneficiario: aiData.beneficiario || '',
+          descripcion: aiData.descripcion || '',
+          medio: aiData.medio || 'transferencia',
+          monto: aiData.monto?.toString() || '',
+          autorizadoPor: aiData.autorizadoPor || '',
+          concepto: aiData.concepto || '',
+          comprobante: file
+        }
+
+        setFormData(prev => ({ ...prev, ...mappedData }))
+        setAiAnalyzed(true)
+        
+      } else {
+        await new Promise(resolve => setTimeout(resolve, 2500))
+
+        const aiData = {
+          fecha: new Date().toISOString().split('T')[0],
+          tipoRetiro: 'Dividendos',
+          beneficiario: 'Socio Principal',
+          descripcion: 'Retiro de utilidades del trimestre',
+          medio: 'transferencia',
+          monto: '150000',
+          autorizadoPor: 'Gerencia General',
+          concepto: 'Distribución de utilidades Q1 2025'
+        }
+
+        setFormData(prev => ({ ...prev, ...aiData, comprobante: file }))
+        setAiAnalyzed(true)
       }
-
-      setFormData(prev => ({ ...prev, ...aiData, comprobante: file }))
-      setAiAnalyzed(true)
     } catch (err) {
-      setError('Error al analizar con IA. Por favor completa manualmente.')
+      setError(err.message || 'Error al analizar con IA. Por favor completa manualmente.')
     } finally {
       setAnalyzing(false)
     }
@@ -78,7 +126,7 @@ const MovimientosRetiro = ({ onClose, onSuccess }) => {
       return
     }
 
-    await analyzeWithAI(file)
+    await analyzeWithAI(file, 'document')
   }
 
   const handleSubmit = async (e) => {
@@ -91,13 +139,13 @@ const MovimientosRetiro = ({ onClose, onSuccess }) => {
       if (!formData.beneficiario) throw new Error('El beneficiario es obligatorio')
       if (!formData.monto || parseFloat(formData.monto) <= 0) throw new Error('El monto debe ser mayor a 0')
 
-      const retiro = {
+      const retiroData = {
         type: 'expense',
         date: formData.fecha,
         amount: parseFloat(formData.monto),
         description: `${formData.tipoRetiro} - ${formData.beneficiario}`,
         category: formData.tipoRetiro,
-        number: `RETIRO-${Date.now()}`,
+        number: isEditing ? (movimiento.number || movimiento.invoice_number) : `RETIRO-${Date.now()}`,
         metadata: {
           movementType: 'retiro',
           tipoRetiro: formData.tipoRetiro,
@@ -111,8 +159,12 @@ const MovimientosRetiro = ({ onClose, onSuccess }) => {
         }
       }
 
-      await addInvoice(retiro)
-      onSuccess?.('Retiro registrado exitosamente.')
+      if (isEditing) {
+        await updateInvoice(movimiento.id, retiroData)
+      } else {
+        await addInvoice(retiroData)
+      }
+      onSuccess?.(isEditing ? 'Retiro actualizado exitosamente.' : 'Retiro registrado exitosamente.')
       onClose?.()
     } catch (err) {
       setError(err.message)
@@ -130,8 +182,8 @@ const MovimientosRetiro = ({ onClose, onSuccess }) => {
               <TrendingDown className="w-6 h-6 text-orange-600" />
             </div>
             <div>
-              <h2 className="text-xl font-semibold text-gray-900">Nuevo Retiro</h2>
-              <p className="text-gray-500 text-sm">Registra un retiro de capital o utilidades</p>
+              <h2 className="text-xl font-semibold text-gray-900">{isEditing ? 'Editar Retiro' : 'Nuevo Retiro'}</h2>
+              <p className="text-gray-500 text-sm">{isEditing ? 'Modifica los datos del retiro' : 'Registra un retiro de capital o utilidades'}</p>
             </div>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
@@ -164,14 +216,25 @@ const MovimientosRetiro = ({ onClose, onSuccess }) => {
               </div>
             )}
 
-            <label className="flex items-center gap-3 p-4 bg-white border-2 border-orange-300 rounded-lg cursor-pointer hover:border-orange-500 hover:shadow-md transition-all">
-              <Upload className="w-5 h-5 text-orange-600" />
-              <div className="flex-1">
-                <p className="font-medium text-gray-900">Subir Comprobante</p>
-                <p className="text-xs text-gray-600">PDF o Imagen</p>
+            <div className="space-y-3">
+              <label className="flex items-center gap-3 p-3.5 bg-white border border-gray-300 rounded-lg cursor-pointer hover:border-orange-500 hover:bg-gray-50 transition-all">
+                <Upload className="w-4 h-4 text-gray-600" />
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-gray-900">Subir Comprobante</p>
+                  <p className="text-xs text-gray-500">PDF o Imagen</p>
+                </div>
+                <input type="file" accept=".pdf,image/*" onChange={handleFileUpload} className="hidden" disabled={analyzing} />
+              </label>
+
+              <div className="border-t border-gray-200 pt-3">
+                <p className="text-xs font-medium text-gray-700 mb-2 uppercase tracking-wide">O graba un audio</p>
+                <AudioRecorderComponent
+                  onRecordingComplete={(audioFile) => analyzeWithAI(audioFile, 'audio')}
+                  onError={(error) => setError(error)}
+                  disabled={analyzing}
+                />
               </div>
-              <input type="file" accept=".pdf,image/*" onChange={handleFileUpload} className="hidden" disabled={analyzing} />
-            </label>
+            </div>
           </div>
 
           {error && (

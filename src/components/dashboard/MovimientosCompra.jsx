@@ -4,38 +4,72 @@ import {
   Plus, Save, X, Upload, Mic, Sparkles, Loader, 
   ShoppingCart, AlertCircle, CheckCircle, Image as ImageIcon, Trash2
 } from 'lucide-react'
+import AudioRecorderComponent from '../common/AudioRecorder'
+import { processAudioForMovement, isOpenAIConfigured } from '../../services/aiService'
 
-const MovimientosCompra = ({ onClose, onSuccess }) => {
-  const { addInvoice, invoices, addInventoryItem } = useData()
+const MovimientosCompra = ({ movimiento, onClose, onSuccess }) => {
+  const { addInvoice, updateInvoice, invoices, addInventoryItem } = useData()
+  const isEditing = !!movimiento
   const [loading, setLoading] = useState(false)
   const [analyzing, setAnalyzing] = useState(false)
   const [error, setError] = useState('')
   const [aiAnalyzed, setAiAnalyzed] = useState(false)
 
-  const [formData, setFormData] = useState({
-    fecha: new Date().toISOString().split('T')[0],
-    tipo: 'minorista',
-    proveedor: '',
-    medio: 'efectivo',
-    pago: 'si',
-    deuda: '',
-    montoTotal: '',
-    comprobante: null,
-    productos: []
+  const [formData, setFormData] = useState(() => {
+    if (isEditing && movimiento) {
+      return {
+        fecha: movimiento.date || movimiento.invoice_date || new Date().toISOString().split('T')[0],
+        tipo: movimiento.metadata?.tipoCompra || 'minorista',
+        proveedor: movimiento.metadata?.provider || '',
+        medio: movimiento.metadata?.paymentMethod || 'efectivo',
+        pago: movimiento.metadata?.pagado ? 'si' : 'no',
+        deuda: movimiento.metadata?.deuda || '',
+        montoTotal: movimiento.amount?.toString() || '',
+        comprobante: null,
+        productos: movimiento.metadata?.productos || []
+      }
+    }
+    return {
+      fecha: new Date().toISOString().split('T')[0],
+      tipo: 'minorista',
+      proveedor: '',
+      medio: 'efectivo',
+      pago: 'si',
+      deuda: '',
+      montoTotal: '',
+      comprobante: null,
+      productos: []
+    }
   })
 
-  const [productos, setProductos] = useState([{
-    id: Date.now(),
-    categoria: '',
-    nombre: '',
-    descripcion: '',
-    cantidad: 1,
-    costoUnitario: '',
-    costoTotal: '',
-    imagen: null,
-    precioMinorista: '',
-    precioMayorista: ''
-  }])
+  const [productos, setProductos] = useState(() => {
+    if (isEditing && movimiento?.metadata?.productos && movimiento.metadata.productos.length > 0) {
+      return movimiento.metadata.productos.map(p => ({
+        id: p.id || Date.now() + Math.random(),
+        categoria: p.categoria || '',
+        nombre: p.nombre || '',
+        descripcion: p.descripcion || '',
+        cantidad: p.cantidad || 1,
+        costoUnitario: p.costoUnitario?.toString() || '',
+        costoTotal: p.costoTotal?.toString() || '',
+        imagen: null,
+        precioMinorista: p.precioMinorista?.toString() || '',
+        precioMayorista: p.precioMayorista?.toString() || ''
+      }))
+    }
+    return [{
+      id: Date.now(),
+      categoria: '',
+      nombre: '',
+      descripcion: '',
+      cantidad: 1,
+      costoUnitario: '',
+      costoTotal: '',
+      imagen: null,
+      precioMinorista: '',
+      precioMayorista: ''
+    }]
+  })
 
   const mediosPago = ['efectivo', 'transferencia', 'tarjeta_debito', 'tarjeta_credito', 'cheque', 'mercadopago']
   
@@ -53,59 +87,88 @@ const MovimientosCompra = ({ onClose, onSuccess }) => {
       .map(inv => inv.category)
   )]
 
-  // Análisis con IA de comprobante o audio
   const analyzeWithAI = async (file, type) => {
     setAnalyzing(true)
     setError('')
 
     try {
-      // Simular análisis de IA (en producción llamaría a OpenAI/GPT-4)
-      await new Promise(resolve => setTimeout(resolve, 2500))
+      if (type === 'audio') {
+        // Procesar audio con IA real
+        if (!isOpenAIConfigured()) {
+          throw new Error('API de OpenAI no configurada. Agrega tu VITE_OPENAI_API_KEY en el archivo .env')
+        }
 
-      // Simulación de datos extraídos por IA
-      const aiData = {
-        fecha: new Date().toISOString().split('T')[0],
-        tipo: 'minorista',
-        proveedor: 'Proveedor Detectado SA',
-        medio: 'transferencia',
-        pago: 'si',
-        montoTotal: '15000',
-        productos: [
-          {
-            id: Date.now(),
-            categoria: categoriasSugeridas[0] || 'Mercadería',
-            nombre: 'Producto Detectado 1',
-            descripcion: 'Descripción extraída del comprobante',
-            cantidad: 10,
-            costoUnitario: '1000',
-            costoTotal: '10000',
-            precioMinorista: '1500',
-            precioMayorista: '1300'
-          },
-          {
-            id: Date.now() + 1,
-            categoria: categoriasSugeridas[0] || 'Mercadería',
-            nombre: 'Producto Detectado 2',
-            descripcion: 'Descripción extraída del comprobante',
-            cantidad: 5,
-            costoUnitario: '1000',
-            costoTotal: '5000',
-            precioMinorista: '1500',
-            precioMayorista: '1300'
-          }
-        ]
+        const result = await processAudioForMovement(file, 'compra')
+        
+        if (!result.success) {
+          throw new Error(result.error)
+        }
+
+        const aiData = result.data
+        
+        // Mapear datos de IA al formato del formulario
+        const mappedData = {
+          fecha: aiData.fecha || new Date().toISOString().split('T')[0],
+          tipo: aiData.tipo || 'minorista',
+          proveedor: aiData.proveedor || '',
+          medio: aiData.medio || 'efectivo',
+          pago: aiData.pagado ? 'si' : 'no',
+          montoTotal: '',
+          comprobante: file
+        }
+
+        // Mapear productos si existen
+        if (aiData.productos && aiData.productos.length > 0) {
+          const mappedProductos = aiData.productos.map((p, idx) => ({
+            id: Date.now() + idx,
+            categoria: p.categoria || 'Mercadería',
+            nombre: p.nombre || '',
+            descripcion: p.descripcion || '',
+            cantidad: p.cantidad || 1,
+            costoUnitario: p.costoUnitario?.toString() || '',
+            costoTotal: ((p.cantidad || 1) * (p.costoUnitario || 0)).toString(),
+            imagen: null,
+            precioMinorista: p.precioMinorista?.toString() || '',
+            precioMayorista: p.precioMayorista?.toString() || ''
+          }))
+          setProductos(mappedProductos)
+        }
+
+        setFormData(prev => ({ ...prev, ...mappedData }))
+        setAiAnalyzed(true)
+        
+      } else {
+        // Simulación para documentos
+        await new Promise(resolve => setTimeout(resolve, 2500))
+
+        const aiData = {
+          fecha: new Date().toISOString().split('T')[0],
+          tipo: 'minorista',
+          proveedor: 'Proveedor Detectado SA',
+          medio: 'transferencia',
+          pago: 'si',
+          montoTotal: '15000',
+          productos: [
+            {
+              id: Date.now(),
+              categoria: categoriasSugeridas[0] || 'Mercadería',
+              nombre: 'Producto Detectado 1',
+              descripcion: 'Descripción extraída del comprobante',
+              cantidad: 10,
+              costoUnitario: '1000',
+              costoTotal: '10000',
+              precioMinorista: '1500',
+              precioMayorista: '1300'
+            }
+          ]
+        }
+
+        setFormData(prev => ({ ...prev, ...aiData, comprobante: file }))
+        setProductos(aiData.productos)
+        setAiAnalyzed(true)
       }
-
-      setFormData(prev => ({
-        ...prev,
-        ...aiData,
-        comprobante: file
-      }))
-      setProductos(aiData.productos)
-      setAiAnalyzed(true)
-      setError('')
     } catch (err) {
-      setError('Error al analizar con IA. Por favor completa manualmente.')
+      setError(err.message || 'Error al analizar con IA. Por favor completa manualmente.')
     } finally {
       setAnalyzing(false)
     }
@@ -124,10 +187,6 @@ const MovimientosCompra = ({ onClose, onSuccess }) => {
     await analyzeWithAI(file, 'document')
   }
 
-  const handleAudioRecord = async () => {
-    // Simulación de grabación de audio
-    setError('Función de audio en desarrollo. Por favor usa comprobante o manual.')
-  }
 
   const agregarProducto = () => {
     setProductos([...productos, {
@@ -196,13 +255,13 @@ const MovimientosCompra = ({ onClose, onSuccess }) => {
       }
 
       // Crear movimiento de compra
-      const compra = {
+      const compraData = {
         type: 'expense',
         date: formData.fecha,
         amount: parseFloat(montoCalculado),
         description: `Compra ${formData.tipo} - ${formData.proveedor}`,
         category: 'Mercadería',
-        number: `COMPRA-${Date.now()}`,
+        number: isEditing ? (movimiento.number || movimiento.invoice_number) : `COMPRA-${Date.now()}`,
         metadata: {
           movementType: 'compra',
           tipoCompra: formData.tipo,
@@ -226,7 +285,11 @@ const MovimientosCompra = ({ onClose, onSuccess }) => {
         }
       }
 
-      await addInvoice(compra)
+      if (isEditing) {
+        await updateInvoice(movimiento.id, compraData)
+      } else {
+        await addInvoice(compraData)
+      }
       
       // Agregar productos al inventario
       for (const prod of productos) {
@@ -252,7 +315,7 @@ const MovimientosCompra = ({ onClose, onSuccess }) => {
         }
       }
       
-      onSuccess?.('Compra registrada exitosamente. Inventario actualizado.')
+      onSuccess?.(isEditing ? 'Compra actualizada exitosamente.' : 'Compra registrada exitosamente. Inventario actualizado.')
       onClose?.()
     } catch (err) {
       setError(err.message)
@@ -270,8 +333,8 @@ const MovimientosCompra = ({ onClose, onSuccess }) => {
               <ShoppingCart className="w-6 h-6 text-blue-600" />
             </div>
             <div>
-              <h2 className="text-xl font-semibold text-gray-900">Nueva Compra</h2>
-              <p className="text-gray-500 text-sm">Registra una compra y actualiza el inventario</p>
+              <h2 className="text-xl font-semibold text-gray-900">{isEditing ? 'Editar Compra' : 'Nueva Compra'}</h2>
+              <p className="text-gray-500 text-sm">{isEditing ? 'Modifica los datos de la compra' : 'Registra una compra y actualiza el inventario'}</p>
             </div>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
@@ -304,7 +367,7 @@ const MovimientosCompra = ({ onClose, onSuccess }) => {
               </div>
             )}
 
-            <div className="grid md:grid-cols-2 gap-3">
+            <div className="space-y-3">
               <label className="flex items-center gap-3 p-3.5 bg-white border border-gray-300 rounded-lg cursor-pointer hover:border-blue-500 hover:bg-gray-50 transition-all">
                 <Upload className="w-4 h-4 text-gray-600" />
                 <div className="flex-1">
@@ -314,18 +377,14 @@ const MovimientosCompra = ({ onClose, onSuccess }) => {
                 <input type="file" accept=".pdf,image/*" onChange={handleFileUpload} className="hidden" disabled={analyzing} />
               </label>
 
-              <button
-                type="button"
-                onClick={handleAudioRecord}
-                disabled={analyzing}
-                className="flex items-center gap-3 p-3.5 bg-white border border-gray-300 rounded-lg hover:border-blue-500 hover:bg-gray-50 transition-all disabled:opacity-50"
-              >
-                <Mic className="w-4 h-4 text-gray-600" />
-                <div className="flex-1 text-left">
-                  <p className="text-sm font-medium text-gray-900">Grabar Audio</p>
-                  <p className="text-xs text-gray-500">Describe la compra</p>
-                </div>
-              </button>
+              <div className="border-t border-gray-200 pt-3">
+                <p className="text-xs font-medium text-gray-700 mb-2 uppercase tracking-wide">O graba un audio</p>
+                <AudioRecorderComponent
+                  onRecordingComplete={(audioFile) => analyzeWithAI(audioFile, 'audio')}
+                  onError={(error) => setError(error)}
+                  disabled={analyzing}
+                />
+              </div>
             </div>
           </div>
 

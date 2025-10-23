@@ -4,24 +4,42 @@ import {
   Save, X, Upload, Mic, Sparkles, Loader, 
   DollarSign, AlertCircle, CheckCircle, TrendingUp
 } from 'lucide-react'
+import AudioRecorderComponent from '../common/AudioRecorder'
+import { processAudioForMovement, isOpenAIConfigured } from '../../services/aiService'
 
-const MovimientosAporte = ({ onClose, onSuccess }) => {
-  const { addInvoice, invoices } = useData()
+const MovimientosAporte = ({ movimiento, onClose, onSuccess }) => {
+  const { addInvoice, updateInvoice, invoices } = useData()
+  const isEditing = !!movimiento
   const [loading, setLoading] = useState(false)
   const [analyzing, setAnalyzing] = useState(false)
   const [error, setError] = useState('')
   const [aiAnalyzed, setAiAnalyzed] = useState(false)
 
-  const [formData, setFormData] = useState({
-    fecha: new Date().toISOString().split('T')[0],
-    tipoAporte: '',
-    aportante: '',
-    descripcion: '',
-    medio: 'transferencia',
-    monto: '',
-    comprobante: null,
-    porcentajeParticipacion: '',
-    destinoFondos: ''
+  const [formData, setFormData] = useState(() => {
+    if (isEditing && movimiento) {
+      return {
+        fecha: movimiento.date || movimiento.invoice_date || new Date().toISOString().split('T')[0],
+        tipoAporte: movimiento.category || '',
+        aportante: movimiento.metadata?.aportante || '',
+        descripcion: movimiento.description || '',
+        medio: movimiento.metadata?.paymentMethod || 'transferencia',
+        monto: movimiento.amount?.toString() || '',
+        comprobante: null,
+        porcentajeParticipacion: movimiento.metadata?.porcentajeParticipacion || '',
+        destinoFondos: movimiento.metadata?.destinoFondos || ''
+      }
+    }
+    return {
+      fecha: new Date().toISOString().split('T')[0],
+      tipoAporte: '',
+      aportante: '',
+      descripcion: '',
+      medio: 'transferencia',
+      monto: '',
+      comprobante: null,
+      porcentajeParticipacion: '',
+      destinoFondos: ''
+    }
   })
 
   const tiposAporte = [
@@ -42,28 +60,58 @@ const MovimientosAporte = ({ onClose, onSuccess }) => {
       .map(inv => inv.metadata.aportante)
   )]
 
-  const analyzeWithAI = async (file) => {
+  const analyzeWithAI = async (file, type) => {
     setAnalyzing(true)
     setError('')
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 2500))
+      if (type === 'audio') {
+        if (!isOpenAIConfigured()) {
+          throw new Error('API de OpenAI no configurada. Agrega tu VITE_OPENAI_API_KEY en el archivo .env')
+        }
 
-      const aiData = {
-        fecha: new Date().toISOString().split('T')[0],
-        tipoAporte: 'Aporte de Socio',
-        aportante: 'Juan Pérez',
-        descripcion: 'Aporte de capital para expansión',
-        medio: 'transferencia',
-        monto: '500000',
-        porcentajeParticipacion: '25',
-        destinoFondos: 'Expansión de operaciones'
+        const result = await processAudioForMovement(file, 'aporte')
+        
+        if (!result.success) {
+          throw new Error(result.error)
+        }
+
+        const aiData = result.data
+        
+        const mappedData = {
+          fecha: aiData.fecha || new Date().toISOString().split('T')[0],
+          tipoAporte: aiData.tipoAporte || '',
+          aportante: aiData.aportante || '',
+          descripcion: aiData.descripcion || '',
+          medio: aiData.medio || 'transferencia',
+          monto: aiData.monto?.toString() || '',
+          porcentajeParticipacion: aiData.porcentajeParticipacion?.toString() || '',
+          destinoFondos: aiData.destinoFondos || '',
+          comprobante: file
+        }
+
+        setFormData(prev => ({ ...prev, ...mappedData }))
+        setAiAnalyzed(true)
+        
+      } else {
+        await new Promise(resolve => setTimeout(resolve, 2500))
+
+        const aiData = {
+          fecha: new Date().toISOString().split('T')[0],
+          tipoAporte: 'Aporte de Socio',
+          aportante: 'Juan Pérez',
+          descripcion: 'Aporte de capital para expansión',
+          medio: 'transferencia',
+          monto: '500000',
+          porcentajeParticipacion: '25',
+          destinoFondos: 'Expansión de operaciones'
+        }
+
+        setFormData(prev => ({ ...prev, ...aiData, comprobante: file }))
+        setAiAnalyzed(true)
       }
-
-      setFormData(prev => ({ ...prev, ...aiData, comprobante: file }))
-      setAiAnalyzed(true)
     } catch (err) {
-      setError('Error al analizar con IA. Por favor completa manualmente.')
+      setError(err.message || 'Error al analizar con IA. Por favor completa manualmente.')
     } finally {
       setAnalyzing(false)
     }
@@ -79,7 +127,7 @@ const MovimientosAporte = ({ onClose, onSuccess }) => {
       return
     }
 
-    await analyzeWithAI(file)
+    await analyzeWithAI(file, 'document')
   }
 
   const handleSubmit = async (e) => {
@@ -92,13 +140,13 @@ const MovimientosAporte = ({ onClose, onSuccess }) => {
       if (!formData.aportante) throw new Error('El aportante es obligatorio')
       if (!formData.monto || parseFloat(formData.monto) <= 0) throw new Error('El monto debe ser mayor a 0')
 
-      const aporte = {
+      const aporteData = {
         type: 'income',
         date: formData.fecha,
         amount: parseFloat(formData.monto),
         description: `${formData.tipoAporte} - ${formData.aportante}`,
         category: formData.tipoAporte,
-        number: `APORTE-${Date.now()}`,
+        number: isEditing ? (movimiento.number || movimiento.invoice_number) : `APORTE-${Date.now()}`,
         metadata: {
           movementType: 'aporte',
           tipoAporte: formData.tipoAporte,
@@ -112,8 +160,12 @@ const MovimientosAporte = ({ onClose, onSuccess }) => {
         }
       }
 
-      await addInvoice(aporte)
-      onSuccess?.('Aporte registrado exitosamente.')
+      if (isEditing) {
+        await updateInvoice(movimiento.id, aporteData)
+      } else {
+        await addInvoice(aporteData)
+      }
+      onSuccess?.(isEditing ? 'Aporte actualizado exitosamente.' : 'Aporte registrado exitosamente.')
       onClose?.()
     } catch (err) {
       setError(err.message)
@@ -131,8 +183,8 @@ const MovimientosAporte = ({ onClose, onSuccess }) => {
               <DollarSign className="w-6 h-6 text-purple-600" />
             </div>
             <div>
-              <h2 className="text-xl font-semibold text-gray-900">Nuevo Aporte</h2>
-              <p className="text-gray-500 text-sm">Registra un aporte de capital o inversión</p>
+              <h2 className="text-xl font-semibold text-gray-900">{isEditing ? 'Editar Aporte' : 'Nuevo Aporte'}</h2>
+              <p className="text-gray-500 text-sm">{isEditing ? 'Modifica los datos del aporte' : 'Registra un aporte de capital o inversión'}</p>
             </div>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
@@ -165,28 +217,24 @@ const MovimientosAporte = ({ onClose, onSuccess }) => {
               </div>
             )}
 
-            <div className="grid md:grid-cols-2 gap-4">
-              <label className="flex items-center gap-3 p-4 bg-white border-2 border-purple-300 rounded-lg cursor-pointer hover:border-purple-500 hover:shadow-md transition-all">
-                <Upload className="w-5 h-5 text-purple-600" />
+            <div className="space-y-3">
+              <label className="flex items-center gap-3 p-3.5 bg-white border border-gray-300 rounded-lg cursor-pointer hover:border-purple-500 hover:bg-gray-50 transition-all">
+                <Upload className="w-4 h-4 text-gray-600" />
                 <div className="flex-1">
-                  <p className="font-medium text-gray-900">Subir Comprobante</p>
-                  <p className="text-xs text-gray-600">PDF o Imagen</p>
+                  <p className="text-sm font-medium text-gray-900">Subir Comprobante</p>
+                  <p className="text-xs text-gray-500">PDF o Imagen</p>
                 </div>
                 <input type="file" accept=".pdf,image/*" onChange={handleFileUpload} className="hidden" disabled={analyzing} />
               </label>
 
-              <button
-                type="button"
-                onClick={() => setError('Función de audio en desarrollo')}
-                disabled={analyzing}
-                className="flex items-center gap-3 p-4 bg-white border-2 border-purple-300 rounded-lg hover:border-purple-500 hover:shadow-md transition-all disabled:opacity-50"
-              >
-                <Mic className="w-5 h-5 text-purple-600" />
-                <div className="flex-1 text-left">
-                  <p className="font-medium text-gray-900">Grabar Audio</p>
-                  <p className="text-xs text-gray-600">Describe el aporte</p>
-                </div>
-              </button>
+              <div className="border-t border-gray-200 pt-3">
+                <p className="text-xs font-medium text-gray-700 mb-2 uppercase tracking-wide">O graba un audio</p>
+                <AudioRecorderComponent
+                  onRecordingComplete={(audioFile) => analyzeWithAI(audioFile, 'audio')}
+                  onError={(error) => setError(error)}
+                  disabled={analyzing}
+                />
+              </div>
             </div>
           </div>
 

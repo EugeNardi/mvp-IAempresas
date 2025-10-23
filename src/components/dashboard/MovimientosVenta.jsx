@@ -4,6 +4,8 @@ import {
   Plus, Save, X, Upload, Mic, Sparkles, Loader, 
   TrendingUp, AlertCircle, CheckCircle, Image as ImageIcon, Trash2
 } from 'lucide-react'
+import AudioRecorderComponent from '../common/AudioRecorder'
+import { processAudioForMovement, isOpenAIConfigured } from '../../services/aiService'
 
 const MovimientosVenta = ({ movimiento, onClose, onSuccess }) => {
   const { addInvoice, updateInvoice, invoices, inventoryItems, updateInventoryItem } = useData()
@@ -80,34 +82,80 @@ const MovimientosVenta = ({ movimiento, onClose, onSuccess }) => {
     setError('')
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 2500))
+      if (type === 'audio') {
+        // Procesar audio con IA real
+        if (!isOpenAIConfigured()) {
+          throw new Error('API de OpenAI no configurada. Agrega tu VITE_OPENAI_API_KEY en el archivo .env')
+        }
 
-      const aiData = {
-        fecha: new Date().toISOString().split('T')[0],
-        tipo: 'minorista',
-        cliente: 'Cliente Detectado',
-        medio: 'transferencia',
-        cobrado: 'si',
-        montoTotal: '25000',
-        productos: [
-          {
-            id: Date.now(),
-            productoId: inventoryItems[0]?.id || '',
-            nombre: inventoryItems[0]?.name || 'Producto 1',
-            cantidad: 5,
-            precioUnitario: '5000',
-            precioTotal: '25000',
-            descuento: 0,
-            stockDisponible: inventoryItems[0]?.quantity || 0
-          }
-        ]
+        const result = await processAudioForMovement(file, 'venta')
+        
+        if (!result.success) {
+          throw new Error(result.error)
+        }
+
+        const aiData = result.data
+        
+        // Mapear datos de IA al formato del formulario
+        const mappedData = {
+          fecha: aiData.fecha || new Date().toISOString().split('T')[0],
+          tipo: aiData.tipo || 'minorista',
+          cliente: aiData.cliente || '',
+          medio: aiData.medio || 'efectivo',
+          cobrado: aiData.cobrado ? 'si' : 'no',
+          montoTotal: '',
+          comprobante: file
+        }
+
+        // Mapear productos si existen
+        if (aiData.productos && aiData.productos.length > 0) {
+          const mappedProductos = aiData.productos.map((p, idx) => ({
+            id: Date.now() + idx,
+            productoId: '',
+            nombre: p.nombre || '',
+            cantidad: p.cantidad || 1,
+            precioUnitario: p.precioUnitario?.toString() || '',
+            precioTotal: ((p.cantidad || 1) * (p.precioUnitario || 0)).toString(),
+            descuento: p.descuento || 0,
+            stockDisponible: 0
+          }))
+          setProductos(mappedProductos)
+        }
+
+        setFormData(prev => ({ ...prev, ...mappedData }))
+        setAiAnalyzed(true)
+        
+      } else {
+        // Simulación para documentos (por ahora)
+        await new Promise(resolve => setTimeout(resolve, 2500))
+
+        const aiData = {
+          fecha: new Date().toISOString().split('T')[0],
+          tipo: 'minorista',
+          cliente: 'Cliente Detectado',
+          medio: 'transferencia',
+          cobrado: 'si',
+          montoTotal: '25000',
+          productos: [
+            {
+              id: Date.now(),
+              productoId: inventoryItems[0]?.id || '',
+              nombre: inventoryItems[0]?.name || 'Producto 1',
+              cantidad: 5,
+              precioUnitario: '5000',
+              precioTotal: '25000',
+              descuento: 0,
+              stockDisponible: inventoryItems[0]?.quantity || 0
+            }
+          ]
+        }
+
+        setFormData(prev => ({ ...prev, ...aiData, comprobante: file }))
+        setProductos(aiData.productos)
+        setAiAnalyzed(true)
       }
-
-      setFormData(prev => ({ ...prev, ...aiData, comprobante: file }))
-      setProductos(aiData.productos)
-      setAiAnalyzed(true)
     } catch (err) {
-      setError('Error al analizar con IA. Por favor completa manualmente.')
+      setError(err.message || 'Error al analizar con IA. Por favor completa manualmente.')
     } finally {
       setAnalyzing(false)
     }
@@ -311,7 +359,7 @@ const MovimientosVenta = ({ movimiento, onClose, onSuccess }) => {
               </div>
             )}
 
-            <div className="grid md:grid-cols-2 gap-3">
+            <div className="space-y-3">
               <label className="flex items-center gap-3 p-3.5 bg-white border border-gray-300 rounded-lg cursor-pointer hover:border-green-500 hover:bg-gray-50 transition-all">
                 <Upload className="w-4 h-4 text-gray-600" />
                 <div className="flex-1">
@@ -321,18 +369,14 @@ const MovimientosVenta = ({ movimiento, onClose, onSuccess }) => {
                 <input type="file" accept=".pdf,image/*" onChange={handleFileUpload} className="hidden" disabled={analyzing} />
               </label>
 
-              <button
-                type="button"
-                onClick={() => setError('Función de audio en desarrollo')}
-                disabled={analyzing}
-                className="flex items-center gap-3 p-3.5 bg-white border border-gray-300 rounded-lg hover:border-green-500 hover:bg-gray-50 transition-all disabled:opacity-50"
-              >
-                <Mic className="w-4 h-4 text-gray-600" />
-                <div className="flex-1 text-left">
-                  <p className="text-sm font-medium text-gray-900">Grabar Audio</p>
-                  <p className="text-xs text-gray-500">Describe la venta</p>
-                </div>
-              </button>
+              <div className="border-t border-gray-200 pt-3">
+                <p className="text-xs font-medium text-gray-700 mb-2 uppercase tracking-wide">O graba un audio</p>
+                <AudioRecorderComponent
+                  onRecordingComplete={(audioFile) => analyzeWithAI(audioFile, 'audio')}
+                  onError={(error) => setError(error)}
+                  disabled={analyzing}
+                />
+              </div>
             </div>
           </div>
 

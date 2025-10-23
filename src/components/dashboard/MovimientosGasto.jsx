@@ -4,27 +4,48 @@ import {
   Save, X, Upload, Mic, Sparkles, Loader, 
   TrendingDown, AlertCircle, CheckCircle, FileText
 } from 'lucide-react'
+import AudioRecorderComponent from '../common/AudioRecorder'
+import { processAudioForMovement, isOpenAIConfigured } from '../../services/aiService'
 
-const MovimientosGasto = ({ onClose, onSuccess }) => {
-  const { addInvoice, invoices } = useData()
+const MovimientosGasto = ({ movimiento, onClose, onSuccess }) => {
+  const { addInvoice, updateInvoice, invoices } = useData()
+  const isEditing = !!movimiento
   const [loading, setLoading] = useState(false)
   const [analyzing, setAnalyzing] = useState(false)
   const [error, setError] = useState('')
   const [aiAnalyzed, setAiAnalyzed] = useState(false)
 
-  const [formData, setFormData] = useState({
-    fecha: new Date().toISOString().split('T')[0],
-    categoria: '',
-    concepto: '',
-    descripcion: '',
-    beneficiario: '',
-    medio: 'efectivo',
-    pagado: 'si',
-    deuda: '',
-    monto: '',
-    comprobante: null,
-    recurrente: 'no',
-    frecuencia: 'mensual'
+  const [formData, setFormData] = useState(() => {
+    if (isEditing && movimiento) {
+      return {
+        fecha: movimiento.date || movimiento.invoice_date || new Date().toISOString().split('T')[0],
+        categoria: movimiento.category || '',
+        concepto: movimiento.metadata?.concepto || '',
+        descripcion: movimiento.description || '',
+        beneficiario: movimiento.metadata?.beneficiario || '',
+        medio: movimiento.metadata?.paymentMethod || 'efectivo',
+        pagado: movimiento.metadata?.pagado ? 'si' : 'no',
+        deuda: movimiento.metadata?.deuda || '',
+        monto: movimiento.amount?.toString() || '',
+        comprobante: null,
+        recurrente: movimiento.metadata?.recurrente ? 'si' : 'no',
+        frecuencia: movimiento.metadata?.frecuencia || 'mensual'
+      }
+    }
+    return {
+      fecha: new Date().toISOString().split('T')[0],
+      categoria: '',
+      concepto: '',
+      descripcion: '',
+      beneficiario: '',
+      medio: 'efectivo',
+      pagado: 'si',
+      deuda: '',
+      monto: '',
+      comprobante: null,
+      recurrente: 'no',
+      frecuencia: 'mensual'
+    }
   })
 
   const categorias = ['Sueldos', 'Alquiler', 'Servicios', 'Marketing', 'Impuestos', 'Mantenimiento', 'Seguros', 'Otros']
@@ -36,30 +57,62 @@ const MovimientosGasto = ({ onClose, onSuccess }) => {
       .map(inv => inv.metadata.beneficiario)
   )]
 
-  const analyzeWithAI = async (file) => {
+  const analyzeWithAI = async (file, type) => {
     setAnalyzing(true)
     setError('')
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 2500))
+      if (type === 'audio') {
+        if (!isOpenAIConfigured()) {
+          throw new Error('API de OpenAI no configurada. Agrega tu VITE_OPENAI_API_KEY en el archivo .env')
+        }
 
-      const aiData = {
-        fecha: new Date().toISOString().split('T')[0],
-        categoria: 'Servicios',
-        concepto: 'Servicio de Internet',
-        descripcion: 'Pago mensual de internet empresarial',
-        beneficiario: 'Proveedor de Servicios SA',
-        medio: 'debito_automatico',
-        pagado: 'si',
-        monto: '15000',
-        recurrente: 'si',
-        frecuencia: 'mensual'
+        const result = await processAudioForMovement(file, 'gasto')
+        
+        if (!result.success) {
+          throw new Error(result.error)
+        }
+
+        const aiData = result.data
+        
+        const mappedData = {
+          fecha: aiData.fecha || new Date().toISOString().split('T')[0],
+          categoria: aiData.categoria || '',
+          concepto: aiData.concepto || '',
+          descripcion: aiData.descripcion || '',
+          beneficiario: aiData.beneficiario || '',
+          medio: aiData.medio || 'efectivo',
+          pagado: aiData.pagado ? 'si' : 'no',
+          monto: aiData.monto?.toString() || '',
+          recurrente: aiData.recurrente ? 'si' : 'no',
+          frecuencia: aiData.frecuencia || 'mensual',
+          comprobante: file
+        }
+
+        setFormData(prev => ({ ...prev, ...mappedData }))
+        setAiAnalyzed(true)
+        
+      } else {
+        await new Promise(resolve => setTimeout(resolve, 2500))
+
+        const aiData = {
+          fecha: new Date().toISOString().split('T')[0],
+          categoria: 'Servicios',
+          concepto: 'Servicio de Internet',
+          descripcion: 'Pago mensual de internet empresarial',
+          beneficiario: 'Proveedor de Servicios SA',
+          medio: 'debito_automatico',
+          pagado: 'si',
+          monto: '15000',
+          recurrente: 'si',
+          frecuencia: 'mensual'
+        }
+
+        setFormData(prev => ({ ...prev, ...aiData, comprobante: file }))
+        setAiAnalyzed(true)
       }
-
-      setFormData(prev => ({ ...prev, ...aiData, comprobante: file }))
-      setAiAnalyzed(true)
     } catch (err) {
-      setError('Error al analizar con IA. Por favor completa manualmente.')
+      setError(err.message || 'Error al analizar con IA. Por favor completa manualmente.')
     } finally {
       setAnalyzing(false)
     }
@@ -75,7 +128,7 @@ const MovimientosGasto = ({ onClose, onSuccess }) => {
       return
     }
 
-    await analyzeWithAI(file)
+    await analyzeWithAI(file, 'document')
   }
 
   const handleSubmit = async (e) => {
@@ -88,13 +141,13 @@ const MovimientosGasto = ({ onClose, onSuccess }) => {
       if (!formData.concepto) throw new Error('El concepto es obligatorio')
       if (!formData.monto || parseFloat(formData.monto) <= 0) throw new Error('El monto debe ser mayor a 0')
 
-      const gasto = {
+      const gastoData = {
         type: 'expense',
         date: formData.fecha,
         amount: parseFloat(formData.monto),
         description: `${formData.categoria} - ${formData.concepto}`,
         category: formData.categoria,
-        number: `GASTO-${Date.now()}`,
+        number: isEditing ? (movimiento.number || movimiento.invoice_number) : `GASTO-${Date.now()}`,
         metadata: {
           movementType: 'gasto',
           concepto: formData.concepto,
@@ -110,8 +163,12 @@ const MovimientosGasto = ({ onClose, onSuccess }) => {
         }
       }
 
-      await addInvoice(gasto)
-      onSuccess?.('Gasto registrado exitosamente.')
+      if (isEditing) {
+        await updateInvoice(movimiento.id, gastoData)
+      } else {
+        await addInvoice(gastoData)
+      }
+      onSuccess?.(isEditing ? 'Gasto actualizado exitosamente.' : 'Gasto registrado exitosamente.')
       onClose?.()
     } catch (err) {
       setError(err.message)
@@ -129,8 +186,8 @@ const MovimientosGasto = ({ onClose, onSuccess }) => {
               <TrendingDown className="w-6 h-6 text-red-600" />
             </div>
             <div>
-              <h2 className="text-xl font-semibold text-gray-900">Nuevo Gasto</h2>
-              <p className="text-gray-500 text-sm">Registra un gasto operativo o administrativo</p>
+              <h2 className="text-xl font-semibold text-gray-900">{isEditing ? 'Editar Gasto' : 'Nuevo Gasto'}</h2>
+              <p className="text-gray-500 text-sm">{isEditing ? 'Modifica los datos del gasto' : 'Registra un gasto operativo o administrativo'}</p>
             </div>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
@@ -163,28 +220,24 @@ const MovimientosGasto = ({ onClose, onSuccess }) => {
               </div>
             )}
 
-            <div className="grid md:grid-cols-2 gap-4">
-              <label className="flex items-center gap-3 p-4 bg-white border-2 border-red-300 rounded-lg cursor-pointer hover:border-red-500 hover:shadow-md transition-all">
-                <Upload className="w-5 h-5 text-red-600" />
+            <div className="space-y-3">
+              <label className="flex items-center gap-3 p-3.5 bg-white border border-gray-300 rounded-lg cursor-pointer hover:border-red-500 hover:bg-gray-50 transition-all">
+                <Upload className="w-4 h-4 text-gray-600" />
                 <div className="flex-1">
-                  <p className="font-medium text-gray-900">Subir Comprobante</p>
-                  <p className="text-xs text-gray-600">PDF o Imagen</p>
+                  <p className="text-sm font-medium text-gray-900">Subir Comprobante</p>
+                  <p className="text-xs text-gray-500">PDF o Imagen</p>
                 </div>
                 <input type="file" accept=".pdf,image/*" onChange={handleFileUpload} className="hidden" disabled={analyzing} />
               </label>
 
-              <button
-                type="button"
-                onClick={() => setError('Función de audio en desarrollo')}
-                disabled={analyzing}
-                className="flex items-center gap-3 p-4 bg-white border-2 border-red-300 rounded-lg hover:border-red-500 hover:shadow-md transition-all disabled:opacity-50"
-              >
-                <Mic className="w-5 h-5 text-red-600" />
-                <div className="flex-1 text-left">
-                  <p className="font-medium text-gray-900">Grabar Audio</p>
-                  <p className="text-xs text-gray-600">Describe el gasto</p>
-                </div>
-              </button>
+              <div className="border-t border-gray-200 pt-3">
+                <p className="text-xs font-medium text-gray-700 mb-2 uppercase tracking-wide">O graba un audio</p>
+                <AudioRecorderComponent
+                  onRecordingComplete={(audioFile) => analyzeWithAI(audioFile, 'audio')}
+                  onError={(error) => setError(error)}
+                  disabled={analyzing}
+                />
+              </div>
             </div>
           </div>
 
