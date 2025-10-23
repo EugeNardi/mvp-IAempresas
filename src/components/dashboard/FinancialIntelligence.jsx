@@ -6,11 +6,15 @@ import {
   Calendar, Users, ShoppingCart, CreditCard, Percent, Award,
   Brain, Sparkles, ChevronRight, Info
 } from 'lucide-react'
+import FinancialTooltip from './FinancialTooltip'
+import DolarCard from './DolarCard'
+import AnalisisVisual from './AnalisisVisual'
 
 const FinancialIntelligence = ({ invoices, companyData }) => {
   const [kpis, setKpis] = useState(null)
   const [recommendations, setRecommendations] = useState([])
   const [loading, setLoading] = useState(true)
+  const [viewMode, setViewMode] = useState('metrics') // 'metrics' o 'charts'
 
   useEffect(() => {
     calculateKPIs()
@@ -288,17 +292,54 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
-      {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-gray-900">Análisis Financiero</h1>
-        <p className="text-sm text-gray-600 mt-1">Métricas clave de tu negocio</p>
+      {/* Header con Selector */}
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-2xl font-semibold text-gray-900">Análisis Financiero</h1>
+          <p className="text-sm text-gray-600 mt-1">Métricas clave de tu negocio</p>
+        </div>
+        
+        {/* Toggle entre Métricas y Gráficos */}
+        <div className="flex gap-1 p-1 bg-gray-100 rounded-lg">
+          <button
+            onClick={() => setViewMode('metrics')}
+            className={`px-4 py-2 rounded-md font-medium text-sm transition-all ${
+              viewMode === 'metrics' 
+                ? 'bg-white text-gray-900 shadow-sm' 
+                : 'text-gray-600 hover:text-gray-900'
+            }`}
+          >
+            <BarChart3 className="w-4 h-4 inline-block mr-2" />
+            Métricas
+          </button>
+          <button
+            onClick={() => setViewMode('charts')}
+            className={`px-4 py-2 rounded-md font-medium text-sm transition-all ${
+              viewMode === 'charts' 
+                ? 'bg-white text-gray-900 shadow-sm' 
+                : 'text-gray-600 hover:text-gray-900'
+            }`}
+          >
+            <PieChart className="w-4 h-4 inline-block mr-2" />
+            Gráficos
+          </button>
+        </div>
       </div>
 
-      {/* Análisis de Compras y Ventas */}
-      <div className="grid md:grid-cols-3 gap-6">
+      {/* Mostrar Gráficos o Métricas */}
+      {viewMode === 'charts' ? (
+        <AnalisisVisual invoices={invoices} />
+      ) : (
+        <>
+          {/* Análisis de Compras y Ventas con Dólar */}
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* Dólar Card */}
+        <DolarCard />
         <div className="bg-white border border-gray-200 rounded-lg p-6">
           <div className="flex items-center justify-between mb-4">
-            <p className="text-sm font-medium text-gray-600">Total Compras</p>
+            <FinancialTooltip term="flujo_caja">
+              <p className="text-sm font-medium text-gray-600">Total Compras</p>
+            </FinancialTooltip>
             <ShoppingCart className="w-5 h-5 text-blue-600" />
           </div>
           <p className="text-3xl font-bold text-gray-900 mb-2">
@@ -318,7 +359,9 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
 
         <div className="bg-white border border-gray-200 rounded-lg p-6">
           <div className="flex items-center justify-between mb-4">
-            <p className="text-sm font-medium text-gray-600">Total Ventas</p>
+            <FinancialTooltip term="flujo_caja">
+              <p className="text-sm font-medium text-gray-600">Total Ventas</p>
+            </FinancialTooltip>
             <DollarSign className="w-5 h-5 text-green-600" />
           </div>
           <p className="text-3xl font-bold text-gray-900 mb-2">
@@ -338,37 +381,49 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
 
         <div className="bg-white border border-gray-200 rounded-lg p-6">
           <div className="flex items-center justify-between mb-4">
-            <p className="text-sm font-medium text-gray-600">Clientes Únicos</p>
+            <FinancialTooltip term="valor_vida_cliente">
+              <p className="text-sm font-medium text-gray-600">Clientes Únicos</p>
+            </FinancialTooltip>
             <Users className="w-5 h-5 text-purple-600" />
           </div>
           <p className="text-3xl font-bold text-gray-900 mb-2">{kpis.clientesUnicos}</p>
-          <p className="text-sm text-gray-600 mt-2">
-            Promedio por cliente: <span className="font-semibold text-gray-900">
-              ${kpis.ventaPromedioPorCliente.toLocaleString('es-AR', { maximumFractionDigits: 0 })}
-            </span>
-          </p>
+          <FinancialTooltip term="ticket_promedio">
+            <p className="text-sm text-gray-600 mt-2">
+              Promedio por cliente: <span className="font-semibold text-gray-900">
+                ${kpis.ventaPromedioPorCliente.toLocaleString('es-AR', { maximumFractionDigits: 0 })}
+              </span>
+            </p>
+          </FinancialTooltip>
         </div>
       </div>
 
       {/* KPIs Principales */}
       <div className="grid md:grid-cols-4 gap-6">
         <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-all">
-          <p className="text-sm font-medium text-gray-600 mb-2">Margen de Ganancia</p>
+          <FinancialTooltip term="margen_neto">
+            <p className="text-sm font-medium text-gray-600 mb-2">Margen de Ganancia</p>
+          </FinancialTooltip>
           <p className="text-3xl font-bold text-gray-900">{kpis.profitMargin.toFixed(1)}%</p>
         </div>
 
         <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-all">
-          <p className="text-sm font-medium text-gray-600 mb-2">ROI</p>
+          <FinancialTooltip term="roi">
+            <p className="text-sm font-medium text-gray-600 mb-2">ROI</p>
+          </FinancialTooltip>
           <p className="text-3xl font-bold text-gray-900">{kpis.roi.toFixed(1)}%</p>
         </div>
 
         <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-all">
-          <p className="text-sm font-medium text-gray-600 mb-2">Ratio de Liquidez</p>
+          <FinancialTooltip term="liquidez">
+            <p className="text-sm font-medium text-gray-600 mb-2">Ratio de Liquidez</p>
+          </FinancialTooltip>
           <p className="text-3xl font-bold text-gray-900">{kpis.currentRatio.toFixed(2)}</p>
         </div>
 
         <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-all">
-          <p className="text-sm font-medium text-gray-600 mb-2">Crecimiento</p>
+          <FinancialTooltip term="tasa_conversion">
+            <p className="text-sm font-medium text-gray-600 mb-2">Crecimiento</p>
+          </FinancialTooltip>
           <p className={`text-3xl font-bold ${kpis.growthRate >= 0 ? 'text-green-600' : 'text-red-600'}`}>
             {kpis.growthRate > 0 ? '+' : ''}{kpis.growthRate.toFixed(1)}%
           </p>
@@ -431,6 +486,8 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
           })}
         </div>
       </div>
+        </>
+      )}
     </div>
   )
 }

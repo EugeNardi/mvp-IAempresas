@@ -102,22 +102,22 @@ const CTA = () => {
           <div className="absolute bottom-0 left-0 w-96 h-96 bg-gray-900/5 rounded-full blur-3xl"></div>
           
           <div className="relative z-10">
-            <div className="text-center mb-12">
-              <div className="inline-flex items-center gap-2 bg-gray-900 text-white rounded-full px-4 py-1.5 mb-6 shadow-lg">
-                <TrendingUp className="w-4 h-4" />
-                <span className="text-sm font-medium">Crecimiento Exponencial</span>
+            <div className="text-center mb-8 sm:mb-10 md:mb-12">
+              <div className="inline-flex items-center gap-2 bg-gray-900 text-white rounded-full px-3 sm:px-4 py-1 sm:py-1.5 mb-4 sm:mb-6 shadow-lg">
+                <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4" />
+                <span className="text-xs sm:text-sm font-medium">Crecimiento Exponencial</span>
               </div>
-              <h3 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+              <h3 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-3 sm:mb-4 px-4">
                 El Poder del Interés Compuesto
               </h3>
-              <p className="text-gray-600 max-w-2xl mx-auto text-lg">
+              <p className="text-gray-600 max-w-2xl mx-auto text-sm sm:text-base md:text-lg px-4">
                 Inversión inicial de <span className="font-bold text-gray-900">$100,000</span> al <span className="font-bold text-cyan-600">8% anual</span> durante <span className="font-bold text-gray-900">20 años</span>
               </p>
             </div>
             
             {/* Main Chart - 21 bars (Years 0-20) */}
-            <div className="bg-white rounded-2xl p-6 md:p-10 border-2 border-gray-900 shadow-2xl mb-8">
-              <div className="relative h-[450px] pt-4">
+            <div className="bg-white rounded-2xl p-4 sm:p-6 md:p-10 border-2 border-gray-900 shadow-2xl mb-8">
+              <div className="relative h-[300px] sm:h-[350px] md:h-[450px] pt-4">
                 {/* Grid lines */}
                 <div className="absolute inset-0 flex flex-col justify-between">
                   {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => (
@@ -126,7 +126,7 @@ const CTA = () => {
                 </div>
 
                 {/* 21 Bars - Years 0 to 20 (connected bars showing exponential curve) */}
-                <div className="absolute inset-x-0 bottom-8 flex items-end gap-0 px-4" style={{height: '380px'}}>
+                <div className="absolute inset-x-0 bottom-8 flex items-end gap-0 px-2 sm:px-4" style={{height: 'calc(100% - 32px)'}}>
                   {[
                     { year: 0, value: 100000, height: 30 },
                     { year: 1, value: 108000, height: 38 },
@@ -162,7 +162,7 @@ const CTA = () => {
                       <div 
                         key={data.year} 
                         className="flex-1 flex flex-col justify-end items-center group relative"
-                        style={{minWidth: '18px', maxWidth: '50px'}}
+                        style={{minWidth: '8px', maxWidth: '50px'}}
                       >
                         <div className="w-full relative flex flex-col items-center">
                           <div 
@@ -174,11 +174,11 @@ const CTA = () => {
                             }}
                           >
                             {/* Tooltip on hover */}
-                            <div className="absolute -top-20 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300 bg-gray-900 text-white text-xs font-bold px-3 py-2 rounded-lg shadow-2xl whitespace-nowrap z-50 pointer-events-none">
+                            <div className="absolute -top-16 sm:-top-20 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300 bg-gray-900 text-white text-xs font-bold px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg shadow-2xl whitespace-nowrap z-50 pointer-events-none">
                               <div className="text-center">
-                                <div className="text-sm mb-1">${(data.value / 1000).toFixed(0)}K</div>
-                                <div className="text-[10px] text-gray-400 mb-0.5">Año {data.year}</div>
-                                <div className="text-[10px] text-cyan-400">+{(((data.value - 100000) / 100000) * 100).toFixed(0)}%</div>
+                                <div className="text-xs sm:text-sm mb-1">${(data.value / 1000).toFixed(0)}K</div>
+                                <div className="text-[9px] sm:text-[10px] text-gray-400 mb-0.5">Año {data.year}</div>
+                                <div className="text-[9px] sm:text-[10px] text-cyan-400">+{(((data.value - 100000) / 100000) * 100).toFixed(0)}%</div>
                               </div>
                               <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-full w-0 h-0 border-l-[6px] border-r-[6px] border-t-[6px] border-transparent border-t-gray-900"></div>
                             </div>
@@ -190,41 +190,41 @@ const CTA = () => {
                 </div>
                 
                 {/* Year labels below chart */}
-                <div className="absolute inset-x-0 bottom-0 flex justify-around px-4">
+                <div className="absolute inset-x-0 bottom-0 flex justify-around px-2 sm:px-4">
                   {[0, 5, 10, 15, 20].map((year) => (
                     <div key={year} className="flex-1 text-center" style={{maxWidth: `${100/5}%`}}>
-                      <p className="text-xs font-bold text-gray-900">{year}</p>
+                      <p className="text-[10px] sm:text-xs font-bold text-gray-900">{year}</p>
                     </div>
                   ))}
                 </div>
               </div>
 
               {/* Stats */}
-              <div className="grid grid-cols-3 gap-6 pt-8 border-t-2 border-gray-900">
-                <div className="text-center p-4 bg-gray-50 rounded-lg border border-gray-200 shadow-md">
-                  <p className="text-3xl font-black text-gray-900">+47%</p>
-                  <p className="text-xs text-gray-600 mt-2 font-semibold">5 años</p>
+              <div className="grid grid-cols-3 gap-2 sm:gap-4 md:gap-6 pt-4 sm:pt-6 md:pt-8 border-t-2 border-gray-900">
+                <div className="text-center p-2 sm:p-3 md:p-4 bg-gray-50 rounded-lg border border-gray-200 shadow-md">
+                  <p className="text-xl sm:text-2xl md:text-3xl font-black text-gray-900">+47%</p>
+                  <p className="text-[10px] sm:text-xs text-gray-600 mt-1 sm:mt-2 font-semibold">5 años</p>
                 </div>
-                <div className="text-center p-4 bg-gray-50 rounded-lg border border-gray-200 shadow-md">
-                  <p className="text-3xl font-black text-gray-900">+116%</p>
-                  <p className="text-xs text-gray-600 mt-2 font-semibold">10 años</p>
+                <div className="text-center p-2 sm:p-3 md:p-4 bg-gray-50 rounded-lg border border-gray-200 shadow-md">
+                  <p className="text-xl sm:text-2xl md:text-3xl font-black text-gray-900">+116%</p>
+                  <p className="text-[10px] sm:text-xs text-gray-600 mt-1 sm:mt-2 font-semibold">10 años</p>
                 </div>
-                <div className="text-center p-4 bg-gray-50 rounded-lg border border-gray-200 shadow-md">
-                  <p className="text-3xl font-black text-gray-900">+366%</p>
-                  <p className="text-xs text-gray-600 mt-2 font-semibold">20 años</p>
+                <div className="text-center p-2 sm:p-3 md:p-4 bg-gray-50 rounded-lg border border-gray-200 shadow-md">
+                  <p className="text-xl sm:text-2xl md:text-3xl font-black text-gray-900">+366%</p>
+                  <p className="text-[10px] sm:text-xs text-gray-600 mt-1 sm:mt-2 font-semibold">20 años</p>
                 </div>
               </div>
             </div>
 
             {/* Key Insight */}
-            <div className="bg-gray-900 text-white rounded-2xl p-8 shadow-2xl">
-              <div className="flex items-start gap-4">
-                <div className="flex-shrink-0 w-12 h-12 bg-white rounded-lg flex items-center justify-center shadow-lg">
-                  <TrendingUp className="w-6 h-6 text-gray-900" />
+            <div className="bg-gray-900 text-white rounded-2xl p-4 sm:p-6 md:p-8 shadow-2xl">
+              <div className="flex items-start gap-3 sm:gap-4">
+                <div className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-lg flex items-center justify-center shadow-lg">
+                  <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 text-gray-900" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-xl mb-3">La Magia del Tiempo</h4>
-                  <p className="text-sm text-gray-300 leading-relaxed">
+                  <h4 className="font-bold text-lg sm:text-xl mb-2 sm:mb-3">La Magia del Tiempo</h4>
+                  <p className="text-xs sm:text-sm text-gray-300 leading-relaxed">
                     El interés compuesto crece <span className="font-bold text-cyan-400">exponencialmente</span>, no linealmente. 
                     En 20 años, tu inversión se multiplica por <span className="font-bold text-cyan-400">4.66x</span>. 
                     La curva se acelera: el año 20 genera más ganancias que los primeros 10 años juntos.

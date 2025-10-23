@@ -3,6 +3,8 @@ import {
   TrendingUp, TrendingDown, DollarSign, BarChart3, PieChart, 
   Download, RefreshCw, ArrowUpRight, ArrowDownRight, Target, Activity, FileText
 } from 'lucide-react'
+import FinancialTooltip from './FinancialTooltip'
+import DolarCard from './DolarCard'
 
 const CombinedDashboard = ({ invoices, companyData }) => {
   const [viewMode, setViewMode] = useState('executive') // executive, analytics, reports
@@ -350,7 +352,9 @@ const CombinedDashboard = ({ invoices, companyData }) => {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div className="bg-white border border-gray-300 rounded-lg p-6 hover:shadow-lg transition-shadow">
                   <div className="flex items-center justify-between mb-2">
-                    <p className="text-sm font-medium text-gray-600">Ingresos Totales</p>
+                    <FinancialTooltip term="flujo_caja">
+                      <p className="text-sm font-medium text-gray-600">Ingresos Totales</p>
+                    </FinancialTooltip>
                     <TrendingUp className="w-5 h-5 text-green-600" />
                   </div>
                   <p className="text-3xl font-bold text-gray-900">
@@ -361,7 +365,9 @@ const CombinedDashboard = ({ invoices, companyData }) => {
 
                 <div className="bg-white border border-gray-300 rounded-lg p-6 hover:shadow-lg transition-shadow">
                   <div className="flex items-center justify-between mb-2">
-                    <p className="text-sm font-medium text-gray-600">Gastos Totales</p>
+                    <FinancialTooltip term="flujo_caja">
+                      <p className="text-sm font-medium text-gray-600">Gastos Totales</p>
+                    </FinancialTooltip>
                     <TrendingDown className="w-5 h-5 text-red-600" />
                   </div>
                   <p className="text-3xl font-bold text-gray-900">
@@ -372,7 +378,9 @@ const CombinedDashboard = ({ invoices, companyData }) => {
 
                 <div className="bg-white border border-gray-300 rounded-lg p-6 hover:shadow-lg transition-shadow">
                   <div className="flex items-center justify-between mb-2">
-                    <p className="text-sm font-medium text-gray-600">Utilidad Neta</p>
+                    <FinancialTooltip term="utilidad_neta">
+                      <p className="text-sm font-medium text-gray-600">Utilidad Neta</p>
+                    </FinancialTooltip>
                     <DollarSign className="w-5 h-5 text-blue-600" />
                   </div>
                   <p className={`text-3xl font-bold ${autoCharts.summary.profit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
@@ -383,13 +391,17 @@ const CombinedDashboard = ({ invoices, companyData }) => {
 
                 <div className="bg-white border border-gray-300 rounded-lg p-6 hover:shadow-lg transition-shadow">
                   <div className="flex items-center justify-between mb-2">
-                    <p className="text-sm font-medium text-gray-600">Margen</p>
+                    <FinancialTooltip term="margen_neto">
+                      <p className="text-sm font-medium text-gray-600">Margen</p>
+                    </FinancialTooltip>
                     <Target className="w-5 h-5 text-purple-600" />
                   </div>
                   <p className="text-3xl font-bold text-gray-900">
                     {autoCharts.summary.profitMargin.toFixed(1)}%
                   </p>
-                  <p className="text-xs text-gray-500 mt-1">Rentabilidad</p>
+                  <FinancialTooltip term="rentabilidad">
+                    <p className="text-xs text-gray-500 mt-1">Rentabilidad</p>
+                  </FinancialTooltip>
                 </div>
               </div>
 

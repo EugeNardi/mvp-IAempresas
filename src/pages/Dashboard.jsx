@@ -33,6 +33,8 @@ import CombinedDashboard from '../components/dashboard/CombinedDashboard'
 import AIProjections from '../components/dashboard/AIProjections'
 import CreditCalculator from '../components/dashboard/CreditCalculator'
 import Inventory from './Inventory'
+import DolarWidget from '../components/dashboard/DolarWidget'
+import AnalisisVisual from '../components/dashboard/AnalisisVisual'
 
 const Dashboard = () => {
   const { user, signOut } = useAuth()

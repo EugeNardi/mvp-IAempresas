@@ -14,13 +14,32 @@ const MovimientosVenta = ({ movimiento, onClose, onSuccess }) => {
   const [analyzing, setAnalyzing] = useState(false)
   const [error, setError] = useState('')
   const [aiAnalyzed, setAiAnalyzed] = useState(false)
+  const [dolarData, setDolarData] = useState(null)
 
-  // Cargar inventario al montar el componente
+  // Cargar inventario y cotización del dólar al montar el componente
   useEffect(() => {
     if (loadInventoryItems) {
       loadInventoryItems()
     }
+    fetchDolarData()
   }, [])
+
+  const fetchDolarData = async () => {
+    try {
+      const response = await fetch('https://dolarapi.com/v1/dolares')
+      if (response.ok) {
+        const data = await response.json()
+        const blue = data.find(d => d.casa === 'blue')
+        setDolarData(blue)
+        // Si no hay tipo de cambio establecido, usar el dólar blue venta
+        if (!formData.tipoCambio && blue) {
+          setFormData(prev => ({ ...prev, tipoCambio: blue.venta.toString() }))
+        }
+      }
+    } catch (err) {
+      console.error('Error fetching dolar:', err)
+    }
+  }
 
   const [formData, setFormData] = useState(() => {
     if (isEditing && movimiento) {
@@ -31,6 +50,8 @@ const MovimientosVenta = ({ movimiento, onClose, onSuccess }) => {
         medio: movimiento.metadata?.paymentMethod || 'efectivo',
         cobrado: movimiento.metadata?.cobrado ? 'si' : 'no',
         deuda: movimiento.metadata?.deuda || '',
+        moneda: movimiento.metadata?.moneda || 'ARS',
+        tipoCambio: movimiento.metadata?.tipoCambio || '',
         montoTotal: movimiento.amount?.toString() || '',
         comprobante: null,
         productos: movimiento.metadata?.productos || []
@@ -43,6 +64,8 @@ const MovimientosVenta = ({ movimiento, onClose, onSuccess }) => {
       medio: 'efectivo',
       cobrado: 'si',
       deuda: '',
+      moneda: 'ARS',
+      tipoCambio: '',
       montoTotal: '',
       comprobante: null,
       productos: []
@@ -239,7 +262,12 @@ const MovimientosVenta = ({ movimiento, onClose, onSuccess }) => {
   }
 
   const calcularMontoTotal = () => {
-    return productos.reduce((sum, p) => sum + (parseFloat(p.precioTotal) || 0), 0).toFixed(2)
+    const totalProductos = productos.reduce((sum, p) => sum + (parseFloat(p.precioTotal) || 0), 0)
+    // Si es en USD, convertir a ARS
+    if (formData.moneda === 'USD' && formData.tipoCambio) {
+      return (totalProductos * parseFloat(formData.tipoCambio)).toFixed(2)
+    }
+    return totalProductos.toFixed(2)
   }
 
   const handleSubmit = async (e) => {
@@ -288,6 +316,8 @@ const MovimientosVenta = ({ movimiento, onClose, onSuccess }) => {
           paymentMethod: formData.medio,
           cobrado: formData.cobrado === 'si',
           deuda: formData.cobrado === 'no' ? parseFloat(formData.deuda || 0) : 0,
+          moneda: formData.moneda,
+          tipoCambio: formData.moneda === 'USD' ? parseFloat(formData.tipoCambio) : null,
           productos: productos.map(p => ({
             productoId: p.productoId,
             nombre: p.nombre,
@@ -448,7 +478,39 @@ const MovimientosVenta = ({ movimiento, onClose, onSuccess }) => {
               </div>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-4">
+            <div className="grid md:grid-cols-4 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-2 text-gray-700">Moneda *</label>
+                <select
+                  value={formData.moneda}
+                  onChange={(e) => setFormData({...formData, moneda: e.target.value})}
+                  className="w-full px-3.5 py-2 rounded-lg border border-gray-300 focus:border-green-500 focus:ring-1 focus:ring-green-500 outline-none transition-all text-sm"
+                >
+                  <option value="ARS">ARS (Pesos)</option>
+                  <option value="USD">USD (Dólares)</option>
+                </select>
+              </div>
+
+              {formData.moneda === 'USD' && (
+                <div>
+                  <label className="block text-sm font-medium mb-2 text-gray-700">
+                    Tipo de Cambio *
+                    {dolarData && (
+                      <span className="ml-2 text-xs text-gray-500">(Blue: ${dolarData.venta})</span>
+                    )}
+                  </label>
+                  <input
+                    type="number"
+                    value={formData.tipoCambio}
+                    onChange={(e) => setFormData({...formData, tipoCambio: e.target.value})}
+                    required
+                    step="0.01"
+                    placeholder="Ej: 1200.00"
+                    className="w-full px-3.5 py-2 rounded-lg border border-gray-300 focus:border-green-500 focus:ring-1 focus:ring-green-500 outline-none transition-all text-sm"
+                  />
+                </div>
+              )}
+
               <div>
                 <label className="block text-sm font-medium mb-2 text-gray-700">Medio de Pago *</label>
                 <select
@@ -475,8 +537,10 @@ const MovimientosVenta = ({ movimiento, onClose, onSuccess }) => {
                   <option value="no">NO - Pendiente</option>
                 </select>
               </div>
+            </div>
 
-              {formData.cobrado === 'no' && (
+            {formData.cobrado === 'no' && (
+              <div className="grid md:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-medium mb-2 text-red-700">Deuda a Cobrar *</label>
                   <input
@@ -489,14 +553,21 @@ const MovimientosVenta = ({ movimiento, onClose, onSuccess }) => {
                     className="w-full px-4 py-2.5 rounded-lg border-2 border-red-400 bg-red-50 outline-none font-semibold text-red-800"
                   />
                 </div>
-              )}
-            </div>
+              </div>
+            )}
 
             <div className="bg-green-50 p-5 rounded-xl border border-green-200">
-              <p className="text-xs text-gray-600 font-medium mb-1.5">Monto Total</p>
-              <p className="text-3xl font-bold text-green-600">
-                ${calcularMontoTotal()}
+              <p className="text-xs text-gray-600 font-medium mb-1.5">
+                Monto Total {formData.moneda === 'USD' && '(convertido a ARS)'}
               </p>
+              <p className="text-3xl font-bold text-green-600">
+                ${calcularMontoTotal()} ARS
+              </p>
+              {formData.moneda === 'USD' && formData.tipoCambio && (
+                <p className="text-xs text-gray-600 mt-2">
+                  USD {(productos.reduce((sum, p) => sum + (parseFloat(p.precioTotal) || 0), 0)).toFixed(2)} × ${formData.tipoCambio}
+                </p>
+              )}
             </div>
           </div>
 

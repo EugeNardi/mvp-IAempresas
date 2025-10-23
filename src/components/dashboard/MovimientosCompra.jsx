@@ -14,13 +14,28 @@ const MovimientosCompra = ({ movimiento, onClose, onSuccess }) => {
   const [analyzing, setAnalyzing] = useState(false)
   const [error, setError] = useState('')
   const [aiAnalyzed, setAiAnalyzed] = useState(false)
+  const [dolarData, setDolarData] = useState(null)
 
-  // Cargar inventario al montar el componente
+  // Cargar inventario y cotización del dólar al montar el componente
   useEffect(() => {
     if (loadInventoryItems) {
       loadInventoryItems()
     }
+    fetchDolarData()
   }, [])
+
+  const fetchDolarData = async () => {
+    try {
+      const response = await fetch('https://dolarapi.com/v1/dolares')
+      if (response.ok) {
+        const data = await response.json()
+        const blue = data.find(d => d.casa === 'blue')
+        setDolarData(blue)
+      }
+    } catch (err) {
+      console.error('Error fetching dolar:', err)
+    }
+  }
 
   const [formData, setFormData] = useState(() => {
     if (isEditing && movimiento) {
@@ -31,6 +46,8 @@ const MovimientosCompra = ({ movimiento, onClose, onSuccess }) => {
         medio: movimiento.metadata?.paymentMethod || 'efectivo',
         pago: movimiento.metadata?.pagado ? 'si' : 'no',
         deuda: movimiento.metadata?.deuda || '',
+        moneda: movimiento.metadata?.moneda || 'ARS',
+        tipoCambio: movimiento.metadata?.tipoCambio || '',
         montoTotal: movimiento.amount?.toString() || '',
         comprobante: null,
         productos: movimiento.metadata?.productos || []
@@ -43,6 +60,8 @@ const MovimientosCompra = ({ movimiento, onClose, onSuccess }) => {
       medio: 'efectivo',
       pago: 'si',
       deuda: '',
+      moneda: 'ARS',
+      tipoCambio: '',
       montoTotal: '',
       comprobante: null,
       productos: []

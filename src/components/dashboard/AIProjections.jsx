@@ -8,9 +8,12 @@ const AIProjections = ({ invoices }) => {
   const economicContext = {
     inflacionAnual2024: 140, // %
     inflacionProyectada2025: 22, // %
+    inflacionMensual: 1.67, // % mensual (22% anual / 12)
     tasaInteresPymes: 85, // % anual promedio
     devaluacionEsperada: 15, // % anual
-    crecimientoEconomico: 5.5 // % PIB proyectado
+    crecimientoEconomico: 5.5, // % PIB proyectado
+    ajustePreciosPromedio: 2.0, // % mensual típico en empresas
+    ajusteCostosPromedio: 1.8 // % mensual típico en costos
   }
 
   const analysis = useMemo(() => {
@@ -58,30 +61,43 @@ const AIProjections = ({ invoices }) => {
       }
     }
 
-    // Proyecciones ajustadas por inflación
-    const inflacionMensual = economicContext.inflacionProyectada2025 / 12
+    // Proyecciones inteligentes con inflación aplicada correctamente
     const projections = []
     
+    // Calcular margen actual para mantenerlo en proyecciones
+    const currentMargin = avgMonthlyIncome > 0 ? ((avgMonthlyIncome - avgMonthlyExpense) / avgMonthlyIncome) : 0
+    
     for (let i = 1; i <= projectionPeriod; i++) {
-      // Ajuste por inflación acumulada
-      const inflacionAcumulada = Math.pow(1 + inflacionMensual / 100, i)
+      // INGRESOS: Ajuste por inflación + ajuste de precios empresarial
+      // Las empresas ajustan precios mensualmente para mantener márgenes
+      const ajusteIngresosAcumulado = Math.pow(1 + economicContext.ajustePreciosPromedio / 100, i)
+      const crecimientoReal = Math.pow(1 + (growthRate / 100) / 12, i) // Crecimiento real del negocio
+      const projectedIncome = avgMonthlyIncome * ajusteIngresosAcumulado * crecimientoReal
       
-      // Proyección de ingresos (crecimiento + inflación)
-      const projectedIncome = avgMonthlyIncome * (1 + growthRate / 100) * inflacionAcumulada
+      // GASTOS: Ajuste por inflación de costos
+      // Los costos también suben con inflación (proveedores, salarios, servicios)
+      const ajusteCostosAcumulado = Math.pow(1 + economicContext.ajusteCostosPromedio / 100, i)
+      const eficienciaOperativa = Math.pow(0.995, i) // 0.5% mejora mensual en eficiencia
+      const projectedExpense = avgMonthlyExpense * ajusteCostosAcumulado * eficienciaOperativa
       
-      // Proyección de gastos (inflación + eficiencia)
-      const projectedExpense = avgMonthlyExpense * inflacionAcumulada * 0.98 // 2% mejora eficiencia
-      
+      // UTILIDAD REAL: Diferencia entre ingresos y gastos ajustados
       const projectedProfit = projectedIncome - projectedExpense
       const projectedMargin = projectedIncome > 0 ? (projectedProfit / projectedIncome) * 100 : 0
+      
+      // Poder adquisitivo real (ajustado por inflación general)
+      const inflacionAcumulada = Math.pow(1 + economicContext.inflacionMensual / 100, i)
+      const profitRealValue = projectedProfit / inflacionAcumulada // Valor real del dinero
 
       projections.push({
         month: i,
         income: projectedIncome,
         expense: projectedExpense,
         profit: projectedProfit,
+        profitRealValue: profitRealValue,
         margin: projectedMargin,
-        inflationAdjusted: inflacionAcumulada
+        inflationAdjusted: inflacionAcumulada,
+        priceAdjustment: ajusteIngresosAcumulado,
+        costAdjustment: ajusteCostosAcumulado
       })
     }
 
@@ -99,33 +115,73 @@ const AIProjections = ({ invoices }) => {
       })
     }
 
-    // Análisis de crecimiento
-    if (growthRate < economicContext.inflacionProyectada2025 / 12) {
+    // Análisis de crecimiento real
+    const lastProjection = projections[projections.length - 1]
+    const profitGrowth = lastProjection ? ((lastProjection.profit - (avgMonthlyIncome - avgMonthlyExpense)) / Math.abs(avgMonthlyIncome - avgMonthlyExpense)) * 100 : 0
+    
+    if (profitGrowth < 0) {
       recommendations.push({
         type: 'danger',
-        category: 'Crecimiento',
-        message: 'Crecimiento por debajo de inflación proyectada. Pérdida de valor real.',
-        action: 'Ajustar precios mensualmente. Considerar dolarización de activos.'
+        category: 'Rentabilidad',
+        message: 'Proyección muestra caída en utilidad. Costos crecen más rápido que ingresos.',
+        action: 'Urgente: Aumentar precios al menos ' + economicContext.ajusteCostosPromedio + '% mensual para mantener márgenes.'
+      })
+    } else if (profitGrowth < economicContext.inflacionMensual) {
+      recommendations.push({
+        type: 'warning',
+        category: 'Inflación',
+        message: 'Utilidad crece pero por debajo de inflación. Pérdida de poder adquisitivo.',
+        action: 'Ajustar precios ' + (economicContext.inflacionMensual + 0.5).toFixed(1) + '% mensual para superar inflación.'
       })
     }
 
+    // Análisis de margen proyectado
+    const avgProjectedMargin = projections.reduce((sum, p) => sum + p.margin, 0) / projections.length
+    const currentMarginCalc = avgMonthlyIncome > 0 ? ((avgMonthlyIncome - avgMonthlyExpense) / avgMonthlyIncome) * 100 : 0
+    
+    if (avgProjectedMargin > currentMarginCalc) {
+      recommendations.push({
+        type: 'success',
+        category: 'Rentabilidad',
+        message: 'Margen proyectado mejora de ' + currentMarginCalc.toFixed(1) + '% a ' + avgProjectedMargin.toFixed(1) + '%. Estrategia de precios efectiva.',
+        action: 'Mantener ajustes de precios mensuales. Considerar inversión en expansión.'
+      })
+    } else if (avgProjectedMargin < currentMarginCalc * 0.9) {
+      recommendations.push({
+        type: 'warning',
+        category: 'Márgenes',
+        message: 'Margen proyectado cae de ' + currentMarginCalc.toFixed(1) + '% a ' + avgProjectedMargin.toFixed(1) + '%. Costos crecen más rápido.',
+        action: 'Revisar estructura de costos. Negociar con proveedores. Aumentar precios.'
+      })
+    }
+    
     // Oportunidad de inversión
-    if (netProfit > avgMonthlyExpense * 2) {
+    if (netProfit > avgMonthlyExpense * 2 && avgProjectedMargin > 15) {
       recommendations.push({
         type: 'success',
         category: 'Inversión',
-        message: 'Capacidad de inversión detectada. Momento favorable para expansión.',
+        message: 'Capacidad de inversión detectada con márgenes saludables.',
         action: 'Evaluar líneas de crédito PyME (tasa ~85% anual). ROI debe superar 100% anual.'
       })
     }
 
-    // Riesgo cambiario
+    // Estrategia de precios
     recommendations.push({
       type: 'info',
-      category: 'Riesgo Cambiario',
-      message: `Devaluación esperada: ${economicContext.devaluacionEsperada}% anual.`,
-      action: 'Considerar cobertura cambiaria para contratos a largo plazo.'
+      category: 'Estrategia de Precios',
+      message: 'En contexto inflacionario, ajustar precios ' + economicContext.ajustePreciosPromedio + '% mensual es clave.',
+      action: 'Implementar cláusula de ajuste automático en contratos. Revisar precios cada 30 días.'
     })
+    
+    // Riesgo cambiario
+    if (economicContext.devaluacionEsperada > 10) {
+      recommendations.push({
+        type: 'info',
+        category: 'Riesgo Cambiario',
+        message: `Devaluación esperada: ${economicContext.devaluacionEsperada}% anual.`,
+        action: 'Considerar cobertura cambiaria. Dolarizar excedentes de caja.'
+      })
+    }
 
     return {
       current: {
@@ -236,10 +292,20 @@ const AIProjections = ({ invoices }) => {
                 </div>
               </div>
               <div className="text-right">
-                <p className="text-lg font-bold text-gray-900">
+                <p className={`text-lg font-bold ${
+                  proj.profit >= (analysis.current.avgMonthlyIncome - analysis.current.avgMonthlyExpense) 
+                    ? 'text-green-600' 
+                    : 'text-orange-600'
+                }`}>
                   ${proj.profit.toLocaleString('es-AR', { maximumFractionDigits: 0 })}
                 </p>
-                <p className="text-xs text-gray-600">Margen: {proj.margin.toFixed(1)}%</p>
+                <div className="flex items-center justify-end gap-2 text-xs">
+                  <span className="text-gray-600">Margen: {proj.margin.toFixed(1)}%</span>
+                  <span className="text-gray-400">|</span>
+                  <span className="text-gray-500" title="Valor real ajustado por inflación">
+                    Real: ${proj.profitRealValue.toLocaleString('es-AR', { maximumFractionDigits: 0 })}
+                  </span>
+                </div>
               </div>
             </div>
           ))}
