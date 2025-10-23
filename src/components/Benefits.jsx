@@ -56,13 +56,13 @@ const Benefits = () => {
 
           {/* Right Content - Image Placeholder */}
           <div className="flex items-center justify-center">
-            <div className="bg-white rounded-2xl p-12 border border-gray-200 shadow-xl">
-              <div className="w-full h-96 bg-gray-100 rounded-xl flex items-center justify-center">
-                <div className="text-center">
-                  <div className="w-24 h-24 bg-gray-700 rounded-full mx-auto mb-4 flex items-center justify-center">
-                    <TrendingUp className="w-12 h-12 text-white" />
+            <div className="bg-white rounded-2xl p-4 sm:p-8 md:p-12 border border-gray-200 shadow-xl w-full max-w-lg">
+              <div className="w-full h-64 sm:h-80 md:h-96 bg-gray-100 rounded-xl flex items-center justify-center">
+                <div className="text-center px-4">
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 bg-gray-700 rounded-full mx-auto mb-3 sm:mb-4 flex items-center justify-center">
+                    <TrendingUp className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 text-white" />
                   </div>
-                  <p className="text-gray-600 font-medium">Resultados Medibles</p>
+                  <p className="text-gray-600 font-medium text-sm sm:text-base">Resultados Medibles</p>
                 </div>
               </div>
             </div>

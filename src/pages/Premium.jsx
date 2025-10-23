@@ -163,7 +163,7 @@ const Premium = () => {
                       </span>
                     </div>
                     <p className="text-sm text-gray-600 mt-1">
-                      {plan.frequency_type === 'months' && plan.frequency === 1 ? 'por mes' : 'por año'}
+                      {isAnnual ? 'por año' : 'por mes'}
                     </p>
                   </div>
 
