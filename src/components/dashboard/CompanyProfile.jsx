@@ -8,10 +8,12 @@ const CompanyProfile = () => {
     name: '',
     cuit: '',
     address: '',
+    locality: '',
     city: '',
     province: '',
     country: 'Argentina',
     industry: '',
+    fiscalCategory: '',
     fiscalYear: new Date().getFullYear().toString(),
     currency: 'ARS',
   })
@@ -121,8 +123,23 @@ const CompanyProfile = () => {
             />
           </div>
 
-          {/* City, Province, Country */}
-          <div className="grid md:grid-cols-3 gap-6">
+          {/* Locality, City, Province, Country */}
+          <div className="grid md:grid-cols-2 gap-6">
+            <div>
+              <label htmlFor="locality" className="block text-sm font-medium text-gray-700 mb-2">
+                Localidad
+              </label>
+              <input
+                type="text"
+                id="locality"
+                name="locality"
+                value={formData.locality}
+                onChange={handleChange}
+                className="w-full px-4 py-2.5 rounded-md bg-white border border-gray-300 text-gray-900 placeholder-gray-400 focus:border-gray-900 focus:ring-1 focus:ring-gray-900 outline-none transition-colors shadow-sm"
+                placeholder="Villa Carlos Paz"
+              />
+            </div>
+
             <div>
               <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-2">
                 Ciudad *
@@ -138,7 +155,9 @@ const CompanyProfile = () => {
                 placeholder="Córdoba"
               />
             </div>
+          </div>
 
+          <div className="grid md:grid-cols-2 gap-6">
             <div>
               <label htmlFor="province" className="block text-sm font-medium text-gray-700 mb-2">
                 Provincia *
@@ -169,6 +188,36 @@ const CompanyProfile = () => {
                 className="w-full px-4 py-2.5 rounded-md bg-white border border-gray-300 text-gray-900 placeholder-gray-400 focus:border-gray-900 focus:ring-1 focus:ring-gray-900 outline-none transition-colors shadow-sm"
               />
             </div>
+          </div>
+
+          {/* Fiscal Category */}
+          <div>
+            <label htmlFor="fiscalCategory" className="block text-sm font-medium text-gray-700 mb-2">
+              Categoría Fiscal / Tipo de Contribuyente *
+            </label>
+            <select
+              id="fiscalCategory"
+              name="fiscalCategory"
+              value={formData.fiscalCategory}
+              onChange={handleChange}
+              required
+              className="w-full px-4 py-2.5 rounded-md bg-white border border-gray-300 text-gray-900 focus:border-gray-900 focus:ring-1 focus:ring-gray-900 outline-none transition-colors shadow-sm"
+            >
+              <option value="">Seleccionar categoría fiscal...</option>
+              <option value="Monotributo">Monotributo</option>
+              <option value="Responsable Inscripto">Responsable Inscripto</option>
+              <option value="Responsable No Inscripto">Responsable No Inscripto</option>
+              <option value="Exento">Exento</option>
+              <option value="IVA No Alcanzado">IVA No Alcanzado</option>
+              <option value="Consumidor Final">Consumidor Final</option>
+              <option value="Emprendedor No Registrado">Emprendedor No Registrado</option>
+              <option value="Régimen Simplificado">Régimen Simplificado</option>
+              <option value="Autónomo">Autónomo</option>
+              <option value="Otro">Otro</option>
+            </select>
+            <p className="mt-1.5 text-xs text-gray-500">
+              Esta categoría determina las regulaciones fiscales aplicables a tu empresa
+            </p>
           </div>
 
           {/* Industry & Fiscal Year */}

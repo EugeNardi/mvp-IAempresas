@@ -1,19 +1,26 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useData } from '../../context/DataContext'
 import { 
   Plus, Save, X, Upload, Mic, Sparkles, Loader, 
-  TrendingUp, AlertCircle, CheckCircle, Image as ImageIcon, Trash2
+  TrendingUp, AlertCircle, CheckCircle, Image as ImageIcon, Trash2, Package
 } from 'lucide-react'
 import AudioRecorderComponent from '../common/AudioRecorder'
 import { processAudioForMovement, isOpenAIConfigured } from '../../services/aiService'
 
 const MovimientosVenta = ({ movimiento, onClose, onSuccess }) => {
-  const { addInvoice, updateInvoice, invoices, inventoryItems, updateInventoryItem } = useData()
+  const { addInvoice, updateInvoice, invoices, inventoryItems, updateProductStock, loadInventoryItems } = useData()
   const isEditing = !!movimiento
   const [loading, setLoading] = useState(false)
   const [analyzing, setAnalyzing] = useState(false)
   const [error, setError] = useState('')
   const [aiAnalyzed, setAiAnalyzed] = useState(false)
+
+  // Cargar inventario al montar el componente
+  useEffect(() => {
+    if (loadInventoryItems) {
+      loadInventoryItems()
+    }
+  }, [])
 
   const [formData, setFormData] = useState(() => {
     if (isEditing && movimiento) {
@@ -204,11 +211,11 @@ const MovimientosVenta = ({ movimiento, onClose, onSuccess }) => {
           const item = inventoryItems.find(i => i.id === valor)
           if (item) {
             updated.nombre = item.name
-            updated.descripcion = item.description
+            updated.descripcion = item.description || ''
             updated.precioUnitario = formData.tipo === 'mayorista' 
-              ? item.wholesale_price 
-              : item.unit_price
-            updated.stockDisponible = item.quantity
+              ? (item.wholesale_price || item.sale_price || item.unit_cost * 1.3)
+              : (item.sale_price || item.unit_cost * 1.5)
+            updated.stockDisponible = item.current_stock || 0
           }
         }
         
@@ -252,11 +259,14 @@ const MovimientosVenta = ({ movimiento, onClose, onSuccess }) => {
         if (!prod.cantidad || prod.cantidad <= 0) throw new Error('La cantidad debe ser mayor a 0')
         if (!prod.precioUnitario || prod.precioUnitario <= 0) throw new Error('El precio unitario debe ser mayor a 0')
         
-        // Verificar stock
+        // Verificar stock disponible
         if (prod.productoId) {
           const item = inventoryItems.find(i => i.id === prod.productoId)
-          if (item && item.quantity < prod.cantidad) {
-            throw new Error(`Stock insuficiente para ${prod.nombre}. Disponible: ${item.quantity}`)
+          if (item) {
+            const stockActual = item.current_stock || 0
+            if (stockActual < prod.cantidad) {
+              throw new Error(`Stock insuficiente para ${prod.nombre}. Disponible: ${stockActual}, solicitado: ${prod.cantidad}`)
+            }
           }
         }
       }
@@ -295,14 +305,18 @@ const MovimientosVenta = ({ movimiento, onClose, onSuccess }) => {
         await addInvoice(invoiceData)
       }
       
-      // Actualizar inventario (descontar stock)
+      // Actualizar inventario (descontar stock de productos vendidos)
+      console.log('📦 Actualizando inventario con productos vendidos...')
       for (const prod of productos) {
-        if (prod.productoId && updateInventoryItem) {
-          const item = inventoryItems.find(i => i.id === prod.productoId)
-          if (item) {
-            await updateInventoryItem(prod.productoId, {
-              quantity: item.quantity - parseFloat(prod.cantidad)
-            })
+        if (prod.productoId) {
+          try {
+            // Restar stock del producto
+            await updateProductStock(prod.productoId, parseFloat(prod.cantidad), 'subtract')
+            console.log(`✅ Stock actualizado para ${prod.nombre}: -${prod.cantidad}`)
+          } catch (invError) {
+            console.error(`Error al actualizar inventario para ${prod.nombre}:`, invError)
+            // Si falla el descuento de stock, mostramos error pero no bloqueamos la venta
+            setError(`Venta registrada pero error al actualizar stock de ${prod.nombre}`)
           }
         }
       }
@@ -516,29 +530,58 @@ const MovimientosVenta = ({ movimiento, onClose, onSuccess }) => {
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-medium mb-1.5 text-gray-700">Producto del Inventario</label>
-                    <select
-                      value={producto.productoId}
-                      onChange={(e) => actualizarProducto(producto.id, 'productoId', e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-lg border-2 border-gray-300 focus:border-green-500 outline-none"
-                    >
-                      <option value="">Seleccionar o crear nuevo</option>
-                      {inventoryItems.map(item => (
-                        <option key={item.id} value={item.id}>
-                          {item.name} (Stock: {item.quantity})
-                        </option>
-                      ))}
-                    </select>
+                  <div className="md:col-span-2">
+                    <label className="block text-xs font-medium mb-1.5 text-gray-700">
+                      <div className="flex items-center gap-2">
+                        <Package className="w-4 h-4" />
+                        <span>Producto del Inventario</span>
+                      </div>
+                      {producto.productoId && producto.stockDisponible !== undefined && (
+                        <span className={`ml-2 text-xs font-semibold ${
+                          producto.stockDisponible > 10 ? 'text-green-600' : 
+                          producto.stockDisponible > 0 ? 'text-yellow-600' : 'text-red-600'
+                        }`}>
+                          • Stock disponible: {producto.stockDisponible} unidades
+                        </span>
+                      )}
+                    </label>
+                    
+                    {inventoryItems && inventoryItems.length > 0 ? (
+                      <select
+                        value={producto.productoId}
+                        onChange={(e) => actualizarProducto(producto.id, 'productoId', e.target.value)}
+                        className="w-full px-4 py-2.5 rounded-lg border-2 border-gray-300 focus:border-green-500 outline-none"
+                      >
+                        <option value="">Seleccionar del inventario o crear nuevo</option>
+                        {inventoryItems
+                          .filter(item => item.is_active !== false)
+                          .map(item => {
+                            const stock = item.current_stock || 0
+                            return (
+                              <option key={item.id} value={item.id}>
+                                {item.name} - Stock: {stock} {stock <= 5 ? '⚠️' : stock > 0 ? '✓' : '❌'}
+                              </option>
+                            )
+                          })}
+                      </select>
+                    ) : (
+                      <div className="w-full px-4 py-2.5 rounded-lg border-2 border-yellow-300 bg-yellow-50 text-yellow-800 text-sm">
+                        <div className="flex items-center gap-2">
+                          <AlertCircle className="w-4 h-4" />
+                          <span>No hay productos en el inventario. Agrega productos primero o crea uno nuevo.</span>
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   <div>
-                    <label className="block text-xs font-medium mb-1.5 text-gray-700">Nombre *</label>
+                    <label className="block text-xs font-medium mb-1.5 text-gray-700">Nombre del Producto *</label>
                     <input
                       type="text"
                       value={producto.nombre}
                       onChange={(e) => actualizarProducto(producto.id, 'nombre', e.target.value)}
                       required
+                      placeholder="Nombre del producto"
                       className="w-full px-4 py-2.5 rounded-lg border-2 border-gray-300 focus:border-green-500 outline-none"
                     />
                   </div>

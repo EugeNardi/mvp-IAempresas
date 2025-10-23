@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useData } from '../../context/DataContext'
 import { 
   Plus, Save, X, Upload, Mic, Sparkles, Loader, 
@@ -8,12 +8,19 @@ import AudioRecorderComponent from '../common/AudioRecorder'
 import { processAudioForMovement, isOpenAIConfigured } from '../../services/aiService'
 
 const MovimientosCompra = ({ movimiento, onClose, onSuccess }) => {
-  const { addInvoice, updateInvoice, invoices, addInventoryItem } = useData()
+  const { addInvoice, updateInvoice, invoices, findOrCreateProduct, updateProductStock, loadInventoryItems } = useData()
   const isEditing = !!movimiento
   const [loading, setLoading] = useState(false)
   const [analyzing, setAnalyzing] = useState(false)
   const [error, setError] = useState('')
   const [aiAnalyzed, setAiAnalyzed] = useState(false)
+
+  // Cargar inventario al montar el componente
+  useEffect(() => {
+    if (loadInventoryItems) {
+      loadInventoryItems()
+    }
+  }, [])
 
   const [formData, setFormData] = useState(() => {
     if (isEditing && movimiento) {
@@ -291,27 +298,25 @@ const MovimientosCompra = ({ movimiento, onClose, onSuccess }) => {
         await addInvoice(compraData)
       }
       
-      // Agregar productos al inventario
+      // Actualizar inventario: buscar o crear productos y sumar stock
+      console.log('📦 Actualizando inventario con productos de la compra...')
       for (const prod of productos) {
-        const inventoryItem = {
-          name: prod.nombre,
-          category: prod.categoria,
-          description: prod.descripcion || '',
-          quantity: parseFloat(prod.cantidad),
-          unit_price: parseFloat(prod.precioMinorista) || parseFloat(prod.costoUnitario) * 1.5,
-          cost_price: parseFloat(prod.costoUnitario),
-          wholesale_price: parseFloat(prod.precioMayorista) || parseFloat(prod.costoUnitario) * 1.3,
-          min_stock: Math.ceil(parseFloat(prod.cantidad) * 0.2), // 20% del stock inicial
-          supplier: formData.proveedor,
-          purchase_date: formData.fecha
-        }
-        
         try {
-          if (addInventoryItem) {
-            await addInventoryItem(inventoryItem)
-          }
+          // Buscar o crear producto en inventario
+          const product = await findOrCreateProduct({
+            nombre: prod.nombre,
+            descripcion: prod.descripcion,
+            costoUnitario: prod.costoUnitario,
+            precioMinorista: prod.precioMinorista,
+            precioMayorista: prod.precioMayorista
+          })
+          
+          // Sumar stock al producto
+          await updateProductStock(product.id, parseFloat(prod.cantidad), 'add')
+          console.log(`✅ Stock actualizado para ${prod.nombre}: +${prod.cantidad}`)
         } catch (invError) {
-          console.error('Error al agregar al inventario:', invError)
+          console.error(`Error al actualizar inventario para ${prod.nombre}:`, invError)
+          // No bloqueamos la compra si falla el inventario
         }
       }
       

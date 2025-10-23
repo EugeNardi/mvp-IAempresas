@@ -503,46 +503,45 @@ const SmartBulkImport = ({ companyData, categories, onClose, onImportComplete })
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 p-2 sm:p-4 md:p-6 overflow-y-auto">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-6xl w-full my-4 sm:my-8 overflow-hidden flex flex-col max-h-[95vh] sm:max-h-[90vh]">
-        {/* Header con diseño sutil */}
-        <div className="px-4 sm:px-6 py-4 sm:py-5 border-b border-gray-200 bg-gradient-to-r from-slate-50 to-gray-50">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-md flex items-center justify-center z-50 p-2 sm:p-4 md:p-6 overflow-y-auto">
+      <div className="bg-white rounded-xl shadow-2xl max-w-6xl w-full my-4 sm:my-8 overflow-hidden flex flex-col max-h-[95vh] sm:max-h-[90vh] border border-gray-200">
+        {/* Header con diseño Vercel */}
+        <div className="px-4 sm:px-6 py-4 sm:py-5 border-b border-gray-200 bg-white">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-slate-600 to-slate-700 rounded-xl flex items-center justify-center shadow-lg">
-                <Brain className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-black rounded-lg flex items-center justify-center">
+                <FileSpreadsheet className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
               </div>
               <div>
-                <h3 className="text-lg sm:text-xl font-bold text-gray-900 flex items-center space-x-2">
-                  <span>Importación Inteligente</span>
-                  <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-slate-600 animate-pulse" />
+                <h3 className="text-lg sm:text-xl font-semibold text-gray-900">
+                  Importar desde Excel
                 </h3>
-                <p className="text-xs sm:text-sm text-gray-600 mt-0.5">La IA detecta automáticamente la estructura</p>
+                <p className="text-xs sm:text-sm text-gray-500 mt-0.5">Detección automática de estructura</p>
               </div>
             </div>
             <button 
               onClick={onClose} 
-              className="p-2 hover:bg-white/50 rounded-lg transition-all duration-200 hover:scale-110"
+              className="p-2 hover:bg-gray-100 rounded-md transition-colors"
               aria-label="Cerrar"
             >
-              <X className="w-5 h-5 text-gray-500" />
+              <X className="w-5 h-5 text-gray-400 hover:text-gray-600" />
             </button>
           </div>
         </div>
 
-        {/* Progress Steps - Mejorado y responsive */}
+        {/* Progress Steps - Estilo Vercel */}
         {!success && (
-          <div className="px-4 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-slate-50 to-gray-50 border-b border-gray-200">
+          <div className="px-4 sm:px-6 py-3 sm:py-4 bg-gray-50 border-b border-gray-200">
             <div className="flex items-center justify-between max-w-3xl mx-auto">
               {/* Step 1 */}
-              <div className={`flex flex-col sm:flex-row items-center space-y-1 sm:space-y-0 sm:space-x-2 transition-all duration-300 ${
-                step === 'upload' ? 'text-slate-700 scale-105' : 
-                step === 'mapping' || step === 'preview' ? 'text-emerald-700' : 'text-gray-400'
+              <div className={`flex flex-col sm:flex-row items-center space-y-1 sm:space-y-0 sm:space-x-2 transition-all ${
+                step === 'upload' ? 'text-gray-900' : 
+                step === 'mapping' || step === 'preview' ? 'text-gray-600' : 'text-gray-400'
               }`}>
-                <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-semibold transition-all duration-300 shadow-md ${
-                  step === 'upload' ? 'bg-gradient-to-br from-slate-600 to-slate-700 text-white ring-4 ring-slate-100' : 
-                  step === 'mapping' || step === 'preview' ? 'bg-gradient-to-br from-emerald-600 to-emerald-700 text-white' : 
-                  'bg-gray-300 text-gray-600'
+                <div className={`w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center text-sm font-medium transition-all ${
+                  step === 'upload' ? 'bg-black text-white' : 
+                  step === 'mapping' || step === 'preview' ? 'bg-gray-900 text-white' : 
+                  'bg-gray-200 text-gray-500'
                 }`}>
                   {step === 'mapping' || step === 'preview' ? '✓' : '1'}
                 </div>
@@ -550,19 +549,19 @@ const SmartBulkImport = ({ companyData, categories, onClose, onImportComplete })
               </div>
 
               {/* Connector 1 */}
-              <div className={`flex-1 h-1 mx-2 sm:mx-4 rounded-full transition-all duration-500 ${
-                step === 'mapping' || step === 'preview' ? 'bg-gradient-to-r from-emerald-500 to-slate-500' : 'bg-gray-300'
+              <div className={`flex-1 h-0.5 mx-2 sm:mx-4 transition-all ${
+                step === 'mapping' || step === 'preview' ? 'bg-gray-900' : 'bg-gray-200'
               }`}></div>
 
               {/* Step 2 */}
-              <div className={`flex flex-col sm:flex-row items-center space-y-1 sm:space-y-0 sm:space-x-2 transition-all duration-300 ${
-                step === 'mapping' ? 'text-slate-700 scale-105' : 
-                step === 'preview' ? 'text-emerald-700' : 'text-gray-400'
+              <div className={`flex flex-col sm:flex-row items-center space-y-1 sm:space-y-0 sm:space-x-2 transition-all ${
+                step === 'mapping' ? 'text-gray-900' : 
+                step === 'preview' ? 'text-gray-600' : 'text-gray-400'
               }`}>
-                <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-semibold transition-all duration-300 shadow-md ${
-                  step === 'mapping' ? 'bg-gradient-to-br from-slate-600 to-slate-700 text-white ring-4 ring-slate-100' : 
-                  step === 'preview' ? 'bg-gradient-to-br from-emerald-600 to-emerald-700 text-white' : 
-                  'bg-gray-300 text-gray-600'
+                <div className={`w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center text-sm font-medium transition-all ${
+                  step === 'mapping' ? 'bg-black text-white' : 
+                  step === 'preview' ? 'bg-gray-900 text-white' : 
+                  'bg-gray-200 text-gray-500'
                 }`}>
                   {step === 'preview' ? '✓' : '2'}
                 </div>
@@ -570,17 +569,17 @@ const SmartBulkImport = ({ companyData, categories, onClose, onImportComplete })
               </div>
 
               {/* Connector 2 */}
-              <div className={`flex-1 h-1 mx-2 sm:mx-4 rounded-full transition-all duration-500 ${
-                step === 'preview' ? 'bg-gradient-to-r from-emerald-500 to-slate-500' : 'bg-gray-300'
+              <div className={`flex-1 h-0.5 mx-2 sm:mx-4 transition-all ${
+                step === 'preview' ? 'bg-gray-900' : 'bg-gray-200'
               }`}></div>
 
               {/* Step 3 */}
-              <div className={`flex flex-col sm:flex-row items-center space-y-1 sm:space-y-0 sm:space-x-2 transition-all duration-300 ${
-                step === 'preview' ? 'text-slate-700 scale-105' : 'text-gray-400'
+              <div className={`flex flex-col sm:flex-row items-center space-y-1 sm:space-y-0 sm:space-x-2 transition-all ${
+                step === 'preview' ? 'text-gray-900' : 'text-gray-400'
               }`}>
-                <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-semibold transition-all duration-300 shadow-md ${
-                  step === 'preview' ? 'bg-gradient-to-br from-slate-600 to-slate-700 text-white ring-4 ring-slate-100' : 
-                  'bg-gray-300 text-gray-600'
+                <div className={`w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center text-sm font-medium transition-all ${
+                  step === 'preview' ? 'bg-black text-white' : 
+                  'bg-gray-200 text-gray-500'
                 }`}>
                   3
                 </div>
@@ -594,62 +593,62 @@ const SmartBulkImport = ({ companyData, categories, onClose, onImportComplete })
         <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 sm:space-y-6">
           {step === 'upload' && !analyzing && (
             <>
-              <div className="bg-gradient-to-br from-slate-50 to-gray-50 border-2 border-slate-200 rounded-xl p-4 sm:p-5 shadow-sm hover:shadow-md transition-shadow duration-300">
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 sm:p-5">
                 <div className="flex items-start space-x-3">
-                  <div className="w-10 h-10 bg-gradient-to-br from-slate-600 to-slate-700 rounded-lg flex items-center justify-center flex-shrink-0 shadow-md">
+                  <div className="w-10 h-10 bg-black rounded-lg flex items-center justify-center flex-shrink-0">
                     <Brain className="w-5 h-5 text-white" />
                   </div>
                   <div className="flex-1">
-                    <h4 className="font-bold text-slate-900 mb-2 text-base sm:text-lg">✨ Importación Inteligente</h4>
-                    <ul className="text-sm sm:text-base text-slate-700 space-y-1.5">
+                    <h4 className="font-semibold text-gray-900 mb-2 text-base sm:text-lg">Importación Inteligente</h4>
+                    <ul className="text-sm text-gray-600 space-y-2">
                       <li className="flex items-start">
-                        <span className="text-slate-500 mr-2 flex-shrink-0">•</span>
-                        <span>La IA analiza automáticamente tu Excel</span>
+                        <span className="text-gray-400 mr-2 flex-shrink-0">•</span>
+                        <span>Analiza automáticamente la estructura de tu Excel</span>
                       </li>
                       <li className="flex items-start">
-                        <span className="text-slate-500 mr-2 flex-shrink-0">•</span>
-                        <span>Detecta columnas como "Productos", "Cantidad", "Costo unitario"</span>
+                        <span className="text-gray-400 mr-2 flex-shrink-0">•</span>
+                        <span>Detecta columnas: Productos, Cantidad, Costo, Precio</span>
                       </li>
                       <li className="flex items-start">
-                        <span className="text-slate-500 mr-2 flex-shrink-0">•</span>
-                        <span><strong>Ignora columnas vacías</strong> y filas sin datos</span>
+                        <span className="text-gray-400 mr-2 flex-shrink-0">•</span>
+                        <span>Ignora columnas vacías y filas sin datos</span>
                       </li>
                       <li className="flex items-start">
-                        <span className="text-slate-500 mr-2 flex-shrink-0">•</span>
-                        <span>Sugiere el mejor mapeo de datos</span>
+                        <span className="text-gray-400 mr-2 flex-shrink-0">•</span>
+                        <span>Mapeo inteligente con ajuste manual</span>
                       </li>
                       <li className="flex items-start">
-                        <span className="text-slate-500 mr-2 flex-shrink-0">•</span>
-                        <span>Puedes ajustar manualmente si es necesario</span>
+                        <span className="text-gray-400 mr-2 flex-shrink-0">•</span>
+                        <span>Compatible con múltiples formatos de Excel</span>
                       </li>
                     </ul>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-gradient-to-br from-amber-50 to-orange-50 border-2 border-amber-200 rounded-xl p-4 sm:p-5 shadow-sm">
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 sm:p-5">
                 <div className="flex items-start space-x-3">
-                  <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-600 rounded-lg flex items-center justify-center flex-shrink-0 shadow-md">
+                  <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
                     <AlertCircle className="w-5 h-5 text-white" />
                   </div>
                   <div className="flex-1">
-                    <h4 className="font-bold text-amber-900 mb-2 text-base sm:text-lg">💡 Tips para mejores resultados</h4>
-                    <ul className="text-sm sm:text-base text-amber-800 space-y-1.5">
+                    <h4 className="font-semibold text-blue-900 mb-2 text-base sm:text-lg">Tips para mejores resultados</h4>
+                    <ul className="text-sm text-blue-800 space-y-2">
                       <li className="flex items-start">
-                        <span className="text-amber-600 mr-2 flex-shrink-0">•</span>
-                        <span><strong>Primera fila</strong>: Debe contener los nombres de las columnas</span>
+                        <span className="text-blue-400 mr-2 flex-shrink-0">•</span>
+                        <span><strong>Primera fila:</strong> Debe contener nombres de columnas</span>
                       </li>
                       <li className="flex items-start">
-                        <span className="text-amber-600 mr-2 flex-shrink-0">•</span>
-                        <span><strong>Columnas vacías</strong>: Se ignoran automáticamente</span>
+                        <span className="text-blue-400 mr-2 flex-shrink-0">•</span>
+                        <span><strong>Columnas vacías:</strong> Se ignoran automáticamente</span>
                       </li>
                       <li className="flex items-start">
-                        <span className="text-amber-600 mr-2 flex-shrink-0">•</span>
-                        <span><strong>Filas vacías</strong>: Se filtran automáticamente</span>
+                        <span className="text-blue-400 mr-2 flex-shrink-0">•</span>
+                        <span><strong>Filas vacías:</strong> Se filtran automáticamente</span>
                       </li>
                       <li className="flex items-start">
-                        <span className="text-yellow-600 mr-2 flex-shrink-0">•</span>
-                        <span><strong>Formato libre</strong>: Funciona con cualquier estructura</span>
+                        <span className="text-blue-400 mr-2 flex-shrink-0">•</span>
+                        <span><strong>Formato flexible:</strong> Funciona con cualquier estructura</span>
                       </li>
                     </ul>
                   </div>
@@ -657,22 +656,22 @@ const SmartBulkImport = ({ companyData, categories, onClose, onImportComplete })
               </div>
 
               <div className="flex flex-col items-center justify-center py-6 sm:py-8 space-y-4">
-                <div className="inline-flex items-center justify-center p-4 bg-gradient-to-br from-slate-50 to-gray-100 rounded-2xl">
-                  <FileSpreadsheet className="w-12 h-12 sm:w-16 sm:h-16 text-slate-600" />
+                <div className="inline-flex items-center justify-center p-4 bg-gray-100 rounded-lg">
+                  <FileSpreadsheet className="w-12 h-12 sm:w-16 sm:h-16 text-gray-600" />
                 </div>
                 <button
                   onClick={downloadTemplate}
-                  className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-slate-600 to-slate-700 text-white rounded-xl hover:from-slate-700 hover:to-slate-800 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                  className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-black text-white text-sm font-medium rounded-md hover:bg-gray-800 transition-colors"
                 >
-                  <Download className="w-5 h-5 flex-shrink-0" />
-                  <span className="font-semibold">Descargar Ejemplo</span>
+                  <Download className="w-4 h-4 flex-shrink-0" />
+                  <span>Descargar Plantilla</span>
                 </button>
-                <p className="text-sm text-gray-600 text-center">O sube tu propio Excel con cualquier formato</p>
+                <p className="text-sm text-gray-500 text-center">O sube tu propio Excel con cualquier formato</p>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">Seleccionar Archivo Excel</label>
-                <div className="relative border-2 border-dashed border-gray-300 rounded-xl p-6 sm:p-8 text-center hover:border-slate-400 hover:bg-slate-50/30 transition-all duration-300 group">
+                <label className="block text-sm font-medium text-gray-900 mb-3">Seleccionar Archivo</label>
+                <div className="relative border-2 border-dashed border-gray-300 rounded-lg p-6 sm:p-8 text-center hover:border-gray-400 hover:bg-gray-50 transition-all group">
                   <input
                     type="file"
                     accept=".xlsx,.xls,.csv"
@@ -681,21 +680,21 @@ const SmartBulkImport = ({ companyData, categories, onClose, onImportComplete })
                     id="file-upload"
                   />
                   <label htmlFor="file-upload" className="cursor-pointer block">
-                    <div className="inline-block p-3 bg-gradient-to-br from-slate-100 to-gray-200 rounded-xl mb-3 group-hover:scale-110 transition-transform duration-300">
-                      <Upload className="w-10 h-10 sm:w-12 sm:h-12 text-slate-600" />
+                    <div className="inline-block p-3 bg-gray-100 rounded-lg mb-3 group-hover:bg-gray-200 transition-colors">
+                      <Upload className="w-10 h-10 sm:w-12 sm:h-12 text-gray-600" />
                     </div>
-                    <p className="text-base sm:text-lg font-semibold text-gray-700 mb-1">
+                    <p className="text-base sm:text-lg font-medium text-gray-900 mb-1">
                       {file ? (
-                        <span className="text-emerald-600 flex items-center justify-center space-x-2">
+                        <span className="text-green-600 flex items-center justify-center space-x-2">
                           <CheckCircle className="w-5 h-5" />
                           <span>{file.name}</span>
                         </span>
                       ) : (
-                        'Click para seleccionar archivo'
+                        'Haz clic para seleccionar'
                       )}
                     </p>
                     <p className="text-sm text-gray-500">
-                      Formatos soportados: <span className="font-semibold">.xlsx, .xls, .csv</span>
+                      Soporta: <span className="font-medium">.xlsx, .xls, .csv</span>
                     </p>
                   </label>
                 </div>
@@ -706,36 +705,25 @@ const SmartBulkImport = ({ companyData, categories, onClose, onImportComplete })
           {analyzing && (
             <div className="text-center py-12 sm:py-16">
               <div className="relative inline-block mb-6">
-                <div className="absolute inset-0 bg-gradient-to-r from-slate-300 to-gray-400 rounded-full blur-xl opacity-30 animate-pulse"></div>
-                <div className="relative">
-                  <div className="animate-spin rounded-full h-20 w-20 sm:h-24 sm:w-24 border-4 border-transparent border-t-slate-600 border-r-slate-500"></div>
-                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                    <Brain className="w-10 h-10 sm:w-12 sm:h-12 text-slate-600 animate-pulse" />
-                  </div>
+                <div className="animate-spin rounded-full h-16 w-16 sm:h-20 sm:w-20 border-4 border-gray-200 border-t-black"></div>
+                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                  <Brain className="w-8 h-8 sm:w-10 sm:h-10 text-gray-900" />
                 </div>
               </div>
-              <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">Analizando con IA...</h3>
-              <p className="text-gray-600 text-sm sm:text-base">Detectando estructura y mapeando columnas</p>
-              <div className="mt-6 flex items-center justify-center space-x-2">
-                <div className="w-2 h-2 bg-slate-600 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                <div className="w-2 h-2 bg-slate-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                <div className="w-2 h-2 bg-gray-600 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
-              </div>
+              <h3 className="text-xl sm:text-2xl font-semibold text-gray-900 mb-2">Analizando estructura...</h3>
+              <p className="text-gray-500 text-sm sm:text-base">Detectando columnas y mapeando datos</p>
             </div>
           )}
 
           {step === 'mapping' && (
             <>
-              <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4">
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                 <div className="flex items-start space-x-3">
-                  <CheckCircle className="w-5 h-5 text-emerald-600 mt-0.5" />
+                  <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
                   <div>
-                    <h4 className="font-semibold text-emerald-900 mb-2">✓ Análisis Completado</h4>
-                    <p className="text-sm text-emerald-800 mb-2">
-                      Se detectaron <strong>{detectedColumns.length} columnas válidas</strong> y <strong>{rawData.length} filas con datos</strong>.
-                    </p>
-                    <p className="text-xs text-emerald-700">
-                      Las columnas vacías y filas sin datos fueron filtradas automáticamente.
+                    <h4 className="font-semibold text-green-900 mb-1">Análisis Completado</h4>
+                    <p className="text-sm text-green-800">
+                      <strong>{detectedColumns.length} columnas</strong> y <strong>{rawData.length} filas</strong> detectadas
                     </p>
                   </div>
                 </div>
@@ -746,14 +734,14 @@ const SmartBulkImport = ({ companyData, categories, onClose, onImportComplete })
                 <div className="space-y-3">
                   {targetFields.map(field => (
                     <div key={field.key} className="grid grid-cols-2 gap-4 items-center">
-                      <label className="text-sm font-medium text-gray-700">
+                      <label className="text-sm font-medium text-gray-900">
                         {field.label}
-                        {field.required && <span className="text-red-500 ml-1">*</span>}
+                        {field.required && <span className="text-red-600 ml-1">*</span>}
                       </label>
                       <select
                         value={columnMapping[field.key] || ''}
                         onChange={(e) => handleMappingChange(field.key, e.target.value)}
-                        className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                        className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
                       >
                         <option value="">-- No mapear --</option>
                         {detectedColumns.map(col => (
@@ -768,20 +756,20 @@ const SmartBulkImport = ({ companyData, categories, onClose, onImportComplete })
               {rawData.length > 0 && (
                 <div>
                   <h4 className="font-semibold text-gray-900 mb-3">Vista Previa</h4>
-                  <div className="overflow-x-auto border rounded-lg">
+                  <div className="overflow-x-auto border border-gray-200 rounded-lg">
                     <table className="w-full text-sm">
-                      <thead className="bg-gray-50">
+                      <thead className="bg-gray-50 border-b border-gray-200">
                         <tr>
                           {detectedColumns.slice(0, 6).map(col => (
-                            <th key={col} className="px-3 py-2 text-left text-xs font-semibold text-gray-700">{col}</th>
+                            <th key={col} className="px-3 py-2.5 text-left text-xs font-medium text-gray-700">{col}</th>
                           ))}
                         </tr>
                       </thead>
-                      <tbody className="divide-y">
+                      <tbody className="divide-y divide-gray-200">
                         {rawData.slice(0, 3).map((row, i) => (
-                          <tr key={i}>
+                          <tr key={i} className="hover:bg-gray-50">
                             {detectedColumns.slice(0, 6).map(col => (
-                              <td key={col} className="px-3 py-2 text-gray-900">{String(row[col] || '-')}</td>
+                              <td key={col} className="px-3 py-2.5 text-gray-600">{String(row[col] || '-')}</td>
                             ))}
                           </tr>
                         ))}
@@ -796,12 +784,12 @@ const SmartBulkImport = ({ companyData, categories, onClose, onImportComplete })
           {step === 'preview' && !success && (
             <>
               {errors.length > 0 && (
-                <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                   <div className="flex items-start space-x-3">
-                    <AlertCircle className="w-5 h-5 text-orange-600 mt-0.5" />
+                    <AlertCircle className="w-5 h-5 text-yellow-600 mt-0.5 flex-shrink-0" />
                     <div>
-                      <h4 className="font-semibold text-orange-900 mb-2">Advertencias</h4>
-                      <ul className="text-sm text-orange-800">
+                      <h4 className="font-semibold text-yellow-900 mb-1">Advertencias</h4>
+                      <ul className="text-sm text-yellow-800 space-y-1">
                         {errors.map((error, i) => (
                           <li key={i}>• {error}</li>
                         ))}
@@ -813,49 +801,49 @@ const SmartBulkImport = ({ companyData, categories, onClose, onImportComplete })
 
               <div>
                 <h4 className="font-semibold text-gray-900 mb-3">
-                  Vista Previa - Productos Listos para Importar ({preview.filter(p => p.errors.length === 0).length} válidos de {preview.length} total)
+                  Productos a Importar ({preview.filter(p => p.errors.length === 0).length} de {preview.length})
                 </h4>
-                <div className="overflow-x-auto border-2 border-gray-300 rounded-lg shadow-sm">
+                <div className="overflow-x-auto border border-gray-200 rounded-lg">
                   <table className="w-full text-sm">
-                    <thead className="bg-gradient-to-r from-gray-100 to-gray-200">
+                    <thead className="bg-gray-50 border-b border-gray-200">
                       <tr>
-                        <th className="px-3 py-3 text-left text-xs font-bold text-gray-700">#</th>
-                        <th className="px-3 py-3 text-left text-xs font-bold text-gray-700">Nombre del Producto</th>
-                        <th className="px-3 py-3 text-left text-xs font-bold text-gray-700">Categoría</th>
-                        <th className="px-3 py-3 text-right text-xs font-bold text-gray-700">Costo</th>
-                        <th className="px-3 py-3 text-right text-xs font-bold text-gray-700">Precio</th>
-                        <th className="px-3 py-3 text-right text-xs font-bold text-gray-700">Stock</th>
-                        <th className="px-3 py-3 text-center text-xs font-bold text-gray-700">Estado</th>
+                        <th className="px-3 py-2.5 text-left text-xs font-medium text-gray-700">#</th>
+                        <th className="px-3 py-2.5 text-left text-xs font-medium text-gray-700">Producto</th>
+                        <th className="px-3 py-2.5 text-left text-xs font-medium text-gray-700">Categoría</th>
+                        <th className="px-3 py-2.5 text-right text-xs font-medium text-gray-700">Costo</th>
+                        <th className="px-3 py-2.5 text-right text-xs font-medium text-gray-700">Precio</th>
+                        <th className="px-3 py-2.5 text-right text-xs font-medium text-gray-700">Stock</th>
+                        <th className="px-3 py-2.5 text-center text-xs font-medium text-gray-700">Estado</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200">
                       {preview.slice(0, 15).map((item, i) => (
-                        <tr key={i} className={`${item.errors.length > 0 ? 'bg-red-50' : 'hover:bg-blue-50'} transition-colors`}>
-                          <td className="px-3 py-2 text-gray-600 font-medium">{item.rowNumber}</td>
-                          <td className="px-3 py-2 text-gray-900 font-medium">{item.name || '-'}</td>
-                          <td className="px-3 py-2">
+                        <tr key={i} className={`${item.errors.length > 0 ? 'bg-red-50' : 'hover:bg-gray-50'} transition-colors`}>
+                          <td className="px-3 py-2.5 text-gray-500 text-xs">{item.rowNumber}</td>
+                          <td className="px-3 py-2.5 text-gray-900 font-medium">{item.name || '-'}</td>
+                          <td className="px-3 py-2.5">
                             {item.category ? (
-                              <span className="inline-block px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-medium">
+                              <span className="inline-block px-2 py-0.5 bg-gray-100 text-gray-700 rounded text-xs font-medium">
                                 {item.category}
                               </span>
                             ) : (
-                              <span className="text-gray-400 text-xs">Sin categoría</span>
+                              <span className="text-gray-400 text-xs">-</span>
                             )}
                           </td>
-                          <td className="px-3 py-2 text-right font-medium text-gray-900">
+                          <td className="px-3 py-2.5 text-right text-gray-900">
                             ${item.unit_cost.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                           </td>
-                          <td className="px-3 py-2 text-right font-medium text-green-700">
+                          <td className="px-3 py-2.5 text-right text-gray-900">
                             ${item.sale_price.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                           </td>
-                          <td className="px-3 py-2 text-right font-medium text-gray-900">{item.current_stock}</td>
-                          <td className="px-3 py-2 text-center">
+                          <td className="px-3 py-2.5 text-right text-gray-900">{item.current_stock}</td>
+                          <td className="px-3 py-2.5 text-center">
                             {item.errors.length > 0 ? (
-                              <span className="inline-flex items-center px-2 py-1 bg-red-100 text-red-700 rounded text-xs font-medium" title={item.errors.join(', ')}>
-                                ❌ Error
+                              <span className="inline-flex items-center px-2 py-0.5 bg-red-100 text-red-700 rounded text-xs font-medium" title={item.errors.join(', ')}>
+                                Error
                               </span>
                             ) : (
-                              <span className="inline-flex items-center px-2 py-1 bg-emerald-100 text-emerald-700 rounded text-xs font-medium">
+                              <span className="inline-flex items-center px-2 py-0.5 bg-green-100 text-green-700 rounded text-xs font-medium">
                                 ✓ OK
                               </span>
                             )}
@@ -877,25 +865,24 @@ const SmartBulkImport = ({ companyData, categories, onClose, onImportComplete })
           {success && importStats && (
             <div className="text-center py-12 sm:py-16">
               <div className="relative inline-block mb-6">
-                <div className="absolute inset-0 bg-gradient-to-r from-emerald-400 to-teal-500 rounded-full blur-2xl opacity-20 animate-pulse"></div>
-                <div className="relative bg-gradient-to-br from-emerald-50 to-teal-50 p-6 rounded-full">
-                  <CheckCircle className="w-20 h-20 sm:w-24 sm:h-24 text-emerald-600 animate-bounce" />
+                <div className="bg-green-100 p-6 rounded-full">
+                  <CheckCircle className="w-16 h-16 sm:w-20 sm:h-20 text-green-600" />
                 </div>
               </div>
-              <h3 className="text-2xl sm:text-3xl font-bold text-emerald-900 mb-3">¡Importación Exitosa!</h3>
-              <div className="bg-white border-2 border-emerald-200 rounded-xl p-6 max-w-md mx-auto mb-4 shadow-lg">
-                <p className="text-lg text-emerald-800 mb-2">
-                  Se importaron <span className="text-2xl font-bold text-emerald-600">{importStats.imported}</span> de <span className="font-semibold">{importStats.total}</span> productos
+              <h3 className="text-2xl sm:text-3xl font-semibold text-gray-900 mb-3">Importación Exitosa</h3>
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 max-w-md mx-auto mb-4">
+                <p className="text-lg text-gray-700 mb-2">
+                  <span className="text-2xl font-semibold text-gray-900">{importStats.imported}</span> de {importStats.total} productos importados
                 </p>
                 {importStats.errors > 0 && (
-                  <p className="text-sm text-orange-600">
-                    {importStats.errors} productos con errores fueron omitidos
+                  <p className="text-sm text-gray-500">
+                    {importStats.errors} productos omitidos por errores
                   </p>
                 )}
               </div>
-              <div className="flex items-center justify-center space-x-2 text-emerald-700">
-                <div className="animate-spin rounded-full h-4 w-4 border-2 border-emerald-600 border-t-transparent"></div>
-                <p className="text-sm font-medium">Cerrando automáticamente...</p>
+              <div className="flex items-center justify-center space-x-2 text-gray-500">
+                <div className="animate-spin rounded-full h-4 w-4 border-2 border-gray-300 border-t-gray-900"></div>
+                <p className="text-sm">Cerrando...</p>
               </div>
             </div>
           )}
@@ -903,11 +890,11 @@ const SmartBulkImport = ({ companyData, categories, onClose, onImportComplete })
 
         {/* Footer con botones */}
         {!success && (
-          <div className="px-6 py-4 border-t border-gray-200 flex space-x-3">
+          <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between space-x-3">
             {step === 'upload' && (
               <button 
                 onClick={onClose} 
-                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors"
               >
                 Cancelar
               </button>
@@ -918,16 +905,16 @@ const SmartBulkImport = ({ companyData, categories, onClose, onImportComplete })
                 <button 
                   type="button"
                   onClick={() => setStep('upload')} 
-                  className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                  className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors"
                 >
                   ← Atrás
                 </button>
                 <button 
                   type="button"
                   onClick={handlePreview} 
-                  className="flex-1 px-4 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700 transition-colors"
+                  className="px-4 py-2 bg-black text-white text-sm font-medium rounded-md hover:bg-gray-800 transition-colors"
                 >
-                  Continuar →
+                  Continuar
                 </button>
               </>
             )}
@@ -937,7 +924,7 @@ const SmartBulkImport = ({ companyData, categories, onClose, onImportComplete })
                 <button 
                   type="button"
                   onClick={() => setStep('mapping')} 
-                  className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                  className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors"
                 >
                   ← Ajustar
                 </button>
@@ -945,15 +932,15 @@ const SmartBulkImport = ({ companyData, categories, onClose, onImportComplete })
                   type="button"
                   onClick={handleImport}
                   disabled={loading || preview.filter(p => p.errors.length === 0).length === 0}
-                  className="flex-1 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="px-4 py-2 bg-black text-white text-sm font-medium rounded-md hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   {loading ? (
                     <span className="flex items-center justify-center space-x-2">
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-gray-300 border-t-white"></div>
                       <span>Importando...</span>
                     </span>
                   ) : (
-                    `Importar ${preview.filter(p => p.errors.length === 0).length} Productos`
+                    `Importar ${preview.filter(p => p.errors.length === 0).length} productos`
                   )}
                 </button>
               </>

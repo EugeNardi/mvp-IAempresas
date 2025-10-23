@@ -71,15 +71,17 @@ export const DataProvider = ({ children }) => {
         name: data.name,
         cuit: data.tax_id || '',
         address: data.address || '',
+        locality: data.locality || '',
+        city: data.city || '',
+        province: data.province || '',
+        country: data.country || 'Argentina',
         phone: data.phone || '',
         email: data.email || '',
         website: data.website || '',
         industry: data.industry || '',
-        city: '',
-        province: '',
-        country: 'Argentina',
-        fiscalYear: new Date().getFullYear().toString(),
-        currency: 'ARS'
+        fiscalCategory: data.fiscal_category || '',
+        fiscalYear: data.fiscal_year || new Date().getFullYear().toString(),
+        currency: data.currency || 'ARS'
       }
       
       setCompanyData(transformedData)
@@ -98,10 +100,17 @@ export const DataProvider = ({ children }) => {
         name: companyInfo.name,
         tax_id: companyInfo.cuit || null,
         address: companyInfo.address || null,
+        locality: companyInfo.locality || null,
+        city: companyInfo.city || null,
+        province: companyInfo.province || null,
+        country: companyInfo.country || 'Argentina',
         phone: companyInfo.phone || null,
         email: companyInfo.email || null,
         website: companyInfo.website || null,
-        industry: companyInfo.industry || null
+        industry: companyInfo.industry || null,
+        fiscal_category: companyInfo.fiscalCategory || null,
+        fiscal_year: companyInfo.fiscalYear || new Date().getFullYear().toString(),
+        currency: companyInfo.currency || 'ARS'
       }
 
       // Intentar actualizar primero
@@ -405,6 +414,138 @@ export const DataProvider = ({ children }) => {
     }
   }
 
+  // Función para actualizar stock (sumar o restar)
+  const updateProductStock = async (productId, quantityChange, operation = 'add') => {
+    try {
+      console.log(`📦 ${operation === 'add' ? 'Agregando' : 'Restando'} ${quantityChange} unidades al producto ${productId}`)
+      
+      // Obtener producto actual
+      const { data: product, error: fetchError } = await supabase
+        .from('products')
+        .select('current_stock, name')
+        .eq('id', productId)
+        .single()
+
+      if (fetchError) {
+        console.error('❌ Error obteniendo producto:', fetchError)
+        throw fetchError
+      }
+
+      const currentStock = product.current_stock || 0
+      const newStock = operation === 'add' 
+        ? currentStock + quantityChange 
+        : currentStock - quantityChange
+
+      // Validar que no quede stock negativo
+      if (newStock < 0) {
+        throw new Error(`Stock insuficiente para ${product.name}. Stock actual: ${currentStock}, intentando restar: ${quantityChange}`)
+      }
+
+      // Actualizar stock
+      const { data, error } = await supabase
+        .from('products')
+        .update({ 
+          current_stock: newStock,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', productId)
+        .select()
+        .single()
+
+      if (error) {
+        console.error('❌ Error actualizando stock:', error)
+        throw error
+      }
+
+      console.log(`✅ Stock actualizado: ${currentStock} → ${newStock}`)
+      await loadInventoryItems()
+      return data
+    } catch (error) {
+      console.error('Error updating product stock:', error)
+      throw error
+    }
+  }
+
+  // Función para buscar o crear producto en inventario
+  const findOrCreateProduct = async (productData) => {
+    try {
+      console.log('🔍 Buscando producto en inventario:', productData.nombre)
+      
+      // Buscar por nombre exacto
+      const { data: existingProducts, error: searchError } = await supabase
+        .from('products')
+        .select('*')
+        .eq('user_id', user.id)
+        .ilike('name', productData.nombre)
+        .eq('is_active', true)
+
+      if (searchError) {
+        console.error('❌ Error buscando producto:', searchError)
+        throw searchError
+      }
+
+      // Si existe, retornar el primero
+      if (existingProducts && existingProducts.length > 0) {
+        console.log('✅ Producto encontrado en inventario')
+        return existingProducts[0]
+      }
+
+      // Si no existe, crear nuevo
+      console.log('📦 Creando nuevo producto en inventario')
+      const newProduct = {
+        user_id: user.id,
+        name: productData.nombre,
+        description: productData.descripcion || '',
+        category_id: null,
+        unit_cost: parseFloat(productData.costoUnitario || 0),
+        sale_price: parseFloat(productData.precioMinorista || productData.precioUnitario || 0),
+        current_stock: 0,
+        min_stock: 0,
+        is_active: true
+      }
+
+      const { data, error } = await supabase
+        .from('products')
+        .insert([newProduct])
+        .select()
+        .single()
+
+      if (error) {
+        console.error('❌ Error creando producto:', error)
+        throw error
+      }
+
+      console.log('✅ Producto creado en inventario')
+      await loadInventoryItems()
+      return data
+    } catch (error) {
+      console.error('Error finding or creating product:', error)
+      throw error
+    }
+  }
+
+  // Función para obtener productos del inventario
+  const getInventoryProducts = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('is_active', true)
+        .order('name', { ascending: true })
+
+      if (error) {
+        console.error('❌ Error obteniendo productos:', error)
+        throw error
+      }
+
+      return data || []
+    } catch (error) {
+      console.error('Error getting inventory products:', error)
+      return []
+    }
+  }
+
   const value = {
     companyData,
     setCompanyData,
@@ -423,6 +564,9 @@ export const DataProvider = ({ children }) => {
     loadInventoryItems,
     addInventoryItem,
     updateInventoryItem,
+    updateProductStock,
+    findOrCreateProduct,
+    getInventoryProducts,
     tableExists
   }
 
