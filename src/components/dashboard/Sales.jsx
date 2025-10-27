@@ -170,7 +170,7 @@ const Sales = () => {
           <div>
             <h2 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
               <ShoppingCart className="w-8 h-8 text-green-600" />
-              Sistema de Ventas
+              <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">Sistema</span> de Ventas
             </h2>
             <p className="text-gray-600 mt-2">
               Selecciona productos del inventario para realizar una venta

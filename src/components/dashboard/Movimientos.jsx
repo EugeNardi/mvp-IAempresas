@@ -291,7 +291,7 @@ const Movimientos = ({ companyData }) => {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 mb-1">
-            <span className="text-cyan-600">Movimientos</span> Financieros
+            <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">Movimientos</span> Financieros
           </h1>
           <p className="text-sm text-gray-600">Gestiona todas tus operaciones</p>
         </div>

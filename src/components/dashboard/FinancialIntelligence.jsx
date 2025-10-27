@@ -764,11 +764,13 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
       crecimientoMensual = ventas30Anteriores > 0 ? ((ventasUltimos30 - ventas30Anteriores) / ventas30Anteriores) * 100 : 0
     }
 
-    // Ventas minoristas y mayoristas
+    // Ventas minoristas y mayoristas (con soporte para productos sin tipo)
     const ventasMinoristas = filteredSales.filter(inv => inv.metadata?.tipoVenta === 'minorista')
     const ventasMayoristas = filteredSales.filter(inv => inv.metadata?.tipoVenta === 'mayorista')
+    const ventasSinTipo = filteredSales.filter(inv => !inv.metadata?.tipoVenta || (inv.metadata?.tipoVenta !== 'minorista' && inv.metadata?.tipoVenta !== 'mayorista'))
     const totalMinorista = ventasMinoristas.reduce((sum, inv) => sum + parseFloat(inv.amount || 0), 0)
     const totalMayorista = ventasMayoristas.reduce((sum, inv) => sum + parseFloat(inv.amount || 0), 0)
+    const totalSinTipo = ventasSinTipo.reduce((sum, inv) => sum + parseFloat(inv.amount || 0), 0)
     
     const tipoPredominante = totalMinorista > totalMayorista ? 'Minorista' : 'Mayorista'
 
@@ -883,6 +885,10 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
         evolucionMensual[key].minorista += parseFloat(inv.amount || 0)
       } else if (inv.metadata?.tipoVenta === 'mayorista') {
         evolucionMensual[key].mayorista += parseFloat(inv.amount || 0)
+      } else {
+        // Si no tiene tipo, sumarlo a ambos proporcionalmente o a un "sin tipo"
+        evolucionMensual[key].minorista += parseFloat(inv.amount || 0) / 2
+        evolucionMensual[key].mayorista += parseFloat(inv.amount || 0) / 2
       }
     })
 
@@ -905,8 +911,11 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
       evolucionDiaria[fecha].unidades += productos.reduce((sum, p) => sum + (parseFloat(p.cantidad) || 0), 0)
       if (inv.metadata?.tipoVenta === 'minorista') {
         evolucionDiaria[fecha].minorista += parseFloat(inv.amount || 0)
-      } else {
+      } else if (inv.metadata?.tipoVenta === 'mayorista') {
         evolucionDiaria[fecha].mayorista += parseFloat(inv.amount || 0)
+      } else {
+        evolucionDiaria[fecha].minorista += parseFloat(inv.amount || 0) / 2
+        evolucionDiaria[fecha].mayorista += parseFloat(inv.amount || 0) / 2
       }
     })
     const evolucionDiariaData = Object.entries(evolucionDiaria)
@@ -926,8 +935,11 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
       evolucionAnual[year].unidades += productos.reduce((sum, p) => sum + (parseFloat(p.cantidad) || 0), 0)
       if (inv.metadata?.tipoVenta === 'minorista') {
         evolucionAnual[year].minorista += parseFloat(inv.amount || 0)
-      } else {
+      } else if (inv.metadata?.tipoVenta === 'mayorista') {
         evolucionAnual[year].mayorista += parseFloat(inv.amount || 0)
+      } else {
+        evolucionAnual[year].minorista += parseFloat(inv.amount || 0) / 2
+        evolucionAnual[year].mayorista += parseFloat(inv.amount || 0) / 2
       }
     })
     const evolucionAnualData = Object.entries(evolucionAnual)
@@ -1148,26 +1160,26 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
   // Si no hay tipo de análisis seleccionado, mostrar selector
   if (!analysisType) {
     return (
-      <div className="max-w-7xl mx-auto space-y-6">
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-gray-900 mb-1">
-            <span className="text-cyan-600">Análisis</span> Inteligente
+      <div className="max-w-7xl mx-auto space-y-6 px-4 sm:px-6">
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">
+            <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">Análisis</span> Inteligente
           </h1>
-          <p className="text-sm text-gray-600">Selecciona el tipo de análisis</p>
+          <p className="text-xs sm:text-sm text-gray-600">Selecciona el tipo de análisis</p>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
           {analysisTypes.map((type) => (
             <button
               key={type.id}
               onClick={() => setAnalysisType(type.id)}
-              className="group relative bg-white border border-gray-200 hover:border-gray-900 rounded-lg p-6 transition-all hover:shadow-lg"
+              className="group relative bg-white border-2 border-gray-200 active:border-gray-900 hover:border-gray-900 rounded-xl p-4 sm:p-6 transition-all active:scale-95 hover:shadow-lg min-h-[100px] sm:min-h-[120px]"
             >
-              <div className="flex flex-col items-center gap-3">
-                <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center group-hover:bg-gray-900 transition-colors">
-                  <type.icon className="w-6 h-6 text-gray-700 group-hover:text-white transition-colors" />
+              <div className="flex flex-col items-center justify-center gap-2 sm:gap-3 h-full">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-100 rounded-lg flex items-center justify-center group-hover:bg-gray-900 group-active:bg-gray-900 transition-colors">
+                  <type.icon className="w-5 h-5 sm:w-6 sm:h-6 text-gray-700 group-hover:text-white group-active:text-white transition-colors" />
                 </div>
-                <span className="text-sm font-semibold text-gray-900">{type.name}</span>
+                <span className="text-xs sm:text-sm font-semibold text-gray-900 text-center leading-tight">{type.name}</span>
               </div>
             </button>
           ))}
@@ -1181,12 +1193,12 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
     const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
     
     return (
-      <div className="max-w-7xl mx-auto space-y-6">
+      <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6 px-4 sm:px-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="space-y-3 sm:space-y-0 sm:flex sm:items-center sm:justify-between">
           <button
             onClick={() => setAnalysisType(null)}
-            className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+            className="flex items-center gap-2 px-4 py-2.5 text-gray-600 active:text-gray-900 hover:text-gray-900 active:bg-gray-100 hover:bg-gray-100 rounded-lg transition-colors touch-manipulation min-h-[44px]"
           >
             <ArrowLeft className="w-5 h-5" />
             <span className="font-medium">Volver</span>
@@ -1194,32 +1206,32 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
           
           <div className="flex items-center gap-3">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-1">
-                <span className="text-cyan-600">Análisis</span> de Clientes
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">
+                <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">Análisis</span> de Clientes
               </h2>
-              <p className="text-sm text-gray-600">Métricas y comportamiento de tus clientes</p>
+              <p className="text-xs sm:text-sm text-gray-600">Métricas y comportamiento de tus clientes</p>
             </div>
           </div>
         </div>
 
         {/* Toggle entre Métricas y Gráficos */}
-        <div className="flex gap-1 p-1 bg-gray-100 rounded-lg w-fit">
+        <div className="flex gap-1 p-1 bg-gray-100 rounded-lg w-full sm:w-fit">
           <button
             onClick={() => setViewMode('metrics')}
-            className={`px-6 py-2.5 rounded-md font-medium text-sm transition-all ${
+            className={`flex-1 sm:flex-none px-4 sm:px-6 py-3 sm:py-2.5 rounded-md font-medium text-sm transition-all touch-manipulation min-h-[44px] ${
               viewMode === 'metrics' 
                 ? 'bg-white text-gray-900 shadow-sm' 
-                : 'text-gray-600 hover:text-gray-900'
+                : 'text-gray-600 active:text-gray-900'
             }`}
           >
             Métricas
           </button>
           <button
             onClick={() => setViewMode('charts')}
-            className={`px-6 py-2.5 rounded-md font-medium text-sm transition-all ${
+            className={`flex-1 sm:flex-none px-4 sm:px-6 py-3 sm:py-2.5 rounded-md font-medium text-sm transition-all touch-manipulation min-h-[44px] ${
               viewMode === 'charts' 
                 ? 'bg-white text-gray-900 shadow-sm' 
-                : 'text-gray-600 hover:text-gray-900'
+                : 'text-gray-600 active:text-gray-900'
             }`}
           >
             Gráficos
@@ -1261,7 +1273,7 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
               <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-all">
                 <div className="flex items-center justify-between mb-4">
                   <p className="text-sm font-medium text-gray-600">Nuevos Clientes</p>
-                  <Sparkles className="w-5 h-5 text-cyan-600" />
+                  <Sparkles className="w-5 h-5 bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent" />
                 </div>
                 <p className="text-4xl font-bold text-gray-900">{clientAnalysis.nuevosClientesMesActual}</p>
                 <div className="flex items-center gap-2 mt-2">
@@ -1769,25 +1781,20 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
     return (
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
-        <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-          <div className="flex items-center justify-between">
-            <button
-              onClick={() => setAnalysisType(null)}
-              className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <ArrowLeft className="w-5 h-5" />
-              <span className="font-medium">Volver</span>
-            </button>
-            
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-lg">
-                <Receipt className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900">Análisis de Gastos</h2>
-                <p className="text-sm text-gray-600">Distribución y detalle de gastos operativos</p>
-              </div>
-            </div>
+        <div className="flex items-center justify-between mb-6">
+          <button
+            onClick={() => setAnalysisType(null)}
+            className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            <span className="font-medium">Volver</span>
+          </button>
+          
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-1">
+              <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">Análisis</span> de Gastos
+            </h2>
+            <p className="text-sm text-gray-600">Distribución y detalle de gastos operativos</p>
           </div>
         </div>
 
@@ -1820,8 +1827,8 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
         </div>
 
         {gastos.length === 0 ? (
-          <div className="bg-yellow-50 border border-yellow-200 rounded-2xl p-8 text-center">
-            <Receipt className="w-16 h-16 text-yellow-600 mx-auto mb-4" />
+          <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
+            <Receipt className="w-16 h-16 text-gray-400 mx-auto mb-4" />
             <h3 className="text-xl font-bold text-gray-900 mb-2">No hay gastos registrados</h3>
             <p className="text-gray-600">Registra gastos para ver el análisis del período seleccionado</p>
           </div>
@@ -2189,25 +2196,20 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
     return (
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
-        <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-          <div className="flex items-center justify-between">
-            <button
-              onClick={() => setAnalysisType(null)}
-              className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <ArrowLeft className="w-5 h-5" />
-              <span className="font-medium">Volver</span>
-            </button>
-            
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 bg-gradient-to-br from-pink-500 to-pink-600 rounded-lg">
-                <FileText className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900">Análisis de Deudas</h2>
-                <p className="text-sm text-gray-600">Cuentas por cobrar y por pagar</p>
-              </div>
-            </div>
+        <div className="flex items-center justify-between mb-6">
+          <button
+            onClick={() => setAnalysisType(null)}
+            className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            <span className="font-medium">Volver</span>
+          </button>
+          
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-1">
+              <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">Análisis</span> de Deudas
+            </h2>
+            <p className="text-sm text-gray-600">Cuentas por cobrar y por pagar</p>
           </div>
         </div>
 
@@ -2619,7 +2621,7 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
     return (
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mb-6">
           <button
             onClick={() => setAnalysisType(null)}
             className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
@@ -2628,14 +2630,11 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
             <span className="font-medium">Volver</span>
           </button>
           
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg">
-              <Package className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900">Análisis de Productos</h2>
-              <p className="text-sm text-gray-600">Rendimiento y estadísticas de productos</p>
-            </div>
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-1">
+              <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">Análisis</span> de Productos
+            </h2>
+            <p className="text-sm text-gray-600">Rendimiento y estadísticas de productos</p>
           </div>
         </div>
 
@@ -2664,8 +2663,8 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
         </div>
 
         {productos.length === 0 ? (
-          <div className="bg-orange-50 border border-orange-200 rounded-2xl p-8 text-center">
-            <Package className="w-16 h-16 text-orange-600 mx-auto mb-4" />
+          <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
+            <Package className="w-16 h-16 text-gray-400 mx-auto mb-4" />
             <h3 className="text-xl font-bold text-gray-900 mb-2">No hay productos registrados</h3>
             <p className="text-gray-600">Registra productos en el inventario para ver el análisis</p>
           </div>
@@ -2727,7 +2726,7 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
               <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-all">
                 <div className="flex items-center justify-between mb-4">
                   <p className="text-sm font-medium text-gray-600">Marcas Disponibles</p>
-                  <Award className="w-5 h-5 text-cyan-600" />
+                  <Award className="w-5 h-5 bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent" />
                 </div>
                 <p className="text-4xl font-bold text-gray-900">{marcasDisponibles}</p>
                 <p className="text-xs text-gray-500 mt-2">Marcas en inventario</p>
@@ -2779,7 +2778,7 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
               <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-all">
                 <div className="flex items-center justify-between mb-4">
                   <p className="text-sm font-medium text-gray-600">Marca con Mayor Participación</p>
-                  <Award className="w-5 h-5 text-cyan-600" />
+                  <Award className="w-5 h-5 bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent" />
                 </div>
                 <p className="text-2xl font-bold text-gray-900 truncate">
                   {marcaMayorParticipacion ? marcaMayorParticipacion.nombre : 'N/A'}
@@ -2869,7 +2868,9 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
               {/* TOP 10 Productos Más Vendidos por Unidades */}
               <div className="bg-white border border-gray-200 rounded-lg p-6">
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-lg font-semibold text-gray-900">📊 TOP 10 Productos Más Vendidos (Unidades)</h3>
+                  <h3 className="text-lg font-semibold">
+                    <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">TOP 10 Productos</span> Más Vendidos (Unidades)
+                  </h3>
                   
                   {/* Buscador de productos */}
                   <div className="relative">
@@ -2965,19 +2966,27 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
                       // Mostrar TOP 10
                       return sortedByUnidades.slice(0, 10).map((producto, index) => {
                         const width = (producto.unidades / maxUnidades) * 100
+                        const isTop3 = index < 3
                         return (
-                          <div key={index} className="space-y-1">
-                            <div className="flex justify-between text-sm">
-                              <span className="font-medium text-gray-700 truncate">{index + 1}. {producto.nombre}</span>
-                              <span className="font-semibold text-orange-600">{producto.unidades.toFixed(0)} unidades</span>
-                            </div>
-                            <div className="w-full bg-gray-100 rounded-full h-8 overflow-hidden">
-                              <div 
-                                className="bg-gradient-to-r from-orange-500 to-orange-600 h-8 rounded-full flex items-center justify-end pr-3 transition-all duration-500"
-                                style={{ width: `${width}%` }}
-                              >
-                                <span className="text-xs font-semibold text-white">{width.toFixed(0)}%</span>
+                          <div key={index} className="space-y-2">
+                            <div className="flex justify-between items-center">
+                              <div className="flex items-center gap-2">
+                                <span className={`flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold ${
+                                  isTop3 ? 'bg-cyan-500 text-white' : 'bg-gray-200 text-gray-600'
+                                }`}>
+                                  {index + 1}
+                                </span>
+                                <span className="font-medium text-gray-900 truncate">{producto.nombre}</span>
                               </div>
+                              <span className="font-bold text-gray-900">{producto.unidades.toFixed(0)} u.</span>
+                            </div>
+                            <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                              <div 
+                                className={`h-3 rounded-full transition-all duration-500 ${
+                                  isTop3 ? 'bg-cyan-500' : 'bg-gray-900'
+                                }`}
+                                style={{ width: `${width}%` }}
+                              />
                             </div>
                           </div>
                         )
@@ -2992,7 +3001,9 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
               {/* TOP 10 Productos con Mayor Facturación */}
               <div className="bg-white border border-gray-200 rounded-lg p-6">
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-lg font-semibold text-gray-900">💰 TOP 10 Productos con Mayor Facturación</h3>
+                  <h3 className="text-lg font-semibold">
+                    <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">TOP 10 Productos</span> con Mayor Facturación
+                  </h3>
                   
                   {/* Buscador de productos */}
                   <div className="relative">
@@ -3089,19 +3100,27 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
                       // Mostrar TOP 10
                       return sortedByIngresos.slice(0, 10).map((producto, index) => {
                         const width = (producto.ingresos / maxIngresos) * 100
+                        const isTop3 = index < 3
                         return (
-                          <div key={index} className="space-y-1">
-                            <div className="flex justify-between text-sm">
-                              <span className="font-medium text-gray-700 truncate">{index + 1}. {producto.nombre}</span>
-                              <span className="font-semibold text-green-600">${producto.ingresos.toLocaleString('es-AR', { maximumFractionDigits: 0 })}</span>
-                            </div>
-                            <div className="w-full bg-gray-100 rounded-full h-8 overflow-hidden">
-                              <div 
-                                className="bg-gradient-to-r from-green-500 to-green-600 h-8 rounded-full flex items-center justify-end pr-3 transition-all duration-500"
-                                style={{ width: `${width}%` }}
-                              >
-                                <span className="text-xs font-semibold text-white">${producto.ingresos.toLocaleString('es-AR', { maximumFractionDigits: 0 })}</span>
+                          <div key={index} className="space-y-2">
+                            <div className="flex justify-between items-center">
+                              <div className="flex items-center gap-2">
+                                <span className={`flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold ${
+                                  isTop3 ? 'bg-cyan-500 text-white' : 'bg-gray-200 text-gray-600'
+                                }`}>
+                                  {index + 1}
+                                </span>
+                                <span className="font-medium text-gray-900 truncate">{producto.nombre}</span>
                               </div>
+                              <span className="font-bold text-gray-900">${producto.ingresos.toLocaleString('es-AR', { maximumFractionDigits: 0 })}</span>
+                            </div>
+                            <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                              <div 
+                                className={`h-3 rounded-full transition-all duration-500 ${
+                                  isTop3 ? 'bg-cyan-500' : 'bg-gray-900'
+                                }`}
+                                style={{ width: `${width}%` }}
+                              />
                             </div>
                           </div>
                         )
@@ -3635,25 +3654,20 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
     return (
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
-        <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-          <div className="flex items-center justify-between">
-            <button
-              onClick={() => setAnalysisType(null)}
-              className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <ArrowLeft className="w-5 h-5" />
-              <span className="font-medium">Volver</span>
-            </button>
-            
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 bg-gradient-to-br from-red-500 to-red-600 rounded-lg">
-                <ShoppingCart className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900">Análisis de Proveedores</h2>
-                <p className="text-sm text-gray-600">Gestión y relación con proveedores</p>
-              </div>
-            </div>
+        <div className="flex items-center justify-between mb-6">
+          <button
+            onClick={() => setAnalysisType(null)}
+            className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            <span className="font-medium">Volver</span>
+          </button>
+          
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-1">
+              <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">Análisis</span> de Proveedores
+            </h2>
+            <p className="text-sm text-gray-600">Gestión y relación con proveedores</p>
           </div>
         </div>
 
@@ -4332,16 +4346,10 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
                 </div>
 
                 {/* Distribución por Categorías */}
-                <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-md">
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="p-2.5 bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl border border-orange-200">
-                      <Package className="w-5 h-5 text-orange-600" />
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-900">Categorías en Compras</h3>
-                      <p className="text-xs text-gray-500">Distribución porcentual</p>
-                    </div>
-                  </div>
+                <div className="bg-white border border-gray-200 rounded-lg p-6">
+                  <h3 className="text-lg font-semibold mb-4">
+                    <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">Categorías</span> en Compras
+                  </h3>
                   <div className="space-y-3">
                     {(() => {
                       const totalCategorias = Object.values(categoriasPorProveedor).reduce((a, b) => a + b, 0)
@@ -4349,20 +4357,20 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
                         .sort((a, b) => b[1] - a[1])
                         .slice(0, 5)
                       
-                      const colores = ['#f97316', '#fb923c', '#fdba74', '#fed7aa', '#ffedd5']
-                      
                       return top5Categorias.map(([categoria, cantidad], index) => {
                         const porcentaje = (cantidad / totalCategorias) * 100
                         return (
-                          <div key={index} className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              <div 
-                                className="w-3 h-3 rounded-full" 
-                                style={{ backgroundColor: colores[index] }}
-                              ></div>
-                              <span className="text-sm text-gray-700 truncate max-w-[150px]">{categoria}</span>
+                          <div key={index} className="space-y-1">
+                            <div className="flex items-center justify-between">
+                              <span className="text-sm font-medium text-gray-900">{categoria}</span>
+                              <span className="text-sm font-bold text-gray-900">{porcentaje.toFixed(1)}%</span>
                             </div>
-                            <span className="text-sm font-semibold text-gray-900">{porcentaje.toFixed(1)}%</span>
+                            <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                              <div 
+                                className="bg-gray-900 h-2 rounded-full transition-all duration-500"
+                                style={{ width: `${porcentaje}%` }}
+                              />
+                            </div>
                           </div>
                         )
                       })
@@ -4371,16 +4379,10 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
                 </div>
 
                 {/* Distribución por Marcas */}
-                <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-md">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="p-2.5 bg-gradient-to-br from-pink-50 to-pink-100 rounded-xl border border-pink-200">
-                      <Award className="w-5 h-5 text-pink-600" />
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-900">Marcas en Compras</h3>
-                      <p className="text-xs text-gray-500">Por categoría</p>
-                    </div>
-                  </div>
+                <div className="bg-white border border-gray-200 rounded-lg p-6">
+                  <h3 className="text-lg font-semibold mb-4">
+                    <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">Marcas</span> en Compras
+                  </h3>
                   
                   <select
                     value={categoriaSeleccionadaMarcas}
@@ -4443,7 +4445,7 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
               <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-md">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="p-2.5 bg-gradient-to-br from-cyan-50 to-cyan-100 rounded-xl border border-cyan-200">
-                    <Package className="w-5 h-5 text-cyan-600" />
+                    <Package className="w-5 h-5 bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent" />
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900">Modelos en Compras</h3>
@@ -4526,7 +4528,7 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
                     <select
                       value={periodoRentabilidad}
                       onChange={(e) => setPeriodoRentabilidad(e.target.value)}
-                      className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      className="w-full sm:w-auto px-3 py-2.5 sm:py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 min-h-[44px] sm:min-h-0 touch-manipulation focus:ring-indigo-500 focus:border-indigo-500"
                     >
                       <option value="3">3 meses</option>
                       <option value="6">6 meses</option>
@@ -4769,7 +4771,7 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
     return (
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mb-6">
           <button
             onClick={() => setAnalysisType(null)}
             className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
@@ -4778,14 +4780,11 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
             <span className="font-medium">Volver</span>
           </button>
           
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-gradient-to-br from-green-500 to-green-600 rounded-lg">
-              <DollarSign className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900">Análisis Financiero</h2>
-              <p className="text-sm text-gray-600">Métricas y gráficos financieros detallados</p>
-            </div>
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-1">
+              <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">Análisis</span> Financiero
+            </h2>
+            <p className="text-sm text-gray-600">Métricas y gráficos financieros detallados</p>
           </div>
         </div>
 
@@ -4921,7 +4920,7 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
                     <select
                       value={promedioType}
                       onChange={(e) => setPromedioType(e.target.value)}
-                      className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
+                      className="w-full sm:w-auto px-3 py-2.5 sm:py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 min-h-[44px] sm:min-h-0 touch-manipulation focus:ring-blue-500"
                     >
                       <option value="dia">Día</option>
                       <option value="mes">Mes</option>
@@ -5130,19 +5129,18 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
 
                 {/* Punto de Equilibrio */}
                 <div className="bg-white border border-gray-200 rounded-lg p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-2">
-                      <Target className="w-5 h-5 text-orange-600" />
-                      <FinancialTooltip term="punto_equilibrio">
-                        <h3 className="text-lg font-semibold text-gray-900">Punto de Equilibrio</h3>
-                      </FinancialTooltip>
-                    </div>
+                  <div className="flex items-center justify-between mb-6">
+                    <FinancialTooltip term="punto_equilibrio">
+                      <h3 className="text-lg font-semibold">
+                        <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">Punto de Equilibrio</span>
+                      </h3>
+                    </FinancialTooltip>
                     
                     {/* Selector de Categoría */}
                     <select
                       value={categoriaEquilibrio}
                       onChange={(e) => setCategoriaEquilibrio(e.target.value)}
-                      className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                      className="w-full sm:w-auto px-3 py-2.5 sm:py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 min-h-[44px] sm:min-h-0 touch-manipulation focus:ring-cyan-500 focus:border-cyan-500"
                     >
                       <option value="todas">Todas las categorías</option>
                       {(() => {
@@ -5182,50 +5180,75 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
                     const precioPromedio = totalUnidades > 0 ? totalVentas / totalUnidades : 0
                     const unidadesEquilibrio = precioPromedio > 0 ? financialMetrics.puntoEquilibrio / precioPromedio : 0
                     
+                    const porcentajeAlcanzado = (financialMetrics.ingresosTotales / financialMetrics.puntoEquilibrio) * 100
+                    const alcanzado = financialMetrics.ingresosTotales >= financialMetrics.puntoEquilibrio
+                    
                     return (
-                      <div className="space-y-4">
-                        <div className="grid md:grid-cols-2 gap-6">
-                          <div>
-                            <p className="text-sm text-gray-600 mb-2">En pesos ($):</p>
-                            <p className="text-3xl font-bold text-orange-600">
+                      <div className="space-y-6">
+                        {/* Métricas principales */}
+                        <div className="grid md:grid-cols-3 gap-4">
+                          <div className="bg-gray-50 rounded-lg p-4">
+                            <p className="text-sm font-medium text-gray-600 mb-1">Punto de Equilibrio</p>
+                            <p className="text-2xl font-bold text-gray-900">
                               ${financialMetrics.puntoEquilibrio.toLocaleString('es-AR', { maximumFractionDigits: 0 })}
                             </p>
                           </div>
-                          <div>
-                            <p className="text-sm text-gray-600 mb-2">En unidades:</p>
-                            <p className="text-3xl font-bold text-orange-600">
-                              {unidadesEquilibrio.toLocaleString('es-AR', { maximumFractionDigits: 0 })} un.
+                          <div className="bg-gray-50 rounded-lg p-4">
+                            <p className="text-sm font-medium text-gray-600 mb-1">Ingresos Actuales</p>
+                            <p className={`text-2xl font-bold ${alcanzado ? 'text-green-600' : 'text-orange-600'}`}>
+                              ${financialMetrics.ingresosTotales.toLocaleString('es-AR', { maximumFractionDigits: 0 })}
+                            </p>
+                          </div>
+                          <div className="bg-gray-50 rounded-lg p-4">
+                            <p className="text-sm font-medium text-gray-600 mb-1">Unidades Necesarias</p>
+                            <p className="text-2xl font-bold text-gray-900">
+                              {unidadesEquilibrio.toLocaleString('es-AR', { maximumFractionDigits: 0 })}
                             </p>
                             <p className="text-xs text-gray-500 mt-1">
-                              Precio promedio: ${precioPromedio.toLocaleString('es-AR', { maximumFractionDigits: 0 })}
+                              @ ${precioPromedio.toLocaleString('es-AR', { maximumFractionDigits: 0 })} c/u
                             </p>
                           </div>
                         </div>
                         
-                        <div className="flex items-center">
-                          <div className="flex-1">
-                            <div className="flex justify-between text-xs text-gray-600 mb-1">
-                              <span>Actual</span>
-                              <span>Objetivo</span>
-                            </div>
-                            <div className="w-full bg-gray-200 rounded-full h-4">
+                        {/* Gráfico visual mejorado */}
+                        <div className="space-y-3">
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm font-medium text-gray-700">Progreso hacia el equilibrio</span>
+                            <span className={`text-sm font-bold ${alcanzado ? 'text-green-600' : 'text-orange-600'}`}>
+                              {porcentajeAlcanzado.toFixed(1)}%
+                            </span>
+                          </div>
+                          
+                          <div className="relative">
+                            <div className="w-full bg-gray-200 rounded-full h-6 overflow-hidden">
                               <div
-                                className={`h-4 rounded-full ${
-                                  financialMetrics.ingresosTotales >= financialMetrics.puntoEquilibrio
-                                    ? 'bg-green-500'
-                                    : 'bg-orange-500'
+                                className={`h-6 rounded-full transition-all duration-500 ${
+                                  alcanzado ? 'bg-green-500' : 'bg-gradient-to-r from-orange-400 to-orange-500'
                                 }`}
                                 style={{
-                                  width: `${Math.min(100, (financialMetrics.ingresosTotales / financialMetrics.puntoEquilibrio) * 100)}%`
+                                  width: `${Math.min(100, porcentajeAlcanzado)}%`
                                 }}
                               />
                             </div>
-                            <p className="text-xs text-gray-500 mt-1">
-                              {financialMetrics.ingresosTotales >= financialMetrics.puntoEquilibrio
-                                ? '✓ Por encima del punto de equilibrio'
-                                : `Faltan $${(financialMetrics.puntoEquilibrio - financialMetrics.ingresosTotales).toLocaleString('es-AR', { maximumFractionDigits: 0 })}`
-                              }
+                            {/* Línea del objetivo */}
+                            <div className="absolute top-0 right-0 h-6 w-0.5 bg-gray-900" />
+                          </div>
+                          
+                          <div className="flex justify-between items-center">
+                            <p className="text-xs text-gray-600">
+                              {alcanzado ? (
+                                <span className="flex items-center gap-1 text-green-600 font-medium">
+                                  <CheckCircle className="w-4 h-4" />
+                                  Superado por ${(financialMetrics.ingresosTotales - financialMetrics.puntoEquilibrio).toLocaleString('es-AR', { maximumFractionDigits: 0 })}
+                                </span>
+                              ) : (
+                                <span className="flex items-center gap-1 text-orange-600 font-medium">
+                                  <AlertCircle className="w-4 h-4" />
+                                  Faltan ${(financialMetrics.puntoEquilibrio - financialMetrics.ingresosTotales).toLocaleString('es-AR', { maximumFractionDigits: 0 })}
+                                </span>
+                              )}
                             </p>
+                            <p className="text-xs text-gray-500">Objetivo: 100%</p>
                           </div>
                         </div>
                       </div>
@@ -5257,70 +5280,78 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
                         const monthName = monthNames[parseInt(month) - 1]
                         
                         return (
-                          <div key={index} className="space-y-2">
-                            <p className="text-sm font-medium text-gray-700">{monthName} {year}</p>
-                            <div className="space-y-1">
+                          <div key={index} className="space-y-3">
+                            <p className="text-sm font-bold text-gray-900">{monthName} {year}</p>
+                            <div className="space-y-2">
                               {/* Ingresos */}
-                              <div className="flex items-center gap-3">
-                                <span className="text-xs text-gray-600 w-28">Ingresos</span>
-                                <div className="flex-1 bg-gray-100 rounded-full h-8 relative overflow-hidden">
+                              <div className="space-y-1">
+                                <div className="flex items-center justify-between">
+                                  <span className="text-xs font-medium text-gray-700">Ingresos</span>
+                                  <span className="text-xs font-bold text-green-600">
+                                    ${data.ingresos.toLocaleString('es-AR', { maximumFractionDigits: 0 })}
+                                  </span>
+                                </div>
+                                <div className="w-full bg-gray-100 rounded-full h-3 overflow-hidden">
                                   <div
-                                    className="bg-green-500 h-8 rounded-full flex items-center justify-end pr-3 transition-all duration-500"
+                                    className="bg-green-500 h-3 rounded-full transition-all duration-500"
                                     style={{ width: `${(data.ingresos / maxValue) * 100}%` }}
-                                  >
-                                    <span className="text-xs font-semibold text-white">
-                                      ${data.ingresos.toLocaleString('es-AR', { maximumFractionDigits: 0 })}
-                                    </span>
-                                  </div>
+                                  />
                                 </div>
                               </div>
                               
                               {/* Gastos */}
-                              <div className="flex items-center gap-3">
-                                <span className="text-xs text-gray-600 w-28">Gastos</span>
-                                <div className="flex-1 bg-gray-100 rounded-full h-8 relative overflow-hidden">
+                              <div className="space-y-1">
+                                <div className="flex items-center justify-between">
+                                  <span className="text-xs font-medium text-gray-700">Gastos</span>
+                                  <span className="text-xs font-bold text-red-600">
+                                    ${data.gastos.toLocaleString('es-AR', { maximumFractionDigits: 0 })}
+                                  </span>
+                                </div>
+                                <div className="w-full bg-gray-100 rounded-full h-3 overflow-hidden">
                                   <div
-                                    className="bg-red-500 h-8 rounded-full flex items-center justify-end pr-3 transition-all duration-500"
+                                    className="bg-red-500 h-3 rounded-full transition-all duration-500"
                                     style={{ width: `${(data.gastos / maxValue) * 100}%` }}
-                                  >
-                                    <span className="text-xs font-semibold text-white">
-                                      ${data.gastos.toLocaleString('es-AR', { maximumFractionDigits: 0 })}
-                                    </span>
-                                  </div>
+                                  />
                                 </div>
                               </div>
                               
                               {/* Ganancia Bruta */}
-                              <div className="flex items-center gap-3">
-                                <span className="text-xs text-gray-600 w-28">Ganancia Bruta</span>
-                                <div className="flex-1 bg-gray-100 rounded-full h-8 relative overflow-hidden">
+                              <div className="space-y-1">
+                                <div className="flex items-center justify-between">
+                                  <span className="text-xs font-medium text-gray-700">Ganancia Bruta</span>
+                                  <span className={`text-xs font-bold ${
+                                    data.gananciaBruta >= 0 ? 'bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent' : 'text-orange-600'
+                                  }`}>
+                                    {data.gananciaBruta >= 0 ? '+' : ''}${Math.abs(data.gananciaBruta).toLocaleString('es-AR', { maximumFractionDigits: 0 })}
+                                  </span>
+                                </div>
+                                <div className="w-full bg-gray-100 rounded-full h-3 overflow-hidden">
                                   <div
-                                    className={`h-8 rounded-full flex items-center justify-end pr-3 transition-all duration-500 ${
+                                    className={`h-3 rounded-full transition-all duration-500 ${
                                       data.gananciaBruta >= 0 ? 'bg-cyan-500' : 'bg-orange-500'
                                     }`}
                                     style={{ width: `${(Math.abs(data.gananciaBruta) / maxValue) * 100}%` }}
-                                  >
-                                    <span className="text-xs font-semibold text-white">
-                                      {data.gananciaBruta >= 0 ? '+' : ''}${data.gananciaBruta.toLocaleString('es-AR', { maximumFractionDigits: 0 })}
-                                    </span>
-                                  </div>
+                                  />
                                 </div>
                               </div>
                               
                               {/* Ganancia Neta */}
-                              <div className="flex items-center gap-3">
-                                <span className="text-xs text-gray-600 w-28">Ganancia Neta</span>
-                                <div className="flex-1 bg-gray-100 rounded-full h-8 relative overflow-hidden">
+                              <div className="space-y-1">
+                                <div className="flex items-center justify-between">
+                                  <span className="text-xs font-medium text-gray-700">Ganancia Neta</span>
+                                  <span className={`text-xs font-bold ${
+                                    data.gananciaNeta >= 0 ? 'text-blue-600' : 'text-orange-600'
+                                  }`}>
+                                    {data.gananciaNeta >= 0 ? '+' : ''}${Math.abs(data.gananciaNeta).toLocaleString('es-AR', { maximumFractionDigits: 0 })}
+                                  </span>
+                                </div>
+                                <div className="w-full bg-gray-100 rounded-full h-3 overflow-hidden">
                                   <div
-                                    className={`h-8 rounded-full flex items-center justify-end pr-3 transition-all duration-500 ${
+                                    className={`h-3 rounded-full transition-all duration-500 ${
                                       data.gananciaNeta >= 0 ? 'bg-blue-500' : 'bg-orange-500'
                                     }`}
                                     style={{ width: `${(Math.abs(data.gananciaNeta) / maxValue) * 100}%` }}
-                                  >
-                                    <span className="text-xs font-semibold text-white">
-                                      {data.gananciaNeta >= 0 ? '+' : ''}${data.gananciaNeta.toLocaleString('es-AR', { maximumFractionDigits: 0 })}
-                                    </span>
-                                  </div>
+                                  />
                                 </div>
                               </div>
                             </div>
@@ -5625,7 +5656,7 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
     return (
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mb-6">
           <button
             onClick={() => setAnalysisType(null)}
             className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
@@ -5634,14 +5665,11 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
             <span className="font-medium">Volver</span>
           </button>
           
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg">
-              <TrendingUp className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900">Análisis de Ventas</h2>
-              <p className="text-sm text-gray-600">Métricas detalladas de rendimiento comercial</p>
-            </div>
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-1">
+              <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">Análisis</span> de Ventas
+            </h2>
+            <p className="text-sm text-gray-600">Métricas detalladas de rendimiento comercial</p>
           </div>
         </div>
 
@@ -6212,26 +6240,28 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
                     .map(([medio, data], idx) => {
                       const colors = ['bg-purple-500', 'bg-blue-500', 'bg-green-500', 'bg-yellow-500', 'bg-red-500', 'bg-pink-500']
                       const maxTotal = Math.max(...Object.values(salesMetrics.ventasPorMedioPago).map(d => d.total))
+                      const nombreMedio = medio.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
                       
                       return (
                         <div key={idx}>
-                          <div className="flex justify-between items-center mb-1">
-                            <span className="text-sm font-medium text-gray-700 capitalize">
-                              {medio.replace(/_/g, ' ')}
-                            </span>
+                          <div className="flex justify-between items-center mb-2">
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm font-medium text-gray-700">
+                                {nombreMedio}
+                              </span>
+                              <span className="text-xs text-gray-500">
+                                ({data.cantidad} ventas)
+                              </span>
+                            </div>
                             <span className="text-sm font-bold text-gray-900">
                               ${data.total.toLocaleString('es-AR', { maximumFractionDigits: 0 })}
                             </span>
                           </div>
                           <div className="w-full bg-gray-200 rounded-full h-6">
                             <div
-                              className={`${colors[idx % colors.length]} h-6 rounded-full flex items-center justify-end pr-2 transition-all duration-500`}
+                              className={`${colors[idx % colors.length]} h-6 rounded-full transition-all duration-500`}
                               style={{ width: `${(data.total / maxTotal) * 100}%` }}
-                            >
-                              <span className="text-xs font-semibold text-white">
-                                {data.cantidad} ventas
-                              </span>
-                            </div>
+                            />
                           </div>
                         </div>
                       )
@@ -6243,11 +6273,13 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
             {/* 4️⃣ GRÁFICOS DE COMPORTAMIENTO */}
             <div className="bg-white border border-gray-200 rounded-lg p-6">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-semibold text-gray-900">🟧 Distribución de Ventas por Período</h3>
+                <h3 className="text-lg font-semibold">
+                  <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">Distribución de Ventas</span> por Período
+                </h3>
                 <select
                   value={salesDistributionType}
                   onChange={(e) => setSalesDistributionType(e.target.value)}
-                  className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500"
+                  className="w-full sm:w-auto px-3 py-2.5 sm:py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 min-h-[44px] sm:min-h-0 touch-manipulation focus:ring-cyan-500 focus:border-cyan-500"
                 >
                   <option value="dia_semana">Por Día de la Semana</option>
                   <option value="semana_mes">Por Semana del Mes</option>
@@ -6255,24 +6287,28 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
                 </select>
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {salesDistributionType === 'dia_semana' && Object.entries(salesMetrics.ventasPorDiaSemana).map(([dia, data], idx) => {
                   const maxVentas = Math.max(...Object.values(salesMetrics.ventasPorDiaSemana).map(d => d.ventas))
+                  const porcentaje = (data.ventas / maxVentas) * 100
                   return (
-                    <div key={idx} className="flex items-center gap-3">
-                      <span className="text-sm font-medium text-gray-700 w-24">{dia}</span>
-                      <div className="flex-1 bg-gray-200 rounded-full h-7">
-                        <div
-                          className="bg-gradient-to-r from-purple-500 to-blue-500 h-7 rounded-full flex items-center justify-between px-3 transition-all duration-500"
-                          style={{ width: `${(data.ventas / maxVentas) * 100}%` }}
-                        >
-                          <span className="text-xs font-semibold text-white">
-                            ${data.ventas.toLocaleString('es-AR', { maximumFractionDigits: 0 })}
-                          </span>
-                          <span className="text-xs font-semibold text-white">
-                            {data.cantidad} ventas
-                          </span>
+                    <div key={idx} className="space-y-1">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium text-gray-700">{dia}</span>
+                        <span className="text-sm font-bold text-gray-900">
+                          ${data.ventas.toLocaleString('es-AR', { maximumFractionDigits: 0 })}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1 bg-gray-200 rounded-full h-3 overflow-hidden">
+                          <div
+                            className="bg-gray-900 h-3 rounded-full transition-all duration-500"
+                            style={{ width: `${porcentaje}%` }}
+                          />
                         </div>
+                        <span className="text-xs text-gray-500 w-16 text-right">
+                          {data.cantidad} ventas
+                        </span>
                       </div>
                     </div>
                   )
@@ -6280,18 +6316,20 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
 
                 {salesDistributionType === 'semana_mes' && Object.entries(salesMetrics.ventasPorSemanaMes).map(([semana, ventas], idx) => {
                   const maxVentas = Math.max(...Object.values(salesMetrics.ventasPorSemanaMes))
+                  const porcentaje = (ventas / maxVentas) * 100
                   return (
-                    <div key={idx} className="flex items-center gap-3">
-                      <span className="text-sm font-medium text-gray-700 w-24">{semana}</span>
-                      <div className="flex-1 bg-gray-200 rounded-full h-7">
+                    <div key={idx} className="space-y-1">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium text-gray-700">{semana}</span>
+                        <span className="text-sm font-bold text-gray-900">
+                          ${ventas.toLocaleString('es-AR', { maximumFractionDigits: 0 })}
+                        </span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
                         <div
-                          className="bg-gradient-to-r from-green-500 to-teal-500 h-7 rounded-full flex items-center justify-end px-3 transition-all duration-500"
-                          style={{ width: `${(ventas / maxVentas) * 100}%` }}
-                        >
-                          <span className="text-xs font-semibold text-white">
-                            ${ventas.toLocaleString('es-AR', { maximumFractionDigits: 0 })}
-                          </span>
-                        </div>
+                          className="bg-gray-900 h-3 rounded-full transition-all duration-500"
+                          style={{ width: `${porcentaje}%` }}
+                        />
                       </div>
                     </div>
                   )
@@ -6299,21 +6337,25 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
 
                 {salesDistributionType === 'mes_año' && Object.entries(salesMetrics.ventasPorMesAño).map(([mes, data], idx) => {
                   const maxVentas = Math.max(...Object.values(salesMetrics.ventasPorMesAño).map(d => d.ventas))
+                  const porcentaje = (data.ventas / maxVentas) * 100
                   return (
-                    <div key={idx} className="flex items-center gap-3">
-                      <span className="text-sm font-medium text-gray-700 w-24">{mes}</span>
-                      <div className="flex-1 bg-gray-200 rounded-full h-7">
-                        <div
-                          className="bg-gradient-to-r from-orange-500 to-red-500 h-7 rounded-full flex items-center justify-between px-3 transition-all duration-500"
-                          style={{ width: `${(data.ventas / maxVentas) * 100}%` }}
-                        >
-                          <span className="text-xs font-semibold text-white">
-                            ${data.ventas.toLocaleString('es-AR', { maximumFractionDigits: 0 })}
-                          </span>
-                          <span className="text-xs font-semibold text-white">
-                            {data.cantidad} ventas
-                          </span>
+                    <div key={idx} className="space-y-1">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium text-gray-700">{mes}</span>
+                        <span className="text-sm font-bold text-gray-900">
+                          ${data.ventas.toLocaleString('es-AR', { maximumFractionDigits: 0 })}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1 bg-gray-200 rounded-full h-3 overflow-hidden">
+                          <div
+                            className="bg-gray-900 h-3 rounded-full transition-all duration-500"
+                            style={{ width: `${porcentaje}%` }}
+                          />
                         </div>
+                        <span className="text-xs text-gray-500 w-16 text-right">
+                          {data.cantidad} ventas
+                        </span>
                       </div>
                     </div>
                   )
@@ -6323,7 +6365,9 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
 
             {/* Heatmap */}
             <div className="bg-white border border-gray-200 rounded-lg p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">🔥 Mapa de Calor - Ventas por Día/Semana</h3>
+              <h3 className="text-lg font-semibold mb-4">
+                <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">Mapa de Calor</span> - Ventas por Día/Semana
+              </h3>
               <div className="overflow-x-auto">
                 <div className="grid grid-cols-8 gap-1 min-w-max">
                   <div className="text-xs font-medium text-gray-600 p-2"></div>

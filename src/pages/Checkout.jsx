@@ -147,8 +147,8 @@ const Checkout = () => {
           {/* Left Column - Plan Details */}
           <div className="space-y-6">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                Confirmar Suscripción
+              <h1 className="text-3xl font-bold mb-2">
+                <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">Confirmar</span> <span className="text-gray-900">Suscripción</span>
               </h1>
               <p className="text-gray-600 text-sm">
                 Revisa los detalles de tu plan antes de continuar
@@ -223,8 +223,8 @@ const Checkout = () => {
           {/* Right Column - Payment Confirmation */}
           <div className="lg:sticky lg:top-4 lg:self-start">
             <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">
-                Resumen del Pedido
+              <h2 className="text-xl font-bold mb-4">
+                <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">Resumen</span> <span className="text-gray-900">del Pedido</span>
               </h2>
 
               {/* User Info */}

@@ -636,7 +636,9 @@ const MovimientosVenta = ({ movimiento, onClose, onSuccess }) => {
               <TrendingUp className="w-6 h-6 text-green-600" />
             </div>
             <div>
-              <h2 className="text-xl font-semibold text-gray-900">{isEditing ? 'Editar Venta' : 'Nueva Venta'}</h2>
+              <h2 className="text-xl font-semibold text-gray-900">
+                {isEditing ? <><span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">Editar</span> Venta</> : <><span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">Nueva</span> Venta</>}
+              </h2>
               <p className="text-gray-500 text-sm">{isEditing ? 'Modifica los datos de la venta' : 'Registra una venta y actualiza el inventario'}</p>
             </div>
           </div>

@@ -182,7 +182,9 @@ const MovimientosRetiro = ({ movimiento, onClose, onSuccess }) => {
               <TrendingDown className="w-6 h-6 text-orange-600" />
             </div>
             <div>
-              <h2 className="text-xl font-semibold text-gray-900">{isEditing ? 'Editar Retiro' : 'Nuevo Retiro'}</h2>
+              <h2 className="text-xl font-semibold text-gray-900">
+                {isEditing ? <><span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">Editar</span> Retiro</> : <><span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">Nuevo</span> Retiro</>}
+              </h2>
               <p className="text-gray-500 text-sm">{isEditing ? 'Modifica los datos del retiro' : 'Registra un retiro de capital o utilidades'}</p>
             </div>
           </div>

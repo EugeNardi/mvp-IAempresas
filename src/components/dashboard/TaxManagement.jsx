@@ -201,7 +201,9 @@ Genera un análisis completo con:
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-bold text-gray-900">Gestión de Impuestos</h2>
+          <h2 className="text-3xl font-bold text-gray-900">
+            <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">Gestión</span> de Impuestos
+          </h2>
           <p className="text-gray-600 mt-1">Análisis y proyecciones impositivas con IA</p>
         </div>
         <div className="flex items-center space-x-2 px-4 py-2 bg-purple-100 rounded-lg">
@@ -267,7 +269,9 @@ Genera un análisis completo con:
 
       {/* Analysis Generator */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
-        <h3 className="text-xl font-bold text-gray-900 mb-4">Análisis Impositivo con IA</h3>
+        <h3 className="text-xl font-bold text-gray-900 mb-4">
+          <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">Análisis Impositivo</span> con IA
+        </h3>
         
         <div className="flex items-center space-x-4 mb-6">
           <div className="flex-1">
@@ -311,7 +315,9 @@ Genera un análisis completo con:
           <div className="mt-6 p-6 bg-gray-50 rounded-xl border border-gray-200">
             <div className="flex items-center space-x-2 mb-4">
               <Sparkles className="w-5 h-5 text-purple-600" />
-              <h4 className="font-semibold text-gray-900">Análisis Generado por GPT-4</h4>
+              <h4 className="font-semibold text-gray-900">
+                <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">Análisis Generado</span> por GPT-4
+              </h4>
             </div>
             <div className="prose prose-sm max-w-none">
               <pre className="whitespace-pre-wrap font-sans text-sm text-gray-700 leading-relaxed">

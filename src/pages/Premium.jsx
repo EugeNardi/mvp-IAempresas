@@ -74,8 +74,8 @@ const Premium = () => {
         <div className="max-w-2xl mx-auto px-6 py-24">
           <div className="bg-white border border-gray-200 rounded-lg p-8 text-center">
             <Crown className="w-16 h-16 text-gray-900 mx-auto mb-4" />
-            <h2 className="text-2xl font-semibold text-gray-900 mb-2">
-              ¡Ya eres Premium!
+            <h2 className="text-2xl font-semibold mb-2">
+              <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">¡Ya eres Premium!</span>
             </h2>
             <p className="text-gray-600 mb-6">
               Disfruta de todas las funcionalidades exclusivas
@@ -102,8 +102,8 @@ const Premium = () => {
             <span className="text-sm font-medium text-cyan-700">PLANES PREMIUM</span>
           </div>
           
-          <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4 tracking-tight">
-            Elige tu plan
+          <h1 className="text-4xl sm:text-5xl font-bold mb-4 tracking-tight">
+            <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">Elige</span> <span className="text-gray-900">tu plan</span>
           </h1>
           
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">

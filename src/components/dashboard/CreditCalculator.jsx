@@ -139,7 +139,7 @@ const CreditCalculator = ({ invoices }) => {
       {/* Header */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900 mb-1">
-          <span className="text-cyan-600">Calculadora</span> de Créditos
+          <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">Calculadora</span> de Créditos
         </h1>
         <p className="text-sm text-gray-600">Simule financiamiento para proyectos de inversión</p>
       </div>
@@ -147,7 +147,7 @@ const CreditCalculator = ({ invoices }) => {
       {/* Líneas de Crédito Disponibles */}
       <div className="bg-white border border-gray-200 rounded-lg p-6">
         <h3 className="text-lg font-semibold mb-4">
-          <span className="text-cyan-600">Líneas de Crédito</span> <span className="text-gray-900">PyME Argentina</span>
+          <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">Líneas de Crédito</span> <span className="text-gray-900">PyME Argentina</span>
         </h3>
         <div className="grid md:grid-cols-2 gap-4">
           {creditLines.map((line, idx) => (

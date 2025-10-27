@@ -157,7 +157,9 @@ const CategoryManager = ({ onCategoryChange }) => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Categorías</h2>
+          <h2 className="text-2xl font-bold text-gray-900">
+            <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">Categorías</span>
+          </h2>
           <p className="text-gray-600 mt-1">Organiza tus productos, gastos e ingresos</p>
         </div>
         <button

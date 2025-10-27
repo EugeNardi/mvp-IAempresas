@@ -206,7 +206,7 @@ const TaxManagement = ({ invoices, companyData }) => {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 mb-1">
-            <span className="text-cyan-600">Gestión Impositiva</span> ARCA
+            <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">Gestión Impositiva</span> ARCA
           </h1>
           <p className="text-sm text-gray-600">Sistema regulatorio argentino completo</p>
         </div>
@@ -222,7 +222,7 @@ const TaxManagement = ({ invoices, companyData }) => {
       {/* Configuración */}
       <div className="bg-white border border-gray-200 rounded-lg p-6">
         <h3 className="text-lg font-semibold mb-4">
-          <span className="text-cyan-600">Configuración</span> <span className="text-gray-900">Impositiva</span>
+          <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">Configuración</span> <span className="text-gray-900">Impositiva</span>
         </h3>
         <div className="grid md:grid-cols-3 gap-4">
           <div>

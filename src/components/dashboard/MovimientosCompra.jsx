@@ -428,7 +428,9 @@ const MovimientosCompra = ({ movimiento, onClose, onSuccess }) => {
               <ShoppingCart className="w-6 h-6 text-blue-600" />
             </div>
             <div>
-              <h2 className="text-xl font-semibold text-gray-900">{isEditing ? 'Editar Compra' : 'Nueva Compra'}</h2>
+              <h2 className="text-xl font-semibold text-gray-900">
+                {isEditing ? <><span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">Editar</span> Compra</> : <><span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">Nueva</span> Compra</>}
+              </h2>
               <p className="text-gray-500 text-sm">{isEditing ? 'Modifica los datos de la compra' : 'Registra una compra y actualiza el inventario'}</p>
             </div>
           </div>

@@ -216,7 +216,7 @@ const AIProjections = ({ invoices }) => {
       <div className="flex items-center justify-between flex-wrap gap-4 mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 mb-1">
-            <span className="text-cyan-600">Proyecciones</span> con IA
+            <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">Proyecciones</span> con IA
           </h1>
           <p className="text-sm text-gray-600">Análisis predictivo ajustado al contexto económico argentino</p>
         </div>
