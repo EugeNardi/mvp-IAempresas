@@ -492,7 +492,9 @@ export const DataProvider = ({ children }) => {
 
       // Si no existe, crear nuevo
       console.log('📦 Creando nuevo producto en inventario')
-      const newProduct = {
+      
+      // Intentar primero con todos los campos (incluyendo los nuevos)
+      let newProduct = {
         user_id: user.id,
         name: productData.nombre,
         description: productData.descripcion || '',
@@ -504,11 +506,42 @@ export const DataProvider = ({ children }) => {
         is_active: true
       }
 
-      const { data, error } = await supabase
+      // Agregar campos opcionales solo si tienen valor
+      if (productData.categoria) newProduct.category = productData.categoria
+      if (productData.marca) newProduct.brand = productData.marca
+      if (productData.modelo) newProduct.model = productData.modelo
+      if (productData.precioMayorista) newProduct.wholesale_price = parseFloat(productData.precioMayorista)
+
+      let { data, error } = await supabase
         .from('products')
         .insert([newProduct])
         .select()
         .single()
+
+      // Si falla por columnas inexistentes, intentar con campos básicos
+      if (error && error.message?.includes('column')) {
+        console.warn('⚠️ Algunas columnas no existen, usando campos básicos')
+        newProduct = {
+          user_id: user.id,
+          name: productData.nombre,
+          description: productData.descripcion || '',
+          category_id: null,
+          unit_cost: parseFloat(productData.costoUnitario || 0),
+          sale_price: parseFloat(productData.precioMinorista || productData.precioUnitario || 0),
+          current_stock: 0,
+          min_stock: 0,
+          is_active: true
+        }
+        
+        const retry = await supabase
+          .from('products')
+          .insert([newProduct])
+          .select()
+          .single()
+        
+        data = retry.data
+        error = retry.error
+      }
 
       if (error) {
         console.error('❌ Error creando producto:', error)

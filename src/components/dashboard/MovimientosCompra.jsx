@@ -2,19 +2,22 @@ import React, { useState, useEffect } from 'react'
 import { useData } from '../../context/DataContext'
 import { 
   Plus, Save, X, Upload, Mic, Sparkles, Loader, 
-  ShoppingCart, AlertCircle, CheckCircle, Image as ImageIcon, Trash2
+  ShoppingCart, AlertCircle, CheckCircle, Image as ImageIcon, Trash2, Search
 } from 'lucide-react'
 import AudioRecorderComponent from '../common/AudioRecorder'
 import { processAudioForMovement, isOpenAIConfigured } from '../../services/aiService'
 
 const MovimientosCompra = ({ movimiento, onClose, onSuccess }) => {
-  const { addInvoice, updateInvoice, invoices, findOrCreateProduct, updateProductStock, loadInventoryItems } = useData()
+  const { addInvoice, updateInvoice, invoices, findOrCreateProduct, updateProductStock, loadInventoryItems, inventoryItems } = useData()
   const isEditing = !!movimiento
   const [loading, setLoading] = useState(false)
   const [analyzing, setAnalyzing] = useState(false)
   const [error, setError] = useState('')
   const [aiAnalyzed, setAiAnalyzed] = useState(false)
   const [dolarData, setDolarData] = useState(null)
+  const [searchProducto, setSearchProducto] = useState('')
+  const [showProductSearch, setShowProductSearch] = useState(false)
+  const [searchingProductId, setSearchingProductId] = useState(null)
 
   // Cargar inventario y cotización del dólar al montar el componente
   useEffect(() => {
@@ -73,6 +76,8 @@ const MovimientosCompra = ({ movimiento, onClose, onSuccess }) => {
       return movimiento.metadata.productos.map(p => ({
         id: p.id || Date.now() + Math.random(),
         categoria: p.categoria || '',
+        marca: p.marca || '',
+        modelo: p.modelo || '',
         nombre: p.nombre || '',
         descripcion: p.descripcion || '',
         cantidad: p.cantidad || 1,
@@ -86,6 +91,8 @@ const MovimientosCompra = ({ movimiento, onClose, onSuccess }) => {
     return [{
       id: Date.now(),
       categoria: '',
+      marca: '',
+      modelo: '',
       nombre: '',
       descripcion: '',
       cantidad: 1,
@@ -106,11 +113,26 @@ const MovimientosCompra = ({ movimiento, onClose, onSuccess }) => {
       .map(inv => inv.metadata.provider)
   )]
 
-  // Obtener categorías únicas
+  // Obtener categorías, marcas y modelos únicos de compras anteriores
   const categoriasSugeridas = [...new Set(
     invoices
-      .filter(inv => inv.category)
-      .map(inv => inv.category)
+      .filter(inv => inv.metadata?.movementType === 'compra' && inv.metadata?.productos)
+      .flatMap(inv => inv.metadata.productos.map(p => p.categoria))
+      .filter(Boolean)
+  )]
+
+  const marcasSugeridas = [...new Set(
+    invoices
+      .filter(inv => inv.metadata?.movementType === 'compra' && inv.metadata?.productos)
+      .flatMap(inv => inv.metadata.productos.map(p => p.marca))
+      .filter(Boolean)
+  )]
+
+  const modelosSugeridos = [...new Set(
+    invoices
+      .filter(inv => inv.metadata?.movementType === 'compra' && inv.metadata?.productos)
+      .flatMap(inv => inv.metadata.productos.map(p => p.modelo))
+      .filter(Boolean)
   )]
 
   const analyzeWithAI = async (file, type) => {
@@ -218,6 +240,8 @@ const MovimientosCompra = ({ movimiento, onClose, onSuccess }) => {
     setProductos([...productos, {
       id: Date.now(),
       categoria: '',
+      marca: '',
+      modelo: '',
       nombre: '',
       descripcion: '',
       cantidad: 1,
@@ -233,6 +257,49 @@ const MovimientosCompra = ({ movimiento, onClose, onSuccess }) => {
     if (productos.length > 1) {
       setProductos(productos.filter(p => p.id !== id))
     }
+  }
+
+  const agregarProductoExistente = (productoInventario) => {
+    const nuevoProducto = {
+      id: Date.now(),
+      categoria: productoInventario.category || '',
+      marca: productoInventario.brand || '',
+      modelo: productoInventario.model || '',
+      nombre: productoInventario.name || '',
+      descripcion: productoInventario.description || '',
+      cantidad: 1,
+      costoUnitario: productoInventario.cost?.toString() || '',
+      costoTotal: productoInventario.cost?.toString() || '',
+      imagen: null,
+      precioMinorista: productoInventario.price?.toString() || '',
+      precioMayorista: productoInventario.wholesale_price?.toString() || ''
+    }
+    
+    setProductos([...productos, nuevoProducto])
+    setSearchProducto('')
+    setShowProductSearch(false)
+  }
+
+  const seleccionarProductoExistente = (productoInventario, productoId) => {
+    setProductos(productos.map(p => {
+      if (p.id === productoId) {
+        return {
+          ...p,
+          categoria: productoInventario.category || '',
+          marca: productoInventario.brand || '',
+          modelo: productoInventario.model || '',
+          nombre: productoInventario.name || '',
+          descripcion: productoInventario.description || '',
+          costoUnitario: productoInventario.cost?.toString() || '',
+          costoTotal: (productoInventario.cost * (p.cantidad || 1))?.toString() || '',
+          precioMinorista: productoInventario.price?.toString() || '',
+          precioMayorista: productoInventario.wholesale_price?.toString() || ''
+        }
+      }
+      return p
+    }))
+    setSearchProducto('')
+    setSearchingProductId(null)
   }
 
   const actualizarProducto = (id, campo, valor) => {
@@ -275,7 +342,6 @@ const MovimientosCompra = ({ movimiento, onClose, onSuccess }) => {
       // Validar productos
       for (const prod of productos) {
         if (!prod.nombre) throw new Error('Todos los productos deben tener nombre')
-        if (!prod.categoria) throw new Error('Todos los productos deben tener categoría')
         if (!prod.cantidad || prod.cantidad <= 0) throw new Error('La cantidad debe ser mayor a 0')
         if (!prod.costoUnitario || prod.costoUnitario <= 0) throw new Error('El costo unitario debe ser mayor a 0')
       }
@@ -297,6 +363,8 @@ const MovimientosCompra = ({ movimiento, onClose, onSuccess }) => {
           deuda: formData.pago === 'no' ? parseFloat(formData.deuda) : 0,
           productos: productos.map(p => ({
             categoria: p.categoria,
+            marca: p.marca,
+            modelo: p.modelo,
             nombre: p.nombre,
             descripcion: p.descripcion,
             cantidad: parseFloat(p.cantidad),
@@ -325,6 +393,9 @@ const MovimientosCompra = ({ movimiento, onClose, onSuccess }) => {
           const product = await findOrCreateProduct({
             nombre: prod.nombre,
             descripcion: prod.descripcion,
+            categoria: prod.categoria,
+            marca: prod.marca,
+            modelo: prod.modelo,
             costoUnitario: prod.costoUnitario,
             precioMinorista: prod.precioMinorista,
             precioMayorista: prod.precioMayorista
@@ -520,42 +591,228 @@ const MovimientosCompra = ({ movimiento, onClose, onSuccess }) => {
 
           {/* Productos */}
           <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">Productos</h3>
-              <button
-                type="button"
-                onClick={agregarProducto}
-                className="flex items-center gap-2 px-3.5 py-2 bg-blue-600 text-white text-sm rounded-lg font-medium hover:bg-blue-700 transition-colors"
-              >
-                <Plus className="w-4 h-4" />
-                Agregar Producto
-              </button>
+            <div className="mb-4">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-gray-900">Productos de la Compra</h3>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowProductSearch(!showProductSearch)}
+                    className="flex items-center gap-2 px-3.5 py-2 bg-purple-600 text-white text-sm rounded-lg font-medium hover:bg-purple-700 transition-colors"
+                  >
+                    <Search className="w-4 h-4" />
+                    Buscar Existente
+                  </button>
+                  <button
+                    type="button"
+                    onClick={agregarProducto}
+                    className="flex items-center gap-2 px-3.5 py-2 bg-blue-600 text-white text-sm rounded-lg font-medium hover:bg-blue-700 transition-colors"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Agregar Nuevo
+                  </button>
+                </div>
+              </div>
+
+              {/* Buscador de Productos Existentes */}
+              {showProductSearch && (
+                <div className="bg-purple-50 border-2 border-purple-300 rounded-xl p-4 mb-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Search className="w-5 h-5 text-purple-600" />
+                    <h4 className="text-sm font-semibold text-purple-900">Buscar Producto en Inventario</h4>
+                  </div>
+                  
+                  <div className="relative mb-3">
+                    <input
+                      type="text"
+                      value={searchProducto}
+                      onChange={(e) => setSearchProducto(e.target.value)}
+                      placeholder="Buscar por nombre, marca, modelo o categoría..."
+                      className="w-full px-4 py-2.5 pr-10 rounded-lg border-2 border-purple-300 focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                    />
+                    <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  </div>
+
+                  {searchProducto && (
+                    <div className="max-h-60 overflow-y-auto space-y-2">
+                      {inventoryItems
+                        ?.filter(item => {
+                          const search = searchProducto.toLowerCase()
+                          return (
+                            item.name?.toLowerCase().includes(search) ||
+                            item.brand?.toLowerCase().includes(search) ||
+                            item.model?.toLowerCase().includes(search) ||
+                            item.category?.toLowerCase().includes(search)
+                          )
+                        })
+                        .map((item, idx) => (
+                          <button
+                            key={idx}
+                            type="button"
+                            onClick={() => agregarProductoExistente(item)}
+                            className="w-full text-left p-3 bg-white border-2 border-purple-200 rounded-lg hover:border-purple-400 hover:bg-purple-50 transition-all"
+                          >
+                            <div className="flex items-center justify-between">
+                              <div className="flex-1">
+                                <p className="font-semibold text-gray-900">{item.name}</p>
+                                <div className="flex items-center gap-2 text-xs text-gray-600 mt-1">
+                                  {item.brand && <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded">{item.brand}</span>}
+                                  {item.model && <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded">{item.model}</span>}
+                                  {item.category && <span className="px-2 py-0.5 bg-purple-100 text-purple-700 rounded">{item.category}</span>}
+                                </div>
+                              </div>
+                              <div className="text-right ml-4">
+                                <p className="text-sm font-bold text-purple-600">
+                                  ${parseFloat(item.cost || 0).toLocaleString('es-AR')}
+                                </p>
+                                <p className="text-xs text-gray-500">Stock: {item.stock || 0}</p>
+                              </div>
+                            </div>
+                          </button>
+                        ))}
+                      
+                      {inventoryItems?.filter(item => {
+                        const search = searchProducto.toLowerCase()
+                        return (
+                          item.name?.toLowerCase().includes(search) ||
+                          item.brand?.toLowerCase().includes(search) ||
+                          item.model?.toLowerCase().includes(search) ||
+                          item.category?.toLowerCase().includes(search)
+                        )
+                      }).length === 0 && (
+                        <div className="text-center py-4 text-gray-500">
+                          <p className="text-sm">No se encontraron productos</p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {!searchProducto && (
+                    <p className="text-sm text-purple-700 text-center py-2">
+                      Escribe para buscar productos en tu inventario
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
 
             {productos.map((producto, index) => (
               <div key={producto.id} className="bg-gray-50 border border-gray-200 rounded-xl p-5 space-y-4">
                 <div className="flex items-center justify-between mb-3">
                   <h4 className="text-sm font-medium text-gray-700">Producto #{index + 1}</h4>
-                  {productos.length > 1 && (
+                  <div className="flex items-center gap-2">
                     <button
                       type="button"
-                      onClick={() => eliminarProducto(producto.id)}
-                      className="p-1.5 hover:bg-red-50 rounded-lg text-red-600 transition-colors"
+                      onClick={() => {
+                        setSearchingProductId(searchingProductId === producto.id ? null : producto.id)
+                        setSearchProducto('')
+                      }}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg font-medium transition-colors ${
+                        searchingProductId === producto.id 
+                          ? 'bg-purple-600 text-white' 
+                          : 'bg-purple-100 text-purple-700 hover:bg-purple-200'
+                      }`}
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Search className="w-3.5 h-3.5" />
+                      {searchingProductId === producto.id ? 'Cerrar' : 'Buscar'}
                     </button>
-                  )}
+                    {productos.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => eliminarProducto(producto.id)}
+                        className="p-1.5 hover:bg-red-50 rounded-lg text-red-600 transition-colors"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
                 </div>
+
+                {/* Buscador Individual del Producto */}
+                {searchingProductId === producto.id && (
+                  <div className="bg-purple-50 border-2 border-purple-300 rounded-lg p-3 mb-3">
+                    <div className="relative mb-2">
+                      <input
+                        type="text"
+                        value={searchProducto}
+                        onChange={(e) => setSearchProducto(e.target.value)}
+                        placeholder="Buscar producto en inventario..."
+                        className="w-full px-3 py-2 pr-9 text-sm rounded-lg border-2 border-purple-300 focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                      />
+                      <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    </div>
+
+                    {searchProducto && (
+                      <div className="max-h-48 overflow-y-auto space-y-1.5">
+                        {inventoryItems
+                          ?.filter(item => {
+                            const search = searchProducto.toLowerCase()
+                            return (
+                              item.name?.toLowerCase().includes(search) ||
+                              item.brand?.toLowerCase().includes(search) ||
+                              item.model?.toLowerCase().includes(search) ||
+                              item.category?.toLowerCase().includes(search)
+                            )
+                          })
+                          .map((item, idx) => (
+                            <button
+                              key={idx}
+                              type="button"
+                              onClick={() => seleccionarProductoExistente(item, producto.id)}
+                              className="w-full text-left p-2 bg-white border border-purple-200 rounded-lg hover:border-purple-400 hover:bg-purple-50 transition-all"
+                            >
+                              <div className="flex items-center justify-between">
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-sm font-semibold text-gray-900 truncate">{item.name}</p>
+                                  <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                                    {item.brand && <span className="px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded text-xs">{item.brand}</span>}
+                                    {item.model && <span className="px-1.5 py-0.5 bg-green-100 text-green-700 rounded text-xs">{item.model}</span>}
+                                    {item.category && <span className="px-1.5 py-0.5 bg-purple-100 text-purple-700 rounded text-xs">{item.category}</span>}
+                                  </div>
+                                </div>
+                                <div className="text-right ml-3">
+                                  <p className="text-xs font-bold text-purple-600">
+                                    ${parseFloat(item.cost || 0).toLocaleString('es-AR')}
+                                  </p>
+                                  <p className="text-xs text-gray-500">Stock: {item.stock || 0}</p>
+                                </div>
+                              </div>
+                            </button>
+                          ))}
+                        
+                        {inventoryItems?.filter(item => {
+                          const search = searchProducto.toLowerCase()
+                          return (
+                            item.name?.toLowerCase().includes(search) ||
+                            item.brand?.toLowerCase().includes(search) ||
+                            item.model?.toLowerCase().includes(search) ||
+                            item.category?.toLowerCase().includes(search)
+                          )
+                        }).length === 0 && (
+                          <div className="text-center py-3 text-gray-500">
+                            <p className="text-xs">No se encontraron productos</p>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {!searchProducto && (
+                      <p className="text-xs text-purple-700 text-center py-2">
+                        Escribe para buscar en el inventario
+                      </p>
+                    )}
+                  </div>
+                )}
 
                 <div className="grid md:grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-sm font-medium mb-2">Categoría *</label>
+                    <label className="block text-sm font-medium mb-2">Categoría</label>
                     <input
                       type="text"
                       list={`categorias-${producto.id}`}
                       value={producto.categoria}
                       onChange={(e) => actualizarProducto(producto.id, 'categoria', e.target.value)}
-                      required
+                      placeholder="Ej: Autos"
                       className="w-full px-4 py-2 rounded-lg border border-gray-300 outline-none"
                     />
                     <datalist id={`categorias-${producto.id}`}>
@@ -565,6 +822,42 @@ const MovimientosCompra = ({ movimiento, onClose, onSuccess }) => {
                     </datalist>
                   </div>
 
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Marca</label>
+                    <input
+                      type="text"
+                      list={`marcas-${producto.id}`}
+                      value={producto.marca}
+                      onChange={(e) => actualizarProducto(producto.id, 'marca', e.target.value)}
+                      placeholder="Ej: Toyota"
+                      className="w-full px-4 py-2 rounded-lg border border-gray-300 outline-none"
+                    />
+                    <datalist id={`marcas-${producto.id}`}>
+                      {marcasSugeridas.map((marca, idx) => (
+                        <option key={idx} value={marca} />
+                      ))}
+                    </datalist>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Modelo</label>
+                    <input
+                      type="text"
+                      list={`modelos-${producto.id}`}
+                      value={producto.modelo}
+                      onChange={(e) => actualizarProducto(producto.id, 'modelo', e.target.value)}
+                      placeholder="Ej: Corolla"
+                      className="w-full px-4 py-2 rounded-lg border border-gray-300 outline-none"
+                    />
+                    <datalist id={`modelos-${producto.id}`}>
+                      {modelosSugeridos.map((modelo, idx) => (
+                        <option key={idx} value={modelo} />
+                      ))}
+                    </datalist>
+                  </div>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium mb-2">Nombre *</label>
                     <input
@@ -584,7 +877,7 @@ const MovimientosCompra = ({ movimiento, onClose, onSuccess }) => {
                       onChange={(e) => actualizarProducto(producto.id, 'cantidad', e.target.value)}
                       required
                       min="1"
-                      step="0.01"
+                      step="1"
                       className="w-full px-4 py-2 rounded-lg border border-gray-300 outline-none"
                     />
                   </div>

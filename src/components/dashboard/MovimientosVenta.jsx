@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react'
 import { useData } from '../../context/DataContext'
 import { 
   Plus, Save, X, Upload, Mic, Sparkles, Loader, 
-  TrendingUp, AlertCircle, CheckCircle, Image as ImageIcon, Trash2, Package
+  TrendingUp, AlertCircle, CheckCircle, Image as ImageIcon, Trash2, Package,
+  FileSpreadsheet, Download, History
 } from 'lucide-react'
 import AudioRecorderComponent from '../common/AudioRecorder'
 import { processAudioForMovement, isOpenAIConfigured } from '../../services/aiService'
+import * as XLSX from 'xlsx'
 
 const MovimientosVenta = ({ movimiento, onClose, onSuccess }) => {
   const { addInvoice, updateInvoice, invoices, inventoryItems, updateProductStock, loadInventoryItems } = useData()
@@ -15,6 +17,9 @@ const MovimientosVenta = ({ movimiento, onClose, onSuccess }) => {
   const [error, setError] = useState('')
   const [aiAnalyzed, setAiAnalyzed] = useState(false)
   const [dolarData, setDolarData] = useState(null)
+  const [uploadingBulk, setUploadingBulk] = useState(false)
+  const [bulkProgress, setBulkProgress] = useState({ current: 0, total: 0 })
+  const [bulkSuccess, setBulkSuccess] = useState('')
 
   // Cargar inventario y cotización del dólar al montar el componente
   useEffect(() => {
@@ -106,6 +111,34 @@ const MovimientosVenta = ({ movimiento, onClose, onSuccess }) => {
       .filter(inv => inv.metadata?.movementType === 'venta' && inv.metadata?.cliente)
       .map(inv => inv.metadata.cliente)
   )]
+
+  // Actualizar precios cuando cambia el tipo de venta (minorista/mayorista)
+  useEffect(() => {
+    if (productos.length > 0 && inventoryItems && inventoryItems.length > 0) {
+      setProductos(productos.map(p => {
+        if (p.productoId) {
+          const item = inventoryItems.find(i => i.id === p.productoId)
+          if (item) {
+            const nuevoPrecio = formData.tipo === 'mayorista' 
+              ? (item.wholesale_price || item.sale_price || item.unit_cost * 1.3)
+              : (item.sale_price || item.unit_cost * 1.5)
+            
+            const cantidad = parseFloat(p.cantidad) || 1
+            const descuento = parseFloat(p.descuento) || 0
+            const subtotal = cantidad * nuevoPrecio
+            const montoDescuento = subtotal * (descuento / 100)
+            
+            return {
+              ...p,
+              precioUnitario: nuevoPrecio,
+              precioTotal: (subtotal - montoDescuento).toFixed(2)
+            }
+          }
+        }
+        return p
+      }))
+    }
+  }, [formData.tipo])
 
   const analyzeWithAI = async (file, type) => {
     setAnalyzing(true)
@@ -239,6 +272,17 @@ const MovimientosVenta = ({ movimiento, onClose, onSuccess }) => {
               ? (item.wholesale_price || item.sale_price || item.unit_cost * 1.3)
               : (item.sale_price || item.unit_cost * 1.5)
             updated.stockDisponible = item.current_stock || 0
+            
+            // Calcular precio total automáticamente con cantidad 1
+            const cantidad = parseFloat(p.cantidad) || 1
+            const precio = parseFloat(updated.precioUnitario)
+            const descuento = parseFloat(p.descuento) || 0
+            
+            if (!isNaN(precio)) {
+              const subtotal = cantidad * precio
+              const montoDescuento = subtotal * (descuento / 100)
+              updated.precioTotal = (subtotal - montoDescuento).toFixed(2)
+            }
           }
         }
         
@@ -268,6 +312,229 @@ const MovimientosVenta = ({ movimiento, onClose, onSuccess }) => {
       return (totalProductos * parseFloat(formData.tipoCambio)).toFixed(2)
     }
     return totalProductos.toFixed(2)
+  }
+
+  const handleBulkUpload = async (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+
+    // Validar que sea un archivo Excel
+    const validTypes = [
+      'application/vnd.ms-excel',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'text/csv'
+    ]
+    
+    if (!validTypes.includes(file.type) && !file.name.endsWith('.xlsx') && !file.name.endsWith('.xls') && !file.name.endsWith('.csv')) {
+      setError('Por favor sube un archivo Excel (.xlsx, .xls) o CSV')
+      return
+    }
+
+    setUploadingBulk(true)
+    setError('')
+    setBulkSuccess('')
+    setBulkProgress({ current: 0, total: 0 })
+
+    try {
+      const data = await file.arrayBuffer()
+      const workbook = XLSX.read(data)
+      const sheetName = workbook.SheetNames[0]
+      const worksheet = workbook.Sheets[sheetName]
+      const jsonData = XLSX.utils.sheet_to_json(worksheet)
+
+      if (jsonData.length === 0) {
+        throw new Error('El archivo está vacío')
+      }
+
+      // Validar que el archivo tenga las columnas mínimas necesarias
+      const firstRow = jsonData[0]
+      const columns = Object.keys(firstRow)
+      
+      // Buscar columnas de producto y precio (obligatorias)
+      const hasProducto = columns.some(col => 
+        col.toLowerCase().includes('producto') || 
+        col.toLowerCase().includes('product') ||
+        col.toLowerCase().includes('item') ||
+        col.toLowerCase().includes('articulo')
+      )
+      
+      const hasPrecio = columns.some(col => 
+        col.toLowerCase().includes('precio') || 
+        col.toLowerCase().includes('price') ||
+        col.toLowerCase().includes('monto') ||
+        col.toLowerCase().includes('amount') ||
+        col.toLowerCase().includes('total')
+      )
+
+      if (!hasProducto || !hasPrecio) {
+        throw new Error(
+          `❌ Formato de archivo incorrecto.\n\n` +
+          `Columnas encontradas: ${columns.join(', ')}\n\n` +
+          `Se requieren al menos:\n` +
+          `• Una columna de Producto (Producto, Product, Item, etc.)\n` +
+          `• Una columna de Precio (Precio, Price, Monto, etc.)\n\n` +
+          `💡 Descarga la plantilla para ver el formato correcto.`
+        )
+      }
+
+      setBulkProgress({ current: 0, total: jsonData.length })
+
+      let successCount = 0
+      let errorCount = 0
+      const errors = []
+
+      for (let i = 0; i < jsonData.length; i++) {
+        const row = jsonData[i]
+        setBulkProgress({ current: i + 1, total: jsonData.length })
+
+        try {
+          // Mapear columnas del Excel de forma flexible
+          const fecha = row['Fecha'] || row['fecha'] || row['Date'] || row['date'] || 
+                       row['FECHA'] || row['DATE'] || new Date().toISOString().split('T')[0]
+          
+          const cliente = row['Cliente'] || row['cliente'] || row['Customer'] || row['customer'] ||
+                         row['CLIENTE'] || row['CUSTOMER'] || row['Client'] || row['client'] ||
+                         row['Nombre'] || row['nombre'] || 'Cliente Importado'
+          
+          const producto = row['Producto'] || row['producto'] || row['Product'] || row['product'] ||
+                          row['PRODUCTO'] || row['PRODUCT'] || row['Item'] || row['item'] ||
+                          row['Articulo'] || row['articulo'] || row['Descripcion'] || row['descripcion'] || ''
+          
+          const cantidad = parseFloat(
+            row['Cantidad'] || row['cantidad'] || row['Quantity'] || row['quantity'] ||
+            row['CANTIDAD'] || row['QUANTITY'] || row['Cant'] || row['cant'] ||
+            row['Qty'] || row['qty'] || row['Unidades'] || row['unidades'] || 1
+          )
+          
+          const precioUnitario = parseFloat(
+            row['Precio'] || row['precio'] || row['Price'] || row['price'] ||
+            row['PRECIO'] || row['PRICE'] || row['Precio Unitario'] || row['precio unitario'] ||
+            row['Unit Price'] || row['unit price'] || row['Monto'] || row['monto'] ||
+            row['Amount'] || row['amount'] || row['Valor'] || row['valor'] ||
+            row['Total'] || row['total'] || row['TOTAL'] || 0
+          )
+          
+          const medio = (row['Medio de Pago'] || row['medio de pago'] || row['Payment Method'] || 
+                        row['payment method'] || row['Medio'] || row['medio'] || row['Pago'] || 
+                        row['pago'] || row['Payment'] || row['payment'] || 'efectivo').toLowerCase()
+          
+          const tipo = (row['Tipo'] || row['tipo'] || row['Type'] || row['type'] ||
+                       row['TIPO'] || row['TYPE'] || row['Categoria'] || row['categoria'] || 
+                       'minorista').toLowerCase()
+
+          // Validaciones
+          if (!producto || producto.trim() === '') {
+            errors.push(`Fila ${i + 2}: Producto vacío o no encontrado`)
+            errorCount++
+            continue
+          }
+
+          if (isNaN(precioUnitario) || precioUnitario <= 0) {
+            errors.push(`Fila ${i + 2}: Precio inválido (${precioUnitario})`)
+            errorCount++
+            continue
+          }
+
+          if (isNaN(cantidad) || cantidad <= 0) {
+            errors.push(`Fila ${i + 2}: Cantidad inválida (${cantidad})`)
+            errorCount++
+            continue
+          }
+
+          const montoTotal = cantidad * precioUnitario
+
+          // Crear la venta pasada (SIN actualizar inventario)
+          const invoiceData = {
+            type: 'income',
+            number: `VENTA-PASADA-${Date.now()}-${i}`,
+            date: fecha,
+            description: `Venta Pasada - ${cliente} - ${producto}`,
+            amount: montoTotal,
+            category: 'Ventas',
+            fileName: 'Importación Excel',
+            processed: true,
+            taxes: [],
+            metadata: {
+              movementType: 'venta',
+              tipoVenta: tipo,
+              cliente: cliente,
+              paymentMethod: medio.toLowerCase().replace(/ /g, '_'),
+              cobrado: true,
+              deuda: 0,
+              moneda: 'ARS',
+              ventaPasada: true, // Marcar como venta pasada
+              productos: [{
+                nombre: producto,
+                cantidad: cantidad,
+                precioUnitario: precioUnitario,
+                precioTotal: montoTotal,
+                descuento: 0
+              }]
+            }
+          }
+
+          await addInvoice(invoiceData)
+          successCount++
+
+        } catch (rowError) {
+          console.error(`Error en fila ${i + 1}:`, rowError)
+          errors.push(`Fila ${i + 1}: ${rowError.message}`)
+          errorCount++
+        }
+
+        // Pequeña pausa para no sobrecargar
+        await new Promise(resolve => setTimeout(resolve, 100))
+      }
+
+      if (successCount > 0) {
+        setBulkSuccess(`✅ ${successCount} ventas pasadas cargadas exitosamente${errorCount > 0 ? `. ${errorCount} con errores.` : ''}`)
+        setTimeout(() => {
+          onSuccess?.(`${successCount} ventas pasadas importadas correctamente`)
+        }, 2000)
+      }
+
+      if (errors.length > 0 && errors.length <= 10) {
+        setError(`⚠️ Errores encontrados:\n\n${errors.slice(0, 10).join('\n')}${errors.length > 10 ? `\n\n...y ${errors.length - 10} errores más` : ''}`)
+      } else if (errors.length > 10) {
+        setError(`⚠️ Se encontraron ${errors.length} errores.\n\nRevisa que el archivo tenga el formato correcto:\n• Columnas: Producto, Precio, Cantidad\n• Valores válidos en cada celda\n• Sin filas vacías\n\n💡 Descarga la plantilla para ver el formato correcto.`)
+      }
+
+    } catch (err) {
+      console.error('Error procesando archivo:', err)
+      setError(err.message || 'Error al procesar el archivo')
+    } finally {
+      setUploadingBulk(false)
+      e.target.value = '' // Resetear input
+    }
+  }
+
+  const downloadTemplate = () => {
+    // Crear plantilla de Excel
+    const template = [
+      {
+        'Fecha': '2024-01-15',
+        'Cliente': 'Juan Pérez',
+        'Producto': 'Producto Ejemplo',
+        'Cantidad': 2,
+        'Precio': 1500,
+        'Medio de Pago': 'efectivo',
+        'Tipo': 'minorista'
+      },
+      {
+        'Fecha': '2024-01-20',
+        'Cliente': 'María García',
+        'Producto': 'Otro Producto',
+        'Cantidad': 1,
+        'Precio': 3000,
+        'Medio de Pago': 'transferencia',
+        'Tipo': 'mayorista'
+      }
+    ]
+
+    const ws = XLSX.utils.json_to_sheet(template)
+    const wb = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(wb, ws, 'Ventas')
+    XLSX.writeFile(wb, 'plantilla_ventas_pasadas.xlsx')
   }
 
   const handleSubmit = async (e) => {
@@ -667,7 +934,8 @@ const MovimientosVenta = ({ movimiento, onClose, onSuccess }) => {
                       onChange={(e) => actualizarProducto(producto.id, 'cantidad', e.target.value)}
                       required
                       min="1"
-                      step="0.01"
+                      max={producto.stockDisponible > 0 ? producto.stockDisponible : undefined}
+                      step="1"
                       className="w-full px-4 py-2.5 rounded-lg border-2 border-gray-300 focus:border-green-500 outline-none"
                     />
                     {producto.stockDisponible > 0 && (
@@ -695,7 +963,7 @@ const MovimientosVenta = ({ movimiento, onClose, onSuccess }) => {
                       onChange={(e) => actualizarProducto(producto.id, 'descuento', e.target.value)}
                       min="0"
                       max="100"
-                      step="0.01"
+                      step="1"
                       className="w-full px-4 py-2.5 rounded-lg border-2 border-gray-300 focus:border-green-500 outline-none"
                     />
                   </div>
@@ -713,6 +981,122 @@ const MovimientosVenta = ({ movimiento, onClose, onSuccess }) => {
               </div>
             ))}
           </div>
+
+          {/* Carga Masiva de Ventas Pasadas */}
+          {!isEditing && (
+            <div className="bg-gradient-to-br from-purple-50 to-blue-50 border-2 border-purple-200 rounded-xl p-6 space-y-4">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2.5 bg-purple-100 rounded-lg">
+                  <History className="w-6 h-6 text-purple-600" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900 flex items-center gap-2">
+                    Cargar Ventas Pasadas
+                    <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full font-medium">NUEVO</span>
+                  </h3>
+                  <p className="text-sm text-gray-600">Importa múltiples ventas históricas desde Excel sin afectar el inventario</p>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-lg p-4 border border-purple-200">
+                <div className="flex items-start gap-3 mb-4">
+                  <AlertCircle className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
+                  <div className="text-sm text-gray-700 space-y-1">
+                    <p className="font-medium text-gray-900">¿Qué son las ventas pasadas?</p>
+                    <ul className="list-disc list-inside space-y-1 text-gray-600">
+                      <li>Ventas históricas para análisis y reportes</li>
+                      <li><strong>NO modifican el inventario actual</strong></li>
+                      <li>Registran clientes, ingresos y estadísticas</li>
+                      <li>Útiles para migrar datos de otros sistemas</li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <button
+                    type="button"
+                    onClick={downloadTemplate}
+                    className="flex items-center justify-center gap-2 px-4 py-2.5 bg-white border-2 border-purple-300 text-purple-700 rounded-lg font-medium hover:bg-purple-50 transition-colors"
+                  >
+                    <Download className="w-4 h-4" />
+                    Descargar Plantilla Excel
+                  </button>
+
+                  <label className="flex items-center justify-center gap-2 px-4 py-2.5 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 transition-colors cursor-pointer flex-1">
+                    <FileSpreadsheet className="w-4 h-4" />
+                    {uploadingBulk ? 'Procesando...' : 'Subir Archivo Excel'}
+                    <input
+                      type="file"
+                      accept=".xlsx,.xls,.csv"
+                      onChange={handleBulkUpload}
+                      className="hidden"
+                      disabled={uploadingBulk}
+                    />
+                  </label>
+                </div>
+
+                {uploadingBulk && bulkProgress.total > 0 && (
+                  <div className="mt-4 space-y-2">
+                    <div className="flex justify-between text-sm text-gray-700">
+                      <span>Procesando ventas...</span>
+                      <span className="font-semibold">{bulkProgress.current} / {bulkProgress.total}</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                      <div
+                        className="bg-purple-600 h-3 rounded-full transition-all duration-300 flex items-center justify-center"
+                        style={{ width: `${(bulkProgress.current / bulkProgress.total) * 100}%` }}
+                      >
+                        <span className="text-xs text-white font-semibold">
+                          {Math.round((bulkProgress.current / bulkProgress.total) * 100)}%
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {bulkSuccess && (
+                  <div className="mt-4 bg-green-50 border border-green-200 rounded-lg p-3 flex items-center gap-2">
+                    <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
+                    <p className="text-sm text-green-700 font-medium">{bulkSuccess}</p>
+                  </div>
+                )}
+              </div>
+
+              <div className="bg-white rounded-lg p-4 border border-gray-200">
+                <p className="text-xs font-semibold text-gray-700 mb-2 uppercase tracking-wide">Formato del Excel:</p>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                  <div className="bg-gray-50 p-2 rounded border border-gray-200">
+                    <span className="font-semibold text-gray-900">Fecha</span>
+                    <p className="text-gray-600">2024-01-15</p>
+                  </div>
+                  <div className="bg-gray-50 p-2 rounded border border-gray-200">
+                    <span className="font-semibold text-gray-900">Cliente</span>
+                    <p className="text-gray-600">Juan Pérez</p>
+                  </div>
+                  <div className="bg-gray-50 p-2 rounded border border-gray-200">
+                    <span className="font-semibold text-gray-900">Producto</span>
+                    <p className="text-gray-600">Producto X</p>
+                  </div>
+                  <div className="bg-gray-50 p-2 rounded border border-gray-200">
+                    <span className="font-semibold text-gray-900">Cantidad</span>
+                    <p className="text-gray-600">2</p>
+                  </div>
+                  <div className="bg-gray-50 p-2 rounded border border-gray-200">
+                    <span className="font-semibold text-gray-900">Precio</span>
+                    <p className="text-gray-600">1500</p>
+                  </div>
+                  <div className="bg-gray-50 p-2 rounded border border-gray-200">
+                    <span className="font-semibold text-gray-900">Medio de Pago</span>
+                    <p className="text-gray-600">efectivo</p>
+                  </div>
+                  <div className="bg-gray-50 p-2 rounded border border-gray-200">
+                    <span className="font-semibold text-gray-900">Tipo</span>
+                    <p className="text-gray-600">minorista</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Botones */}
           <div className="flex gap-3 pt-5 border-t border-gray-200 sticky bottom-0 bg-white pb-2">

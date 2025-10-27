@@ -344,10 +344,10 @@ const EnhancedProductTable = ({ products, categories, onEdit, onDelete, onStockC
         </div>
       ) : (
         <div className="overflow-x-auto bg-white rounded-lg shadow">
-          <table className="w-full">
+          <table className="w-full min-w-max">
             <thead className="bg-gray-50">
               <tr className="border-b border-gray-200">
-                <th className="py-3 px-4 w-12">
+                <th className="py-3 px-4 w-12 sticky left-0 bg-gray-50 z-10">
                   <button
                     onClick={handleSelectAll}
                     className="p-1 hover:bg-gray-200 rounded transition-colors"
@@ -360,14 +360,17 @@ const EnhancedProductTable = ({ products, categories, onEdit, onDelete, onStockC
                     )}
                   </button>
                 </th>
-                <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Producto</th>
-                <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Categoría</th>
-                <th className="text-center py-3 px-4 text-sm font-semibold text-gray-700">Stock</th>
-                <th className="text-right py-3 px-4 text-sm font-semibold text-gray-700">Costo</th>
-                <th className="text-right py-3 px-4 text-sm font-semibold text-gray-700">Precio Venta</th>
-                <th className="text-right py-3 px-4 text-sm font-semibold text-gray-700">Margen</th>
-                <th className="text-center py-3 px-4 text-sm font-semibold text-gray-700">Estado</th>
-                <th className="text-center py-3 px-4 text-sm font-semibold text-gray-700">Acciones</th>
+                <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700 min-w-[200px]">Producto</th>
+                <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700 min-w-[120px]">Categoría</th>
+                <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700 min-w-[120px]">Marca</th>
+                <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700 min-w-[120px]">Modelo</th>
+                <th className="text-center py-3 px-4 text-sm font-semibold text-gray-700 min-w-[100px]">Stock</th>
+                <th className="text-right py-3 px-4 text-sm font-semibold text-gray-700 min-w-[120px]">Costo</th>
+                <th className="text-right py-3 px-4 text-sm font-semibold text-gray-700 min-w-[150px]">Precio Venta Minorista</th>
+                <th className="text-right py-3 px-4 text-sm font-semibold text-gray-700 min-w-[150px]">Precio Venta Mayorista</th>
+                <th className="text-right py-3 px-4 text-sm font-semibold text-gray-700 min-w-[100px]">Margen</th>
+                <th className="text-center py-3 px-4 text-sm font-semibold text-gray-700 min-w-[120px]">Estado</th>
+                <th className="text-center py-3 px-4 text-sm font-semibold text-gray-700 min-w-[150px]">Acciones</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -412,65 +415,25 @@ const EnhancedProductTable = ({ products, categories, onEdit, onDelete, onStockC
 
                     {/* Categoría */}
                     <td className="py-3 px-4">
-                      <span className="text-gray-400 text-sm">-</span>
+                      <span className="text-sm text-gray-700">{product.category || '-'}</span>
                     </td>
 
-                    {/* Stock con edición rápida */}
+                    {/* Marca */}
                     <td className="py-3 px-4">
-                      {isEditing ? (
-                        <div className="flex items-center justify-center space-x-1">
-                          <input
-                            type="number"
-                            value={stockValue}
-                            onChange={(e) => setStockValue(e.target.value)}
-                            className="w-16 px-2 py-1 text-center border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            autoFocus
-                            onKeyPress={(e) => {
-                              if (e.key === 'Enter') handleStockSave(product)
-                              if (e.key === 'Escape') handleStockCancel()
-                            }}
-                          />
-                          <button
-                            onClick={() => handleStockSave(product)}
-                            className="p-1 text-green-600 hover:bg-green-50 rounded"
-                            title="Guardar"
-                          >
-                            <Check className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={handleStockCancel}
-                            className="p-1 text-red-600 hover:bg-red-50 rounded"
-                            title="Cancelar"
-                          >
-                            <X className="w-4 h-4" />
-                          </button>
-                        </div>
-                      ) : (
-                        <div className="flex items-center justify-center space-x-2">
-                          <button
-                            onClick={() => handleQuickAdjust(product, -1)}
-                            className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
-                            title="Restar 1"
-                          >
-                            <Minus className="w-4 h-4" />
-                          </button>
-                          <div 
-                            className="cursor-pointer min-w-[60px] text-center"
-                            onClick={() => handleStockEdit(product)}
-                            title="Click para editar"
-                          >
-                            <p className="font-bold text-gray-900 text-lg">{product.current_stock}</p>
-                            <p className="text-xs text-gray-500">Mín: {product.min_stock}</p>
-                          </div>
-                          <button
-                            onClick={() => handleQuickAdjust(product, 1)}
-                            className="p-1 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded transition-colors"
-                            title="Sumar 1"
-                          >
-                            <Plus className="w-4 h-4" />
-                          </button>
-                        </div>
-                      )}
+                      <span className="text-sm text-gray-700">{product.brand || '-'}</span>
+                    </td>
+
+                    {/* Modelo */}
+                    <td className="py-3 px-4">
+                      <span className="text-sm text-gray-700">{product.model || '-'}</span>
+                    </td>
+
+                    {/* Stock (solo lectura) */}
+                    <td className="py-3 px-4">
+                      <div className="text-center">
+                        <p className="font-bold text-gray-900 text-lg">{product.current_stock}</p>
+                        <p className="text-xs text-gray-500">Mín: {product.min_stock}</p>
+                      </div>
                     </td>
 
                     {/* Costo */}
@@ -483,9 +446,14 @@ const EnhancedProductTable = ({ products, categories, onEdit, onDelete, onStockC
                       </p>
                     </td>
 
-                    {/* Precio Venta */}
+                    {/* Precio Venta Minorista */}
                     <td className="py-3 px-4 text-right font-medium text-gray-900">
                       ${(parseFloat(product.sale_price) || 0).toLocaleString('es-AR', { minimumFractionDigits: 2 })}
+                    </td>
+
+                    {/* Precio Venta Mayorista */}
+                    <td className="py-3 px-4 text-right font-medium text-gray-900">
+                      ${(parseFloat(product.wholesale_price) || 0).toLocaleString('es-AR', { minimumFractionDigits: 2 })}
                     </td>
 
                     {/* Margen */}

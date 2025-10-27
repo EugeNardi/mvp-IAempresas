@@ -1,8 +1,46 @@
-import React from 'react'
-import { X, Calendar, DollarSign, FileText, Tag, User, CreditCard, Package, TrendingUp, TrendingDown, ShoppingCart, Wallet } from 'lucide-react'
+import React, { useState } from 'react'
+import { X, Calendar, DollarSign, FileText, Tag, User, CreditCard, Package, TrendingUp, TrendingDown, ShoppingCart, Wallet, CheckCircle } from 'lucide-react'
+import { useData } from '../../context/DataContext'
 
 const MovimientoDetalle = ({ movimiento, onClose, onEdit }) => {
+  const { updateInvoice } = useData()
+  const [loading, setLoading] = useState(false)
+  const [showPagoForm, setShowPagoForm] = useState(false)
+  const [fechaPago, setFechaPago] = useState(new Date().toISOString().split('T')[0])
+  
   if (!movimiento) return null
+  
+  // Detectar si tiene deuda pendiente
+  const tieneDeuda = movimiento.type === 'income'
+    ? (movimiento.metadata?.cobrado === false || movimiento.metadata?.cobrado === 'no') && parseFloat(movimiento.metadata?.deuda || 0) > 0
+    : (movimiento.metadata?.pagado === false || movimiento.metadata?.pagado === 'no') && parseFloat(movimiento.metadata?.deuda || 0) > 0
+  
+  const handleMarcarPagado = async () => {
+    setLoading(true)
+    try {
+      const updatedMetadata = {
+        ...movimiento.metadata,
+        ...(movimiento.type === 'income' 
+          ? { cobrado: true, fechaCobro: fechaPago }
+          : { pagado: true, fechaPago: fechaPago }
+        )
+      }
+      
+      await updateInvoice(movimiento.id, {
+        ...movimiento,
+        metadata: updatedMetadata
+      })
+      
+      setShowPagoForm(false)
+      onClose()
+      window.location.reload() // Recargar para actualizar la lista
+    } catch (error) {
+      console.error('Error al marcar como pagado:', error)
+      alert('Error al actualizar el movimiento')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const movementTypes = {
     venta: { label: 'Venta', icon: TrendingUp, color: 'green' },
@@ -224,6 +262,62 @@ const MovimientoDetalle = ({ movimiento, onClose, onEdit }) => {
                   </div>
                 ))}
               </div>
+            </div>
+          )}
+
+          {/* Alerta de Deuda y Opción de Pago */}
+          {tieneDeuda && (
+            <div className="bg-red-50 border-2 border-red-300 rounded-xl p-5">
+              <div className="flex items-start gap-3 mb-4">
+                <div className="p-2 bg-red-100 rounded-lg">
+                  <DollarSign className="w-5 h-5 text-red-600" />
+                </div>
+                <div className="flex-1">
+                  <h4 className="text-sm font-semibold text-red-900 mb-1">Deuda Pendiente</h4>
+                  <p className="text-sm text-red-700">
+                    {movimiento.type === 'income' ? 'Este cliente debe' : 'Debes pagar'}: <span className="font-bold">${parseFloat(movimiento.metadata?.deuda || 0).toLocaleString('es-AR')}</span>
+                  </p>
+                </div>
+              </div>
+              
+              {!showPagoForm ? (
+                <button
+                  onClick={() => setShowPagoForm(true)}
+                  className="w-full px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
+                >
+                  <CheckCircle className="w-4 h-4" />
+                  Marcar como {movimiento.type === 'income' ? 'Cobrado' : 'Pagado'}
+                </button>
+              ) : (
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-sm font-medium text-red-900 mb-2">
+                      Fecha de {movimiento.type === 'income' ? 'Cobro' : 'Pago'}
+                    </label>
+                    <input
+                      type="date"
+                      value={fechaPago}
+                      onChange={(e) => setFechaPago(e.target.value)}
+                      className="w-full px-4 py-2 border-2 border-red-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={handleMarcarPagado}
+                      disabled={loading}
+                      className="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
+                    >
+                      {loading ? 'Guardando...' : 'Confirmar'}
+                    </button>
+                    <button
+                      onClick={() => setShowPagoForm(false)}
+                      className="px-4 py-2 border border-red-300 rounded-lg text-sm font-medium hover:bg-red-50 transition-colors"
+                    >
+                      Cancelar
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 

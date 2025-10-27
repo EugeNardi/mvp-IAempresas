@@ -402,17 +402,37 @@ const Movimientos = ({ companyData }) => {
                 <p>No hay movimientos</p>
               </td></tr>
             ) : (
-              filteredMovements.sort((a, b) => new Date(b.date) - new Date(a.date)).map((mov, idx) => (
-                <tr key={idx} className="border-b hover:bg-gray-50">
+              filteredMovements.sort((a, b) => new Date(b.date) - new Date(a.date)).map((mov, idx) => {
+                // Detectar si tiene deuda pendiente
+                const tieneDeuda = mov.type === 'income'
+                  ? (mov.metadata?.cobrado === false || mov.metadata?.cobrado === 'no') && parseFloat(mov.metadata?.deuda || 0) > 0
+                  : (mov.metadata?.pagado === false || mov.metadata?.pagado === 'no') && parseFloat(mov.metadata?.deuda || 0) > 0
+                
+                return (
+                <tr key={idx} className={`border-b hover:bg-gray-50 ${tieneDeuda ? 'bg-red-50 border-l-4 border-l-red-500' : ''}`}>
                   <td className="py-3 px-4 text-sm">{new Date(mov.date).toLocaleDateString('es-AR')}</td>
                   <td className="py-3 px-4 text-sm">
-                    <span className={`px-2 py-1 rounded text-xs font-semibold ${
-                      mov.type === 'income' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                    }`}>
-                      {movementTypes[mov.metadata?.movementType || (mov.type === 'income' ? 'venta' : 'gasto')]?.label}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                        mov.type === 'income' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                      }`}>
+                        {movementTypes[mov.metadata?.movementType || (mov.type === 'income' ? 'venta' : 'gasto')]?.label}
+                      </span>
+                      {tieneDeuda && (
+                        <span className="px-2 py-1 rounded text-xs font-semibold bg-red-600 text-white">
+                          DEUDA
+                        </span>
+                      )}
+                    </div>
                   </td>
-                  <td className="py-3 px-4 text-sm">{mov.description}</td>
+                  <td className="py-3 px-4 text-sm">
+                    {mov.description}
+                    {tieneDeuda && (
+                      <div className="text-xs text-red-600 font-semibold mt-1">
+                        Deuda: ${parseFloat(mov.metadata?.deuda || 0).toLocaleString('es-AR')}
+                      </div>
+                    )}
+                  </td>
                   <td className="py-3 px-4 text-sm">{mov.category}</td>
                   <td className={`py-3 px-4 text-sm text-right font-semibold ${
                     mov.type === 'income' ? 'text-green-600' : 'text-red-600'
@@ -445,7 +465,8 @@ const Movimientos = ({ companyData }) => {
                     </div>
                   </td>
                 </tr>
-              ))
+                )
+              })
             )}
           </tbody>
         </table>
