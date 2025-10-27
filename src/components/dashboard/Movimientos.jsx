@@ -288,10 +288,12 @@ const Movimientos = ({ companyData }) => {
       )}
 
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-semibold text-gray-900">Movimientos Financieros</h1>
-          <p className="text-sm text-gray-600 mt-1">Gestiona todas tus operaciones</p>
+          <h1 className="text-2xl font-bold text-gray-900 mb-1">
+            <span className="text-cyan-600">Movimientos</span> Financieros
+          </h1>
+          <p className="text-sm text-gray-600">Gestiona todas tus operaciones</p>
         </div>
         <button
           onClick={() => setShowForm(true)}
@@ -321,7 +323,7 @@ const Movimientos = ({ companyData }) => {
           <div className="bg-white rounded-lg max-w-2xl w-full shadow-2xl">
             <div className="p-6 border-b border-gray-200 flex items-center justify-between">
               <div>
-                <h2 className="text-xl font-semibold text-gray-900">Nuevo Movimiento</h2>
+                <h2 className="text-lg font-bold text-gray-900">Nuevo Movimiento</h2>
                 <p className="text-sm text-gray-600 mt-1">Selecciona el tipo de operación</p>
               </div>
               <button onClick={() => setShowForm(false)} className="p-2 hover:bg-gray-100 rounded-md transition-colors">
@@ -409,26 +411,26 @@ const Movimientos = ({ companyData }) => {
                   : (mov.metadata?.pagado === false || mov.metadata?.pagado === 'no') && parseFloat(mov.metadata?.deuda || 0) > 0
                 
                 return (
-                <tr key={idx} className={`border-b hover:bg-gray-50 ${tieneDeuda ? 'bg-red-50 border-l-4 border-l-red-500' : ''}`}>
+                <tr key={idx} className={`border-b transition-all ${tieneDeuda ? 'bg-gradient-to-r from-red-50 to-orange-50 border-l-4 border-l-red-500 hover:shadow-md' : 'hover:bg-gray-50'}`}>
                   <td className="py-3 px-4 text-sm">{new Date(mov.date).toLocaleDateString('es-AR')}</td>
                   <td className="py-3 px-4 text-sm">
-                    <div className="flex items-center gap-2">
-                      <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className={`px-2.5 py-1 rounded-lg text-xs font-semibold shadow-sm ${
                         mov.type === 'income' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                       }`}>
                         {movementTypes[mov.metadata?.movementType || (mov.type === 'income' ? 'venta' : 'gasto')]?.label}
                       </span>
                       {tieneDeuda && (
-                        <span className="px-2 py-1 rounded text-xs font-semibold bg-red-600 text-white">
+                        <span className="px-2.5 py-1 rounded-lg text-xs font-bold bg-red-600 text-white">
                           DEUDA
                         </span>
                       )}
                     </div>
                   </td>
                   <td className="py-3 px-4 text-sm">
-                    {mov.description}
+                    <div>{mov.description}</div>
                     {tieneDeuda && (
-                      <div className="text-xs text-red-600 font-semibold mt-1">
+                      <div className="text-xs text-red-700 font-bold mt-1.5 bg-red-100 px-2 py-1 rounded-md inline-flex">
                         Deuda: ${parseFloat(mov.metadata?.deuda || 0).toLocaleString('es-AR')}
                       </div>
                     )}

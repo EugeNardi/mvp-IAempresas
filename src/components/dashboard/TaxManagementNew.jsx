@@ -203,23 +203,27 @@ const TaxManagement = ({ invoices, companyData }) => {
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Gestión Impositiva ARCA</h1>
-          <p className="text-sm text-gray-600 mt-1">Sistema regulatorio argentino completo</p>
+          <h1 className="text-2xl font-bold text-gray-900 mb-1">
+            <span className="text-cyan-600">Gestión Impositiva</span> ARCA
+          </h1>
+          <p className="text-sm text-gray-600">Sistema regulatorio argentino completo</p>
         </div>
         <button
           onClick={downloadReport}
-          className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-lg font-semibold hover:bg-gray-800"
+          className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-lg font-medium hover:bg-gray-800 transition-colors"
         >
-          <Download className="w-5 h-5" />
+          <Download className="w-4 h-4" />
           Descargar Reporte
         </button>
       </div>
 
       {/* Configuración */}
-      <div className="bg-white border rounded-lg p-6">
-        <h3 className="font-semibold text-gray-900 mb-4">Configuración Impositiva</h3>
+      <div className="bg-white border border-gray-200 rounded-lg p-6">
+        <h3 className="text-lg font-semibold mb-4">
+          <span className="text-cyan-600">Configuración</span> <span className="text-gray-900">Impositiva</span>
+        </h3>
         <div className="grid md:grid-cols-3 gap-4">
           <div>
             <label className="block text-sm font-medium mb-2">Condición IVA</label>

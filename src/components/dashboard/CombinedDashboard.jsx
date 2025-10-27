@@ -300,15 +300,15 @@ const CombinedDashboard = ({ invoices, companyData }) => {
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
-      {/* Header con Tabs - Vercel Style */}
-      <div className="flex items-center justify-between">
+      {/* Header con Tabs */}
+      <div className="flex items-center justify-between mb-6">
         <div className="flex gap-1 p-1 bg-gray-100 rounded-lg">
           <button
             onClick={() => setViewMode('executive')}
             className={`px-4 py-2 rounded-md font-medium text-sm transition-all ${
               viewMode === 'executive' 
-                ? 'bg-white text-gray-900 shadow-sm' 
-                : 'text-gray-600 hover:text-gray-900'
+                ? 'bg-gray-900 text-white' 
+                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
             }`}
           >
             Dashboard
@@ -317,8 +317,8 @@ const CombinedDashboard = ({ invoices, companyData }) => {
             onClick={() => setViewMode('analytics')}
             className={`px-4 py-2 rounded-md font-medium text-sm transition-all ${
               viewMode === 'analytics' 
-                ? 'bg-white text-gray-900 shadow-sm' 
-                : 'text-gray-600 hover:text-gray-900'
+                ? 'bg-gray-900 text-white' 
+                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
             }`}
           >
             Análisis
@@ -327,8 +327,8 @@ const CombinedDashboard = ({ invoices, companyData }) => {
             onClick={() => setViewMode('reports')}
             className={`px-4 py-2 rounded-md font-medium text-sm transition-all ${
               viewMode === 'reports' 
-                ? 'bg-white text-gray-900 shadow-sm' 
-                : 'text-gray-600 hover:text-gray-900'
+                ? 'bg-gray-900 text-white' 
+                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
             }`}
           >
             Reportes
@@ -350,7 +350,7 @@ const CombinedDashboard = ({ invoices, companyData }) => {
             <div className="space-y-6">
               {/* KPIs Principales */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="bg-white border border-gray-300 rounded-lg p-6 hover:shadow-lg transition-shadow">
+                <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
                   <div className="flex items-center justify-between mb-2">
                     <FinancialTooltip term="flujo_caja">
                       <p className="text-sm font-medium text-gray-600">Ingresos Totales</p>
@@ -363,7 +363,7 @@ const CombinedDashboard = ({ invoices, companyData }) => {
                   <p className="text-xs text-gray-500 mt-1">{autoCharts.summary.incomeCount} facturas</p>
                 </div>
 
-                <div className="bg-white border border-gray-300 rounded-lg p-6 hover:shadow-lg transition-shadow">
+                <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
                   <div className="flex items-center justify-between mb-2">
                     <FinancialTooltip term="flujo_caja">
                       <p className="text-sm font-medium text-gray-600">Gastos Totales</p>
@@ -376,20 +376,20 @@ const CombinedDashboard = ({ invoices, companyData }) => {
                   <p className="text-xs text-gray-500 mt-1">{autoCharts.summary.expenseCount} facturas</p>
                 </div>
 
-                <div className="bg-white border border-gray-300 rounded-lg p-6 hover:shadow-lg transition-shadow">
+                <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
                   <div className="flex items-center justify-between mb-2">
                     <FinancialTooltip term="utilidad_neta">
                       <p className="text-sm font-medium text-gray-600">Utilidad Neta</p>
                     </FinancialTooltip>
-                    <DollarSign className="w-5 h-5 text-blue-600" />
+                    <DollarSign className="w-5 h-5 text-cyan-600" />
                   </div>
-                  <p className={`text-3xl font-bold ${autoCharts.summary.profit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                    {autoCharts.summary.profit >= 0 ? '+' : '-'}${Math.abs(autoCharts.summary.profit).toLocaleString('es-AR', { maximumFractionDigits: 0 })}
+                  <p className="text-3xl font-bold text-cyan-600">
+                    ${autoCharts.summary.profit >= 0 ? '+' : '-'}${Math.abs(autoCharts.summary.profit).toLocaleString('es-AR', { maximumFractionDigits: 0 })}
                   </p>
                   <p className="text-xs text-gray-500 mt-1">Ganancia/Pérdida</p>
                 </div>
 
-                <div className="bg-white border border-gray-300 rounded-lg p-6 hover:shadow-lg transition-shadow">
+                <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
                   <div className="flex items-center justify-between mb-2">
                     <FinancialTooltip term="margen_neto">
                       <p className="text-sm font-medium text-gray-600">Margen</p>
@@ -399,36 +399,33 @@ const CombinedDashboard = ({ invoices, companyData }) => {
                   <p className="text-3xl font-bold text-gray-900">
                     {autoCharts.summary.profitMargin.toFixed(1)}%
                   </p>
-                  <FinancialTooltip term="rentabilidad">
-                    <p className="text-xs text-gray-500 mt-1">Rentabilidad</p>
-                  </FinancialTooltip>
+                  <p className="text-xs text-gray-500 mt-1">Rentabilidad</p>
                 </div>
               </div>
 
               {/* Gráficos Visuales */}
               <div className="grid md:grid-cols-2 gap-6">
                 {/* Top Categorías */}
-                <div className="bg-white border border-gray-300 rounded-lg p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-6">Top 5 Categorías</h3>
+                <div className="bg-white border border-gray-200 rounded-lg p-6">
+                  <h3 className="text-lg font-semibold mb-6">
+                    <span className="text-gray-900">Top 5 Categorías</span>
+                  </h3>
                   <div className="space-y-4">
                     {autoCharts.topCategories.map((cat, idx) => {
                       const maxTotal = autoCharts.topCategories[0].total
                       const percentage = (cat.total / maxTotal) * 100
-                      const colors = ['bg-gray-900', 'bg-gray-700', 'bg-gray-600', 'bg-gray-500', 'bg-gray-400']
                       
                       return (
                         <div key={idx}>
                           <div className="flex justify-between items-center mb-2">
                             <span className="text-sm font-medium text-gray-700">{cat.category}</span>
-                            <span className="text-sm font-bold text-gray-900">
-                              ${cat.total.toLocaleString('es-AR', { maximumFractionDigits: 0 })}
-                            </span>
+                            <span className="text-sm font-bold text-gray-900">${cat.total.toLocaleString('es-AR')}</span>
                           </div>
-                          <div className="w-full bg-gray-200 rounded-full h-3">
-                            <div
-                              className={`${colors[idx]} h-3 rounded-full transition-all`}
+                          <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                            <div 
+                              className="h-full bg-gray-900 transition-all duration-500"
                               style={{ width: `${percentage}%` }}
-                            />
+                            ></div>
                           </div>
                         </div>
                       )
@@ -437,8 +434,10 @@ const CombinedDashboard = ({ invoices, companyData }) => {
                 </div>
 
                 {/* Evolución Mensual */}
-                <div className="bg-white border border-gray-300 rounded-lg p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-6">Evolución Mensual</h3>
+                <div className="bg-white border border-gray-200 rounded-lg p-6">
+                  <h3 className="text-lg font-semibold mb-6">
+                    <span className="text-gray-900">Evolución Mensual</span>
+                  </h3>
                   <div className="space-y-4">
                     {Object.entries(autoCharts.byMonth).slice(-5).map(([month, data], idx) => {
                       const maxAmount = Math.max(...Object.values(autoCharts.byMonth).map(d => Math.max(d.income, d.expense)))
@@ -485,8 +484,10 @@ const CombinedDashboard = ({ invoices, companyData }) => {
           {viewMode === 'analytics' && (
             <div className="space-y-6">
               {/* Tabla por Categoría */}
-              <div className="bg-white border border-gray-300 rounded-lg p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Análisis por Categoría</h3>
+              <div className="bg-white border border-gray-200 rounded-lg p-6">
+                <h3 className="text-lg font-semibold mb-4">
+                  <span className="text-cyan-600">Análisis</span> <span className="text-gray-900">por Categoría</span>
+                </h3>
                 <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead className="bg-gray-50">
@@ -527,8 +528,10 @@ const CombinedDashboard = ({ invoices, companyData }) => {
               </div>
 
               {/* Tabla Mensual */}
-              <div className="bg-white border border-gray-300 rounded-lg p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Evolución Mensual Detallada</h3>
+              <div className="bg-white border border-gray-200 rounded-lg p-6">
+                <h3 className="text-lg font-semibold mb-4">
+                  <span className="text-cyan-600">Evolución Mensual</span> <span className="text-gray-900">Detallada</span>
+                </h3>
                 <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead className="bg-gray-50">
@@ -568,8 +571,10 @@ const CombinedDashboard = ({ invoices, companyData }) => {
               </div>
 
               {/* Exportar Datos */}
-              <div className="bg-white border border-gray-300 rounded-lg p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Exportar Datos</h3>
+              <div className="bg-white border border-gray-200 rounded-lg p-6">
+                <h3 className="text-lg font-semibold mb-4">
+                  <span className="text-cyan-600">Exportar</span> <span className="text-gray-900">Datos</span>
+                </h3>
                 <div className="flex items-center gap-4">
                   <select
                     value={exportFormat}
@@ -581,7 +586,7 @@ const CombinedDashboard = ({ invoices, companyData }) => {
                   </select>
                   <button
                     onClick={exportData}
-                    className="px-6 py-3 bg-gray-900 text-white rounded-lg font-semibold hover:bg-gray-800 transition-all flex items-center gap-2"
+                    className="px-6 py-3 bg-gray-900 text-white rounded-lg font-medium hover:bg-gray-800 transition-colors flex items-center gap-2"
                   >
                     <Download className="w-5 h-5" />
                     Exportar
@@ -595,31 +600,33 @@ const CombinedDashboard = ({ invoices, companyData }) => {
           {viewMode === 'reports' && (
             <div className="space-y-6">
               {/* Selector de Reporte */}
-              <div className="bg-white border border-gray-300 rounded-lg p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Seleccionar Tipo de Reporte</h3>
+              <div className="bg-white border border-gray-200 rounded-lg p-6">
+                <h3 className="text-lg font-semibold mb-4">
+                  <span className="text-cyan-600">Seleccionar</span> <span className="text-gray-900">Tipo de Reporte</span>
+                </h3>
                 <div className="grid md:grid-cols-2 gap-4">
                   <button
                     onClick={() => setSelectedReport('balance')}
-                    className={`p-6 rounded-lg border-2 transition-all text-left ${
+                    className={`p-6 rounded-lg border transition-all text-left ${
                       selectedReport === 'balance'
                         ? 'border-gray-900 bg-gray-50'
-                        : 'border-gray-300 hover:border-gray-400'
+                        : 'border-gray-200 hover:border-gray-900 hover:shadow-md'
                     }`}
                   >
-                    <FileText className="w-8 h-8 text-gray-900 mb-3" />
+                    <FileText className="w-6 h-6 text-gray-900 mb-3" />
                     <h4 className="font-semibold text-gray-900 mb-1">Balance General</h4>
                     <p className="text-sm text-gray-600">Resumen financiero completo con análisis por categoría</p>
                   </button>
                   
                   <button
                     onClick={() => setSelectedReport('monthly')}
-                    className={`p-6 rounded-lg border-2 transition-all text-left ${
+                    className={`p-6 rounded-lg border transition-all text-left ${
                       selectedReport === 'monthly'
                         ? 'border-gray-900 bg-gray-50'
-                        : 'border-gray-300 hover:border-gray-400'
+                        : 'border-gray-200 hover:border-gray-900 hover:shadow-md'
                     }`}
                   >
-                    <BarChart3 className="w-8 h-8 text-gray-900 mb-3" />
+                    <BarChart3 className="w-6 h-6 text-gray-900 mb-3" />
                     <h4 className="font-semibold text-gray-900 mb-1">Reporte Mensual</h4>
                     <p className="text-sm text-gray-600">Evolución mensual de ingresos, gastos y utilidades</p>
                   </button>
@@ -628,14 +635,16 @@ const CombinedDashboard = ({ invoices, companyData }) => {
 
               {/* Vista Previa del Reporte */}
               {selectedReport === 'balance' && (
-                <div className="bg-white border border-gray-300 rounded-lg p-6">
+                <div className="bg-white border border-gray-200 rounded-lg p-6">
                   <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-lg font-semibold text-gray-900">Vista Previa: Balance General</h3>
+                    <h3 className="text-lg font-semibold">
+                      <span className="text-cyan-600">Vista Previa:</span> <span className="text-gray-900">Balance General</span>
+                    </h3>
                     <button
                       onClick={() => downloadPDF('balance')}
-                      className="px-4 py-2 bg-gray-900 text-white rounded-lg font-semibold hover:bg-gray-800 transition-all flex items-center gap-2"
+                      className="px-4 py-2 bg-gray-900 text-white rounded-lg font-medium hover:bg-gray-800 transition-colors flex items-center gap-2"
                     >
-                      <Download className="w-5 h-5" />
+                      <Download className="w-4 h-4" />
                       Descargar PDF
                     </button>
                   </div>

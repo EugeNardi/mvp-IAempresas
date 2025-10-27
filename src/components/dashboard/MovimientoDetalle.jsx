@@ -267,15 +267,15 @@ const MovimientoDetalle = ({ movimiento, onClose, onEdit }) => {
 
           {/* Alerta de Deuda y Opción de Pago */}
           {tieneDeuda && (
-            <div className="bg-red-50 border-2 border-red-300 rounded-xl p-5">
-              <div className="flex items-start gap-3 mb-4">
-                <div className="p-2 bg-red-100 rounded-lg">
-                  <DollarSign className="w-5 h-5 text-red-600" />
+            <div className="bg-gradient-to-br from-red-50 to-orange-50 border-2 border-red-200 rounded-2xl p-6 shadow-lg">
+              <div className="flex items-start gap-4 mb-5">
+                <div className="p-3 bg-white rounded-xl shadow-md border border-red-200">
+                  <DollarSign className="w-6 h-6 text-red-600" />
                 </div>
                 <div className="flex-1">
-                  <h4 className="text-sm font-semibold text-red-900 mb-1">Deuda Pendiente</h4>
-                  <p className="text-sm text-red-700">
-                    {movimiento.type === 'income' ? 'Este cliente debe' : 'Debes pagar'}: <span className="font-bold">${parseFloat(movimiento.metadata?.deuda || 0).toLocaleString('es-AR')}</span>
+                  <h4 className="text-base font-bold text-red-900 mb-2">Deuda Pendiente</h4>
+                  <p className="text-sm text-red-700 leading-relaxed">
+                    {movimiento.type === 'income' ? 'Este cliente debe' : 'Debes pagar'}: <span className="font-bold text-lg">${parseFloat(movimiento.metadata?.deuda || 0).toLocaleString('es-AR')}</span>
                   </p>
                 </div>
               </div>
@@ -283,35 +283,35 @@ const MovimientoDetalle = ({ movimiento, onClose, onEdit }) => {
               {!showPagoForm ? (
                 <button
                   onClick={() => setShowPagoForm(true)}
-                  className="w-full px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
+                  className="w-full px-5 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white rounded-xl text-sm font-semibold transition-all shadow-lg hover:shadow-xl hover:scale-[1.02] flex items-center justify-center gap-2"
                 >
-                  <CheckCircle className="w-4 h-4" />
+                  <CheckCircle className="w-5 h-5" />
                   Marcar como {movimiento.type === 'income' ? 'Cobrado' : 'Pagado'}
                 </button>
               ) : (
-                <div className="space-y-3">
+                <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-red-900 mb-2">
+                    <label className="block text-sm font-semibold text-gray-900 mb-2">
                       Fecha de {movimiento.type === 'income' ? 'Cobro' : 'Pago'}
                     </label>
                     <input
                       type="date"
                       value={fechaPago}
                       onChange={(e) => setFechaPago(e.target.value)}
-                      className="w-full px-4 py-2 border-2 border-red-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all shadow-sm"
                     />
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-3">
                     <button
                       onClick={handleMarcarPagado}
                       disabled={loading}
-                      className="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
+                      className="flex-1 px-5 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white rounded-xl text-sm font-semibold transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {loading ? 'Guardando...' : 'Confirmar'}
                     </button>
                     <button
                       onClick={() => setShowPagoForm(false)}
-                      className="px-4 py-2 border border-red-300 rounded-lg text-sm font-medium hover:bg-red-50 transition-colors"
+                      className="px-5 py-3 bg-white border-2 border-gray-200 rounded-xl text-sm font-semibold hover:bg-gray-50 transition-all shadow-sm hover:shadow-md"
                     >
                       Cancelar
                     </button>

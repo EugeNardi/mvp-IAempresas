@@ -175,13 +175,15 @@ const Remitos = ({ companyData }) => {
   return (
     <div className="max-w-7xl mx-auto space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Remitos y Comprobantes</h1>
-          <p className="text-sm text-gray-600 mt-1">Carga y análisis automático con IA</p>
+          <h1 className="text-2xl font-bold text-gray-900 mb-1">
+            <span className="text-cyan-600">Remitos</span> y Comprobantes
+          </h1>
+          <p className="text-sm text-gray-600">Carga y análisis automático con IA</p>
         </div>
-        <label className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-lg font-semibold hover:bg-gray-800 cursor-pointer transition-all">
-          <Upload className="w-5 h-5" />
+        <label className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-lg font-medium hover:bg-gray-800 cursor-pointer transition-colors">
+          <Upload className="w-4 h-4" />
           Cargar PDF
           <input
             type="file"

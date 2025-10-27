@@ -347,70 +347,64 @@ const Inventory = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Gestión de Inventario</h1>
-          <p className="text-gray-600 mt-1">Control completo de productos, stock y categorías</p>
+          <h1 className="text-2xl font-bold text-gray-900 mb-1">
+            <span className="text-cyan-600">Gestión</span> de Inventario
+          </h1>
+          <p className="text-sm text-gray-600">Control completo de productos, stock y categorías</p>
         </div>
       </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-white rounded-lg p-5 shadow-lg border border-gray-200 hover:shadow-xl transition-shadow">
+        <div className="bg-white rounded-lg p-6 border border-gray-200 hover:shadow-lg transition-shadow">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs font-medium text-gray-600 uppercase tracking-wide">Total Productos</p>
-              <p className="text-3xl font-bold text-gray-900 mt-2">{stats.totalProducts}</p>
+              <p className="text-sm font-medium text-gray-600">Total Productos</p>
+              <p className="text-3xl font-bold text-gray-900 mt-1">{stats.totalProducts}</p>
             </div>
-            <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center shadow-sm">
-              <Package className="w-6 h-6 text-gray-700" />
-            </div>
+            <Package className="w-5 h-5 text-gray-400" />
           </div>
         </div>
 
-        <div className="bg-white rounded-lg p-5 shadow-lg border border-gray-200 hover:shadow-xl transition-shadow">
+        <div className="bg-white rounded-lg p-6 border border-gray-200 hover:shadow-lg transition-shadow">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs font-medium text-gray-600 uppercase tracking-wide">Valor Total</p>
-              <p className="text-3xl font-bold text-gray-900 mt-2">
+              <p className="text-sm font-medium text-gray-600">Valor Total</p>
+              <p className="text-3xl font-bold text-gray-900 mt-1">
                 ${stats.totalValue.toLocaleString('es-AR', { minimumFractionDigits: 0 })}
               </p>
             </div>
-            <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center shadow-sm">
-              <TrendingDown className="w-6 h-6 text-gray-700" />
-            </div>
+            <TrendingDown className="w-5 h-5 text-gray-400" />
           </div>
         </div>
 
-        <div className="bg-white rounded-lg p-5 shadow-lg border border-gray-200 hover:shadow-xl transition-shadow">
+        <div className="bg-white rounded-lg p-6 border border-gray-200 hover:shadow-lg transition-shadow">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs font-medium text-gray-600 uppercase tracking-wide">Stock Bajo</p>
-              <p className="text-3xl font-bold text-orange-600 mt-2">{stats.lowStock}</p>
+              <p className="text-sm font-medium text-gray-600">Stock Bajo</p>
+              <p className="text-3xl font-bold text-orange-600 mt-1">{stats.lowStock}</p>
             </div>
-            <div className="w-12 h-12 bg-orange-50 rounded-lg flex items-center justify-center shadow-sm">
-              <AlertTriangle className="w-6 h-6 text-orange-600" />
-            </div>
+            <AlertTriangle className="w-5 h-5 text-orange-600" />
           </div>
         </div>
 
-        <div className="bg-white rounded-lg p-5 shadow-lg border border-gray-200 hover:shadow-xl transition-shadow">
+        <div className="bg-white rounded-lg p-6 border border-gray-200 hover:shadow-lg transition-shadow">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs font-medium text-gray-600 uppercase tracking-wide">Sin Stock</p>
-              <p className="text-3xl font-bold text-red-600 mt-2">{stats.outOfStock}</p>
+              <p className="text-sm font-medium text-gray-600">Sin Stock</p>
+              <p className="text-3xl font-bold text-red-600 mt-1">{stats.outOfStock}</p>
             </div>
-            <div className="w-12 h-12 bg-red-50 rounded-lg flex items-center justify-center shadow-sm">
-              <AlertTriangle className="w-6 h-6 text-red-600" />
-            </div>
+            <AlertTriangle className="w-5 h-5 text-red-600" />
           </div>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="bg-white rounded-lg shadow-lg border border-gray-200">
+      <div className="bg-white rounded-lg border border-gray-200">
         <div className="border-b border-gray-200">
-          <div className="flex space-x-1 p-1">
+          <div className="flex gap-1 p-1 bg-gray-50">
             {tabs.map((tab) => (
               <button
                 key={tab.id}

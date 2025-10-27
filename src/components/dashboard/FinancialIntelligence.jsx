@@ -1150,8 +1150,10 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
     return (
       <div className="max-w-7xl mx-auto space-y-6">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Análisis</h1>
-          <p className="text-gray-600">Selecciona el tipo de análisis</p>
+          <h1 className="text-2xl font-bold text-gray-900 mb-1">
+            <span className="text-cyan-600">Análisis</span> Inteligente
+          </h1>
+          <p className="text-sm text-gray-600">Selecciona el tipo de análisis</p>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -1159,14 +1161,13 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
             <button
               key={type.id}
               onClick={() => setAnalysisType(type.id)}
-              className="group relative bg-gradient-to-br from-gray-100 to-gray-200 hover:from-gray-200 hover:to-gray-300 rounded-2xl p-8 transition-all duration-300 hover:scale-105 hover:shadow-lg"
+              className="group relative bg-white border border-gray-200 hover:border-gray-900 rounded-lg p-6 transition-all hover:shadow-lg"
             >
-              <div className={`absolute inset-0 bg-gradient-to-br ${type.color} opacity-0 group-hover:opacity-10 rounded-2xl transition-opacity`} />
-              <div className="relative flex flex-col items-center gap-4">
-                <div className={`w-16 h-16 bg-gradient-to-br ${type.color} rounded-2xl flex items-center justify-center shadow-lg`}>
-                  <type.icon className="w-8 h-8 text-white" />
+              <div className="flex flex-col items-center gap-3">
+                <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center group-hover:bg-gray-900 transition-colors">
+                  <type.icon className="w-6 h-6 text-gray-700 group-hover:text-white transition-colors" />
                 </div>
-                <span className="text-sm font-bold text-gray-900 uppercase tracking-wide">{type.name}</span>
+                <span className="text-sm font-semibold text-gray-900">{type.name}</span>
               </div>
             </button>
           ))}
@@ -1192,11 +1193,10 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
           </button>
           
           <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg">
-              <Users className="w-6 h-6 text-white" />
-            </div>
             <div>
-              <h2 className="text-2xl font-bold text-gray-900">Análisis de Clientes</h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-1">
+                <span className="text-cyan-600">Análisis</span> de Clientes
+              </h2>
               <p className="text-sm text-gray-600">Métricas y comportamiento de tus clientes</p>
             </div>
           </div>

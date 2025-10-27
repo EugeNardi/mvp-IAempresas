@@ -594,11 +594,11 @@ const MovimientosCompra = ({ movimiento, onClose, onSuccess }) => {
             <div className="mb-4">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-gray-900">Productos de la Compra</h3>
-                <div className="flex gap-2">
+                <div className="flex gap-3">
                   <button
                     type="button"
                     onClick={() => setShowProductSearch(!showProductSearch)}
-                    className="flex items-center gap-2 px-3.5 py-2 bg-purple-600 text-white text-sm rounded-lg font-medium hover:bg-purple-700 transition-colors"
+                    className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white text-sm rounded-xl font-semibold transition-all shadow-lg hover:shadow-xl hover:scale-105"
                   >
                     <Search className="w-4 h-4" />
                     Buscar Existente
@@ -606,7 +606,7 @@ const MovimientosCompra = ({ movimiento, onClose, onSuccess }) => {
                   <button
                     type="button"
                     onClick={agregarProducto}
-                    className="flex items-center gap-2 px-3.5 py-2 bg-blue-600 text-white text-sm rounded-lg font-medium hover:bg-blue-700 transition-colors"
+                    className="flex items-center gap-2 px-4 py-2.5 bg-gray-900 hover:bg-gray-800 text-white text-sm rounded-xl font-semibold transition-all shadow-lg hover:shadow-xl hover:scale-105"
                   >
                     <Plus className="w-4 h-4" />
                     Agregar Nuevo
@@ -616,21 +616,23 @@ const MovimientosCompra = ({ movimiento, onClose, onSuccess }) => {
 
               {/* Buscador de Productos Existentes */}
               {showProductSearch && (
-                <div className="bg-purple-50 border-2 border-purple-300 rounded-xl p-4 mb-4">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Search className="w-5 h-5 text-purple-600" />
-                    <h4 className="text-sm font-semibold text-purple-900">Buscar Producto en Inventario</h4>
+                <div className="bg-gradient-to-br from-cyan-50 to-blue-50 border-2 border-cyan-200 rounded-2xl p-5 mb-4 shadow-lg">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="p-2 bg-white rounded-lg shadow-sm border border-cyan-200">
+                      <Search className="w-5 h-5 text-cyan-600" />
+                    </div>
+                    <h4 className="text-base font-bold text-gray-900">Buscar Producto en Inventario</h4>
                   </div>
                   
-                  <div className="relative mb-3">
+                  <div className="relative mb-4">
                     <input
                       type="text"
                       value={searchProducto}
                       onChange={(e) => setSearchProducto(e.target.value)}
                       placeholder="Buscar por nombre, marca, modelo o categoría..."
-                      className="w-full px-4 py-2.5 pr-10 rounded-lg border-2 border-purple-300 focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                      className="w-full px-4 py-3 pr-11 rounded-xl border-2 border-cyan-200 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all shadow-sm bg-white"
                     />
-                    <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-cyan-400" />
                   </div>
 
                   {searchProducto && (
@@ -650,22 +652,22 @@ const MovimientosCompra = ({ movimiento, onClose, onSuccess }) => {
                             key={idx}
                             type="button"
                             onClick={() => agregarProductoExistente(item)}
-                            className="w-full text-left p-3 bg-white border-2 border-purple-200 rounded-lg hover:border-purple-400 hover:bg-purple-50 transition-all"
+                            className="w-full text-left p-4 bg-white border-2 border-gray-200 rounded-xl hover:border-cyan-400 hover:shadow-lg transition-all group"
                           >
                             <div className="flex items-center justify-between">
                               <div className="flex-1">
-                                <p className="font-semibold text-gray-900">{item.name}</p>
-                                <div className="flex items-center gap-2 text-xs text-gray-600 mt-1">
-                                  {item.brand && <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded">{item.brand}</span>}
-                                  {item.model && <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded">{item.model}</span>}
-                                  {item.category && <span className="px-2 py-0.5 bg-purple-100 text-purple-700 rounded">{item.category}</span>}
+                                <p className="font-semibold text-gray-900 group-hover:text-cyan-600 transition-colors">{item.name}</p>
+                                <div className="flex items-center gap-2 text-xs mt-2 flex-wrap">
+                                  {item.brand && <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-lg font-medium">{item.brand}</span>}
+                                  {item.model && <span className="px-2 py-1 bg-green-100 text-green-700 rounded-lg font-medium">{item.model}</span>}
+                                  {item.category && <span className="px-2 py-1 bg-cyan-100 text-cyan-700 rounded-lg font-medium">{item.category}</span>}
                                 </div>
                               </div>
                               <div className="text-right ml-4">
-                                <p className="text-sm font-bold text-purple-600">
+                                <p className="text-sm font-bold text-cyan-600">
                                   ${parseFloat(item.cost || 0).toLocaleString('es-AR')}
                                 </p>
-                                <p className="text-xs text-gray-500">Stock: {item.stock || 0}</p>
+                                <p className="text-xs text-gray-500 mt-1">Stock: {item.stock || 0}</p>
                               </div>
                             </div>
                           </button>
@@ -688,8 +690,8 @@ const MovimientosCompra = ({ movimiento, onClose, onSuccess }) => {
                   )}
 
                   {!searchProducto && (
-                    <p className="text-sm text-purple-700 text-center py-2">
-                      Escribe para buscar productos en tu inventario
+                    <p className="text-sm text-cyan-700 text-center py-3 font-medium">
+                      💡 Escribe para buscar productos en tu inventario
                     </p>
                   )}
                 </div>
@@ -707,13 +709,13 @@ const MovimientosCompra = ({ movimiento, onClose, onSuccess }) => {
                         setSearchingProductId(searchingProductId === producto.id ? null : producto.id)
                         setSearchProducto('')
                       }}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg font-medium transition-colors ${
+                      className={`flex items-center gap-2 px-4 py-2 text-xs rounded-lg font-semibold transition-all shadow-sm hover:shadow-md ${
                         searchingProductId === producto.id 
-                          ? 'bg-purple-600 text-white' 
-                          : 'bg-purple-100 text-purple-700 hover:bg-purple-200'
+                          ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white' 
+                          : 'bg-cyan-50 text-cyan-700 hover:bg-cyan-100 border border-cyan-200'
                       }`}
                     >
-                      <Search className="w-3.5 h-3.5" />
+                      <Search className="w-4 h-4" />
                       {searchingProductId === producto.id ? 'Cerrar' : 'Buscar'}
                     </button>
                     {productos.length > 1 && (
@@ -730,16 +732,16 @@ const MovimientosCompra = ({ movimiento, onClose, onSuccess }) => {
 
                 {/* Buscador Individual del Producto */}
                 {searchingProductId === producto.id && (
-                  <div className="bg-purple-50 border-2 border-purple-300 rounded-lg p-3 mb-3">
-                    <div className="relative mb-2">
+                  <div className="bg-gradient-to-br from-cyan-50 to-blue-50 border-2 border-cyan-200 rounded-xl p-4 mb-3 shadow-md">
+                    <div className="relative mb-3">
                       <input
                         type="text"
                         value={searchProducto}
                         onChange={(e) => setSearchProducto(e.target.value)}
                         placeholder="Buscar producto en inventario..."
-                        className="w-full px-3 py-2 pr-9 text-sm rounded-lg border-2 border-purple-300 focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                        className="w-full px-4 py-2.5 pr-10 text-sm rounded-lg border-2 border-cyan-200 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all bg-white shadow-sm"
                       />
-                      <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-cyan-400" />
                     </div>
 
                     {searchProducto && (
@@ -759,22 +761,22 @@ const MovimientosCompra = ({ movimiento, onClose, onSuccess }) => {
                               key={idx}
                               type="button"
                               onClick={() => seleccionarProductoExistente(item, producto.id)}
-                              className="w-full text-left p-2 bg-white border border-purple-200 rounded-lg hover:border-purple-400 hover:bg-purple-50 transition-all"
+                              className="w-full text-left p-3 bg-white border-2 border-gray-200 rounded-lg hover:border-cyan-400 hover:shadow-md transition-all group"
                             >
                               <div className="flex items-center justify-between">
                                 <div className="flex-1 min-w-0">
-                                  <p className="text-sm font-semibold text-gray-900 truncate">{item.name}</p>
-                                  <div className="flex items-center gap-1.5 mt-1 flex-wrap">
-                                    {item.brand && <span className="px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded text-xs">{item.brand}</span>}
-                                    {item.model && <span className="px-1.5 py-0.5 bg-green-100 text-green-700 rounded text-xs">{item.model}</span>}
-                                    {item.category && <span className="px-1.5 py-0.5 bg-purple-100 text-purple-700 rounded text-xs">{item.category}</span>}
+                                  <p className="text-sm font-semibold text-gray-900 truncate group-hover:text-cyan-600 transition-colors">{item.name}</p>
+                                  <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
+                                    {item.brand && <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded-md text-xs font-medium">{item.brand}</span>}
+                                    {item.model && <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded-md text-xs font-medium">{item.model}</span>}
+                                    {item.category && <span className="px-2 py-0.5 bg-cyan-100 text-cyan-700 rounded-md text-xs font-medium">{item.category}</span>}
                                   </div>
                                 </div>
                                 <div className="text-right ml-3">
-                                  <p className="text-xs font-bold text-purple-600">
+                                  <p className="text-xs font-bold text-cyan-600">
                                     ${parseFloat(item.cost || 0).toLocaleString('es-AR')}
                                   </p>
-                                  <p className="text-xs text-gray-500">Stock: {item.stock || 0}</p>
+                                  <p className="text-xs text-gray-500 mt-0.5">Stock: {item.stock || 0}</p>
                                 </div>
                               </div>
                             </button>
@@ -797,8 +799,8 @@ const MovimientosCompra = ({ movimiento, onClose, onSuccess }) => {
                     )}
 
                     {!searchProducto && (
-                      <p className="text-xs text-purple-700 text-center py-2">
-                        Escribe para buscar en el inventario
+                      <p className="text-xs text-cyan-700 text-center py-2 font-medium">
+                        💡 Escribe para buscar en el inventario
                       </p>
                     )}
                   </div>

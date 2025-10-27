@@ -213,18 +213,17 @@ const AIProjections = ({ invoices }) => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between flex-wrap gap-4">
+      <div className="flex items-center justify-between flex-wrap gap-4 mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 tracking-tight flex items-center">
-            <Brain className="w-8 h-8 mr-3 text-gray-900" />
-            Proyecciones con IA
+          <h1 className="text-2xl font-bold text-gray-900 mb-1">
+            <span className="text-cyan-600">Proyecciones</span> con IA
           </h1>
-          <p className="text-sm text-gray-600 mt-1">Análisis predictivo ajustado al contexto económico argentino</p>
+          <p className="text-sm text-gray-600">Análisis predictivo ajustado al contexto económico argentino</p>
         </div>
         <select
           value={projectionPeriod}
           onChange={(e) => setProjectionPeriod(Number(e.target.value))}
-          className="px-4 py-2.5 border-2 border-gray-900 rounded-md text-sm font-medium bg-white hover:bg-gray-50 transition-colors shadow-md"
+          className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium bg-white hover:bg-gray-50 transition-colors"
         >
           <option value={3}>3 meses</option>
           <option value={6}>6 meses</option>
@@ -233,8 +232,10 @@ const AIProjections = ({ invoices }) => {
       </div>
 
       {/* Contexto Económico */}
-      <div className="bg-white border-2 border-gray-900 rounded-lg p-6 shadow-lg">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Contexto Económico Argentina 2024-2025</h3>
+      <div className="bg-white border border-gray-200 rounded-lg p-6">
+        <h3 className="text-lg font-semibold mb-4">
+          <span className="text-cyan-600">Contexto Económico</span> <span className="text-gray-900">Argentina 2024-2025</span>
+        </h3>
         <div className="grid md:grid-cols-3 gap-4">
           <div>
             <p className="text-xs text-gray-600 mb-1">Inflación Proyectada 2025</p>
@@ -252,8 +253,10 @@ const AIProjections = ({ invoices }) => {
       </div>
 
       {/* Situación Actual */}
-      <div className="bg-white border border-gray-200 rounded-2xl p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Situación Actual</h3>
+      <div className="bg-white border border-gray-200 rounded-lg p-6">
+        <h3 className="text-lg font-semibold mb-4">
+          <span className="text-cyan-600">Situación</span> <span className="text-gray-900">Actual</span>
+        </h3>
         <div className="grid md:grid-cols-3 gap-4">
           <div>
             <p className="text-xs text-gray-500 uppercase tracking-wider mb-2">Promedio Mensual Ingresos</p>
@@ -277,13 +280,15 @@ const AIProjections = ({ invoices }) => {
       </div>
 
       {/* Proyecciones */}
-      <div className="bg-white border border-gray-200 rounded-2xl p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Proyección a {projectionPeriod} Meses (Ajustada por Inflación)</h3>
+      <div className="bg-white border border-gray-200 rounded-lg p-6">
+        <h3 className="text-lg font-semibold mb-4">
+          <span className="text-cyan-600">Proyección a {projectionPeriod} Meses</span> <span className="text-gray-900">(Ajustada por Inflación)</span>
+        </h3>
         <div className="space-y-3">
           {analysis.projections.map((proj, idx) => (
-            <div key={idx} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
+            <div key={idx} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
               <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-gray-900 rounded-xl flex items-center justify-center">
+                <div className="w-12 h-12 bg-gray-900 rounded-lg flex items-center justify-center">
                   <Calendar className="w-6 h-6 text-white" />
                 </div>
                 <div>

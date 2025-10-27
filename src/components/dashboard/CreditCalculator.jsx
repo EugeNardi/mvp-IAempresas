@@ -137,22 +137,23 @@ const CreditCalculator = ({ invoices }) => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900 tracking-tight flex items-center">
-          <Calculator className="w-8 h-8 mr-3 text-gray-900" />
-          Calculadora de Créditos
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-gray-900 mb-1">
+          <span className="text-cyan-600">Calculadora</span> de Créditos
         </h1>
-        <p className="text-sm text-gray-600 mt-1">Simule financiamiento para proyectos de inversión</p>
+        <p className="text-sm text-gray-600">Simule financiamiento para proyectos de inversión</p>
       </div>
 
       {/* Líneas de Crédito Disponibles */}
-      <div className="bg-white border border-gray-200 rounded-2xl p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Líneas de Crédito PyME Argentina</h3>
+      <div className="bg-white border border-gray-200 rounded-lg p-6">
+        <h3 className="text-lg font-semibold mb-4">
+          <span className="text-cyan-600">Líneas de Crédito</span> <span className="text-gray-900">PyME Argentina</span>
+        </h3>
         <div className="grid md:grid-cols-2 gap-4">
           {creditLines.map((line, idx) => (
             <div 
               key={idx}
-              className="p-4 border border-gray-200 rounded-xl hover:border-gray-400 transition-colors cursor-pointer"
+              className="p-4 border border-gray-200 rounded-lg hover:border-gray-900 hover:shadow-md transition-all cursor-pointer"
               onClick={() => {
                 setInterestRate(line.rate)
                 setLoanTerm(line.term)
@@ -175,8 +176,10 @@ const CreditCalculator = ({ invoices }) => {
       {/* Calculadora */}
       <div className="grid md:grid-cols-2 gap-6">
         {/* Parámetros */}
-        <div className="bg-white border border-gray-200 rounded-2xl p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Parámetros del Crédito</h3>
+        <div className="bg-white border border-gray-200 rounded-lg p-6">
+          <h3 className="text-lg font-semibold mb-4">
+            <span className="text-cyan-600">Parámetros</span> <span className="text-gray-900">del Crédito</span>
+          </h3>
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -244,7 +247,7 @@ const CreditCalculator = ({ invoices }) => {
         {/* Resultados */}
         <div className="space-y-4">
           {/* Cuota Mensual */}
-          <div className="bg-gradient-to-br from-gray-900 to-gray-700 rounded-2xl p-6 text-white">
+          <div className="bg-gray-900 rounded-lg p-6 text-white">
             <p className="text-sm text-gray-300 mb-2">Cuota Mensual {loanType === 'aleman' && '(Primera)'}</p>
             <p className="text-4xl font-bold mb-4">
               ${calculation.monthlyPayment.toLocaleString('es-AR', { maximumFractionDigits: 0 })}
@@ -265,7 +268,7 @@ const CreditCalculator = ({ invoices }) => {
           </div>
 
           {/* Resumen */}
-          <div className="bg-white border border-gray-200 rounded-2xl p-6">
+          <div className="bg-white border border-gray-200 rounded-lg p-6">
             <h4 className="font-semibold text-gray-900 mb-4">Resumen del Crédito</h4>
             <div className="space-y-3">
               <div className="flex justify-between">
@@ -298,10 +301,12 @@ const CreditCalculator = ({ invoices }) => {
       </div>
 
       {/* Análisis de Viabilidad */}
-      <div className="bg-white border border-gray-200 rounded-2xl p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Análisis de Viabilidad del Proyecto</h3>
+      <div className="bg-white border border-gray-200 rounded-lg p-6">
+        <h3 className="text-lg font-semibold mb-4">
+          <span className="text-cyan-600">Análisis de Viabilidad</span> <span className="text-gray-900">del Proyecto</span>
+        </h3>
         <div className="grid md:grid-cols-3 gap-4 mb-4">
-          <div className="p-4 bg-gray-50 rounded-xl">
+          <div className="p-4 bg-gray-50 rounded-lg">
             <p className="text-xs text-gray-600 mb-1">ROI Mínimo Recomendado</p>
             <p className="text-2xl font-bold text-gray-900">{projectROI}%</p>
             <p className="text-xs text-gray-500">Anual para superar inflación + tasa</p>
