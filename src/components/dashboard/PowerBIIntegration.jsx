@@ -150,7 +150,9 @@ const PowerBIIntegration = ({ invoices, companyData }) => {
     <div className="max-w-6xl mx-auto space-y-6">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-2xl font-semibold text-gray-900">Análisis de Datos</h1>
+        <h1 className="text-2xl font-semibold text-gray-900">
+          <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent inline-block pb-2">Análisis</span> de Datos
+        </h1>
         <p className="text-sm text-gray-600 mt-1">Visualizaciones y métricas procesadas de tus facturas</p>
       </div>
 
@@ -189,29 +191,29 @@ const PowerBIIntegration = ({ invoices, companyData }) => {
           <div className="grid md:grid-cols-4 gap-4 mb-6">
             <div className="bg-white border border-gray-300 rounded-lg p-6 hover:border-gray-400 transition-colors">
               <p className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-3">Ingresos</p>
-              <p className="text-2xl font-bold text-gray-900">
-                ${autoCharts.summary.totalIncome.toLocaleString('es-AR', { maximumFractionDigits: 0 })}
+              <p className="text-2xl font-bold">
+                <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">${autoCharts.summary.totalIncome.toLocaleString('es-AR', { maximumFractionDigits: 0 })}</span>
               </p>
             </div>
 
             <div className="bg-white border border-gray-300 rounded-lg p-6 hover:border-gray-400 transition-colors">
               <p className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-3">Gastos</p>
-              <p className="text-2xl font-bold text-gray-900">
-                ${autoCharts.summary.totalExpenses.toLocaleString('es-AR', { maximumFractionDigits: 0 })}
+              <p className="text-2xl font-bold">
+                <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">${autoCharts.summary.totalExpenses.toLocaleString('es-AR', { maximumFractionDigits: 0 })}</span>
               </p>
             </div>
 
             <div className="bg-white border border-gray-300 rounded-lg p-6 hover:border-gray-400 transition-colors">
               <p className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-3">Utilidad</p>
-              <p className={`text-2xl font-bold ${autoCharts.summary.profit >= 0 ? 'text-gray-900' : 'text-gray-900'}`}>
-                {autoCharts.summary.profit >= 0 ? '+' : '-'}${Math.abs(autoCharts.summary.profit).toLocaleString('es-AR', { maximumFractionDigits: 0 })}
+              <p className="text-2xl font-bold">
+                <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">{autoCharts.summary.profit >= 0 ? '+' : '-'}${Math.abs(autoCharts.summary.profit).toLocaleString('es-AR', { maximumFractionDigits: 0 })}</span>
               </p>
             </div>
 
             <div className="bg-white border border-gray-300 rounded-lg p-6 hover:border-gray-400 transition-colors">
               <p className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-3">Margen</p>
-              <p className="text-2xl font-bold text-gray-900">
-                {autoCharts.summary.profitMargin.toFixed(1)}%
+              <p className="text-2xl font-bold">
+                <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">{autoCharts.summary.profitMargin.toFixed(1)}%</span>
               </p>
             </div>
           </div>
@@ -220,7 +222,9 @@ const PowerBIIntegration = ({ invoices, companyData }) => {
           <div className="space-y-6">
             {/* Tabla de Resumen por Categoría */}
             <div className="bg-white border border-gray-300 rounded-lg p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Resumen por Categoría</h3>
+              <h3 className="text-lg font-semibold mb-4">
+                <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent inline-block pb-2">Resumen</span> <span className="text-gray-900">por Categoría</span>
+              </h3>
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead className="bg-gray-50">
@@ -262,7 +266,9 @@ const PowerBIIntegration = ({ invoices, companyData }) => {
 
             {/* Tabla de Evolución Mensual */}
             <div className="bg-white border border-gray-300 rounded-lg p-6">
-              <h3 className="text-lg font-bold text-gray-900 mb-4">Tabla: Evolución Mensual</h3>
+              <h3 className="text-lg font-bold mb-4">
+                <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent inline-block pb-2">Tabla:</span> <span className="text-gray-900">Evolución Mensual</span>
+              </h3>
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead className="bg-gray-50">
@@ -303,7 +309,9 @@ const PowerBIIntegration = ({ invoices, companyData }) => {
 
             {/* Tabla de Top Proveedores/Clientes */}
             <div className="bg-white border border-gray-300 rounded-lg p-6">
-              <h3 className="text-lg font-bold text-gray-900 mb-4">Tabla: Top Proveedores/Clientes</h3>
+              <h3 className="text-lg font-bold mb-4">
+                <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent inline-block pb-2">Tabla:</span> <span className="text-gray-900">Top Proveedores/Clientes</span>
+              </h3>
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead className="bg-gray-50">
@@ -340,7 +348,9 @@ const PowerBIIntegration = ({ invoices, companyData }) => {
 
             {/* Tabla de Métricas Estadísticas */}
             <div className="bg-white border border-gray-300 rounded-lg p-6">
-              <h3 className="text-lg font-bold text-gray-900 mb-4">Tabla: Métricas Estadísticas</h3>
+              <h3 className="text-lg font-bold mb-4">
+                <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent inline-block pb-2">Tabla:</span> <span className="text-gray-900">Métricas Estadísticas</span>
+              </h3>
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead className="bg-gray-50">
@@ -403,7 +413,9 @@ const PowerBIIntegration = ({ invoices, companyData }) => {
           <div className="grid md:grid-cols-2 gap-6">
             {/* Top Categories Chart */}
             <div className="bg-white border border-gray-300 rounded-lg p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-6">Top 5 Categorías</h3>
+              <h3 className="text-lg font-semibold mb-6">
+                <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent inline-block pb-2">Top 5</span> <span className="text-gray-900">Categorías</span>
+              </h3>
               <div className="space-y-4">
                 {autoCharts.topCategories.map((cat, idx) => {
                   const maxTotal = autoCharts.topCategories[0].total
@@ -432,7 +444,9 @@ const PowerBIIntegration = ({ invoices, companyData }) => {
 
             {/* Monthly Trend Chart */}
             <div className="bg-white border border-gray-300 rounded-lg p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-6">Evolución Mensual</h3>
+              <h3 className="text-lg font-semibold mb-6">
+                <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent inline-block pb-2">Evolución</span> <span className="text-gray-900">Mensual</span>
+              </h3>
               <div className="space-y-4">
                 {Object.entries(autoCharts.byMonth).map(([month, data], idx) => {
                   const maxAmount = Math.max(...Object.values(autoCharts.byMonth).map(d => Math.max(d.income, d.expense)))
@@ -474,7 +488,9 @@ const PowerBIIntegration = ({ invoices, companyData }) => {
 
             {/* Category Breakdown */}
             <div className="bg-white border border-gray-300 rounded-lg p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-6">Desglose por Categoría</h3>
+              <h3 className="text-lg font-semibold mb-6">
+                <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent inline-block pb-2">Desglose</span> <span className="text-gray-900">por Categoría</span>
+              </h3>
               <div className="space-y-3">
                 {Object.entries(autoCharts.byCategory).map(([category, data], idx) => (
                   <div key={idx} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
@@ -501,7 +517,9 @@ const PowerBIIntegration = ({ invoices, companyData }) => {
 
             {/* Summary Stats */}
             <div className="bg-white border border-gray-300 rounded-lg p-6 hover:border-gray-400 transition-colors">
-              <h3 className="text-lg font-semibold text-gray-900 mb-6">Resumen Ejecutivo</h3>
+              <h3 className="text-lg font-semibold mb-6">
+                <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent inline-block pb-2">Resumen</span> <span className="text-gray-900">Ejecutivo</span>
+              </h3>
               <div className="space-y-4">
                 <div className="flex justify-between items-center pb-3 border-b border-gray-200">
                   <span className="text-sm text-gray-600">Total Facturas</span>
@@ -547,7 +565,9 @@ const PowerBIIntegration = ({ invoices, companyData }) => {
 
       {/* Export Section */}
       <div className="bg-white border border-gray-300 rounded-lg p-8">
-        <h3 className="text-xl font-bold text-gray-900 mb-6">Exportar Datos para Power BI</h3>
+        <h3 className="text-xl font-bold mb-6">
+          <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent inline-block pb-2">Exportar Datos</span> <span className="text-gray-900">para Power BI</span>
+        </h3>
         
         <div className="space-y-6">
           <div>
@@ -576,7 +596,9 @@ const PowerBIIntegration = ({ invoices, companyData }) => {
 
       {/* API Integration */}
       <div className="bg-white border border-gray-300 rounded-lg p-8">
-        <h3 className="text-xl font-bold text-gray-900 mb-4">Conexión API (Próximamente)</h3>
+        <h3 className="text-xl font-bold mb-4">
+          <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent inline-block pb-2">Conexión API</span> <span className="text-gray-900">(Próximamente)</span>
+        </h3>
         <p className="text-gray-600 mb-6">
           Conecta Power BI directamente a tu cuenta usando nuestra API REST
         </p>
@@ -616,7 +638,9 @@ const PowerBIIntegration = ({ invoices, companyData }) => {
 
       {/* Power BI Templates */}
       <div className="bg-white border border-gray-300 rounded-lg p-8">
-        <h3 className="text-xl font-bold text-gray-900 mb-6">Plantillas de Power BI</h3>
+        <h3 className="text-xl font-bold mb-6">
+          <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent inline-block pb-2">Plantillas</span> <span className="text-gray-900">de Power BI</span>
+        </h3>
         
         <div className="grid md:grid-cols-2 gap-6">
           <div className="border border-gray-200 rounded-xl p-6 hover:shadow-md transition-shadow">

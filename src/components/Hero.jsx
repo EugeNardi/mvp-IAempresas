@@ -16,7 +16,7 @@ const Hero = () => {
 
           <h1 className="text-5xl sm:text-6xl font-bold tracking-tight text-gray-900">
             Gestiona tu empresa con{' '}
-            <span className="text-cyan-500 inline-block animate-pulse">
+            <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent inline-block animate-pulse pb-2">
               Inteligencia Artificial
             </span>
           </h1>

@@ -115,8 +115,10 @@ const ControlBoard = ({ invoices, companyData }) => {
         </div>
       </div>
       <div className="space-y-2">
-        <p className="text-3xl font-bold text-gray-900">
-          {prefix}{typeof value === 'number' ? value.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : value}
+        <p className="text-3xl font-bold">
+          <span className={title === 'Utilidad Neta' ? 'bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent' : 'text-gray-900'}>
+            {prefix}{typeof value === 'number' ? value.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : value}
+          </span>
         </p>
         {trend && (
           <div className={`flex items-center space-x-1 text-sm ${trend === 'up' ? 'text-green-600' : 'text-red-600'}`}>
@@ -174,7 +176,9 @@ const ControlBoard = ({ invoices, companyData }) => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-bold text-gray-900">Tablero de Control</h2>
+          <h2 className="text-3xl font-bold text-gray-900">
+            <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent inline-block pb-2">Panel</span> de Control
+          </h2>
           <p className="text-gray-600 mt-1">Vista ejecutiva de métricas clave y análisis financiero</p>
         </div>
         <div className="flex items-center space-x-2 px-4 py-2 bg-blue-100 rounded-lg">
@@ -185,9 +189,9 @@ const ControlBoard = ({ invoices, companyData }) => {
 
       {/* Semáforos de Estado */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-        <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center">
+        <h3 className="text-lg font-bold mb-4 flex items-center">
           <Activity className="w-5 h-5 mr-2 text-blue-600" />
-          Indicadores de Salud Financiera
+          <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent inline-block pb-2">Indicadores</span> <span className="text-gray-900">de Salud Financiera</span>
         </h3>
         <div className="grid md:grid-cols-4 gap-4">
           <TrafficLight 
@@ -297,9 +301,9 @@ const ControlBoard = ({ invoices, companyData }) => {
       <div className="grid md:grid-cols-2 gap-6">
         {/* Distribución por Actividad - Pie Chart */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-          <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center">
+          <h3 className="text-lg font-bold mb-4 flex items-center">
             <PieChart className="w-5 h-5 mr-2 text-purple-600" />
-            Distribución por Actividad
+            <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent inline-block pb-2">Distribución</span> <span className="text-gray-900">por Actividad</span>
           </h3>
           <div className="space-y-1">
             {metrics.categoryDistribution.slice(0, 8).map((cat, idx) => (
@@ -323,9 +327,9 @@ const ControlBoard = ({ invoices, companyData }) => {
 
         {/* Análisis de Rentabilidad */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-          <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center">
+          <h3 className="text-lg font-bold mb-4 flex items-center">
             <BarChart3 className="w-5 h-5 mr-2 text-blue-600" />
-            Análisis de Rentabilidad
+            <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent inline-block pb-2">Análisis</span> <span className="text-gray-900">de Rentabilidad</span>
           </h3>
           <div className="space-y-4">
             <div>
@@ -359,8 +363,10 @@ const ControlBoard = ({ invoices, companyData }) => {
             <div>
               <div className="flex justify-between mb-2">
                 <span className="text-sm font-medium text-gray-600">Utilidad</span>
-                <span className={`text-sm font-bold ${metrics.profit >= 0 ? 'text-blue-600' : 'text-orange-600'}`}>
-                  ${Math.abs(metrics.profit).toLocaleString('es-AR', { minimumFractionDigits: 0 })}
+                <span className="text-sm font-bold">
+                  <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">
+                    ${Math.abs(metrics.profit).toLocaleString('es-AR', { minimumFractionDigits: 0 })}
+                  </span>
                 </span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-3">
@@ -384,9 +390,9 @@ const ControlBoard = ({ invoices, companyData }) => {
 
       {/* Detalle por Categoría */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-        <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center">
+        <h3 className="text-lg font-bold mb-4 flex items-center">
           <Target className="w-5 h-5 mr-2 text-indigo-600" />
-          Detalle por Categoría
+          <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent inline-block pb-2">Detalle</span> <span className="text-gray-900">por Categoría</span>
         </h3>
         <div className="overflow-x-auto">
           <table className="w-full">

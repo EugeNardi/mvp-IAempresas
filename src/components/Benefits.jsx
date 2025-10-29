@@ -20,7 +20,7 @@ const Benefits = () => {
           <div className="space-y-8 animate-slide-up">
             <h2 className="text-4xl sm:text-5xl font-bold text-gray-900">
               Resultados que{' '}
-              <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">transforman negocios</span>
+              <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent inline-block pb-2">transforman negocios</span>
             </h2>
             <p className="text-xl text-gray-600 leading-relaxed">
               Nuestras soluciones de IA no solo automatizan procesos, sino que impulsan 

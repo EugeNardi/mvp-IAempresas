@@ -41,7 +41,7 @@ const CTA = () => {
         <div className="text-center mb-16">
           <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
             El Poder de la{' '}
-            <span className="text-cyan-600 inline-block hover:scale-105 transition-transform duration-300">
+            <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent inline-block hover:scale-105 transition-transform duration-300 pb-2">
               Inteligencia Financiera
             </span>
           </h2>

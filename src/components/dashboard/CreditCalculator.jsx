@@ -139,7 +139,7 @@ const CreditCalculator = ({ invoices }) => {
       {/* Header */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900 mb-1">
-          <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">Calculadora</span> de Créditos
+          <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent inline-block pb-2">Calculadora</span> de Créditos
         </h1>
         <p className="text-sm text-gray-600">Simule financiamiento para proyectos de inversión</p>
       </div>
@@ -147,7 +147,7 @@ const CreditCalculator = ({ invoices }) => {
       {/* Líneas de Crédito Disponibles */}
       <div className="bg-white border border-gray-200 rounded-lg p-6">
         <h3 className="text-lg font-semibold mb-4">
-          <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">Líneas de Crédito</span> <span className="text-gray-900">PyME Argentina</span>
+          <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent inline-block pb-2">Líneas de Crédito</span> <span className="text-gray-900">PyME Argentina</span>
         </h3>
         <div className="grid md:grid-cols-2 gap-4">
           {creditLines.map((line, idx) => (
@@ -178,7 +178,7 @@ const CreditCalculator = ({ invoices }) => {
         {/* Parámetros */}
         <div className="bg-white border border-gray-200 rounded-lg p-6">
           <h3 className="text-lg font-semibold mb-4">
-            <span className="text-cyan-600">Parámetros</span> <span className="text-gray-900">del Crédito</span>
+            <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent inline-block pb-2">Parámetros</span> <span className="text-gray-900">del Crédito</span>
           </h3>
           <div className="space-y-4">
             <div>
@@ -303,7 +303,7 @@ const CreditCalculator = ({ invoices }) => {
       {/* Análisis de Viabilidad */}
       <div className="bg-white border border-gray-200 rounded-lg p-6">
         <h3 className="text-lg font-semibold mb-4">
-          <span className="text-cyan-600">Análisis de Viabilidad</span> <span className="text-gray-900">del Proyecto</span>
+          <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent inline-block pb-2">Análisis de Viabilidad</span> <span className="text-gray-900">del Proyecto</span>
         </h3>
         <div className="grid md:grid-cols-3 gap-4 mb-4">
           <div className="p-4 bg-gray-50 rounded-lg">

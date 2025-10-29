@@ -73,7 +73,9 @@ const CommandBoard = ({ invoices, companyData }) => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-bold text-gray-900">Tablero de Comando</h2>
+          <h2 className="text-3xl font-bold text-gray-900">
+            <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent inline-block pb-2">Tablero</span> de Comando
+          </h2>
           <p className="text-gray-600 mt-1">Vista ejecutiva de métricas clave</p>
         </div>
         <div className="flex items-center space-x-2 px-4 py-2 bg-blue-100 rounded-lg">

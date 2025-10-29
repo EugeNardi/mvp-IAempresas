@@ -196,7 +196,7 @@ const ExecutiveDashboard = ({ invoices, companyData }) => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 tracking-tight">
-            <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">Dashboard</span> Ejecutivo
+            <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent inline-block pb-2">Dashboard</span> Ejecutivo
           </h1>
           <p className="text-sm text-gray-600 mt-1">Análisis financiero en tiempo real</p>
         </div>

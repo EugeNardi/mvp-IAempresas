@@ -134,7 +134,9 @@ const FinancialReports = ({ invoices, companyData }) => {
       <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-2xl font-bold text-gray-900">Reportes Financieros</h3>
+            <h3 className="text-2xl font-bold text-gray-900">
+              <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent inline-block pb-2">Reportes</span> Financieros
+            </h3>
             <p className="text-gray-600">{companyData.name} - Ejercicio {companyData.fiscalYear}</p>
           </div>
           <button className="flex items-center space-x-2 px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors">
@@ -149,30 +151,36 @@ const FinancialReports = ({ invoices, companyData }) => {
             className={`px-4 py-2 rounded-lg font-medium transition-colors ${
               selectedReport === 'balance'
                 ? 'bg-gray-700 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                : 'bg-gray-100 hover:bg-gray-200'
             }`}
           >
-            Balance General
+            <span className={selectedReport === 'balance' ? '' : 'bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent'}>
+              Balance General
+            </span>
           </button>
           <button
             onClick={() => setSelectedReport('income')}
             className={`px-4 py-2 rounded-lg font-medium transition-colors ${
               selectedReport === 'income'
                 ? 'bg-gray-700 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                : 'bg-gray-100 hover:bg-gray-200'
             }`}
           >
-            Estado de Resultados
+            <span className={selectedReport === 'income' ? '' : 'bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent'}>
+              Estado de Resultados
+            </span>
           </button>
           <button
             onClick={() => setSelectedReport('analysis')}
             className={`px-4 py-2 rounded-lg font-medium transition-colors ${
               selectedReport === 'analysis'
                 ? 'bg-gray-700 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                : 'bg-gray-100 hover:bg-gray-200'
             }`}
           >
-            Análisis
+            <span className={selectedReport === 'analysis' ? '' : 'bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent'}>
+              Análisis
+            </span>
           </button>
         </div>
       </div>
@@ -223,13 +231,15 @@ const FinancialReports = ({ invoices, companyData }) => {
       {/* Balance General */}
       {selectedReport === 'balance' && (
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
-          <h4 className="text-xl font-bold text-gray-900 mb-6">Balance General</h4>
+          <h4 className="text-xl font-bold mb-6">
+            <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent inline-block pb-2">Balance</span> <span className="text-gray-900">General</span>
+          </h4>
           
           <div className="grid md:grid-cols-2 gap-8">
             {/* Activos */}
             <div>
-              <h5 className="text-lg font-bold text-gray-900 mb-4 pb-2 border-b-2 border-black">
-                ACTIVOS
+              <h5 className="text-lg font-bold mb-4 pb-2 border-b-2 border-black">
+                <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent inline-block pb-2">ACTIVOS</span>
               </h5>
               
               <div className="space-y-4">
@@ -266,8 +276,8 @@ const FinancialReports = ({ invoices, companyData }) => {
 
             {/* Pasivos y Patrimonio */}
             <div>
-              <h5 className="text-lg font-bold text-gray-900 mb-4 pb-2 border-b-2 border-black">
-                PASIVOS Y PATRIMONIO
+              <h5 className="text-lg font-bold mb-4 pb-2 border-b-2 border-black">
+                <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent inline-block pb-2">PASIVOS Y PATRIMONIO</span>
               </h5>
               
               <div className="space-y-4">
@@ -339,7 +349,9 @@ const FinancialReports = ({ invoices, companyData }) => {
       {/* Estado de Resultados */}
       {selectedReport === 'income' && (
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
-          <h4 className="text-xl font-bold text-gray-900 mb-6">Estado de Resultados</h4>
+          <h4 className="text-xl font-bold mb-6">
+            <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent inline-block pb-2">Estado</span> <span className="text-gray-900">de Resultados</span>
+          </h4>
           
           <div className="space-y-4 max-w-2xl">
             <div className="flex justify-between text-lg">
@@ -404,11 +416,15 @@ const FinancialReports = ({ invoices, companyData }) => {
         <div className="space-y-6">
           {/* Análisis por Categoría */}
           <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
-            <h4 className="text-xl font-bold text-gray-900 mb-6">Análisis por Categoría</h4>
+            <h4 className="text-xl font-bold mb-6">
+              <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent inline-block pb-2">Análisis</span> <span className="text-gray-900">por Categoría</span>
+            </h4>
             
             <div className="grid md:grid-cols-2 gap-8">
               <div>
-                <h5 className="font-semibold text-gray-900 mb-4">Ingresos por Categoría</h5>
+                <h5 className="font-semibold mb-4">
+                  <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent inline-block pb-2">Ingresos</span> <span className="text-gray-900">por Categoría</span>
+                </h5>
                 <div className="space-y-3">
                   {Object.entries(financialMetrics.incomeByCategory).map(([category, amount]) => (
                     <div key={category}>
@@ -428,7 +444,9 @@ const FinancialReports = ({ invoices, companyData }) => {
               </div>
 
               <div>
-                <h5 className="font-semibold text-gray-900 mb-4">Gastos por Categoría</h5>
+                <h5 className="font-semibold mb-4">
+                  <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent inline-block pb-2">Gastos</span> <span className="text-gray-900">por Categoría</span>
+                </h5>
                 <div className="space-y-3">
                   {Object.entries(financialMetrics.expensesByCategory).map(([category, amount]) => (
                     <div key={category}>
@@ -451,7 +469,9 @@ const FinancialReports = ({ invoices, companyData }) => {
 
           {/* Ratios Financieros */}
           <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
-            <h4 className="text-xl font-bold text-gray-900 mb-6">Ratios Financieros</h4>
+            <h4 className="text-xl font-bold mb-6">
+              <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent inline-block pb-2">Ratios</span> <span className="text-gray-900">Financieros</span>
+            </h4>
             
             <div className="grid md:grid-cols-3 gap-6">
               <div className="p-4 bg-gray-50 rounded-xl">
@@ -483,7 +503,9 @@ const FinancialReports = ({ invoices, companyData }) => {
                 <TrendingUp className="w-6 h-6 text-black" />
               </div>
               <div>
-                <h4 className="text-xl font-bold mb-3">Análisis IA - Recomendaciones</h4>
+                <h4 className="text-xl font-bold mb-3">
+                  <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent inline-block pb-2">Análisis IA</span> <span className="text-white">- Recomendaciones</span>
+                </h4>
                 <ul className="space-y-2 text-gray-300">
                   {financialMetrics.profitMargin < 10 && (
                     <li className="flex items-start space-x-2">

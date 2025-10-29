@@ -202,7 +202,7 @@ Genera un análisis completo con:
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-3xl font-bold text-gray-900">
-            <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">Gestión</span> de Impuestos
+            <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent inline-block pb-2">Gestión</span> de Impuestos
           </h2>
           <p className="text-gray-600 mt-1">Análisis y proyecciones impositivas con IA</p>
         </div>

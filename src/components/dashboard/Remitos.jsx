@@ -178,7 +178,7 @@ const Remitos = ({ companyData }) => {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 mb-1">
-            <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">Remitos</span> y Comprobantes
+            <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent inline-block pb-2">Remitos</span> y Comprobantes
           </h1>
           <p className="text-sm text-gray-600">Carga y análisis automático con IA</p>
         </div>

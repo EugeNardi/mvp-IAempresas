@@ -55,7 +55,7 @@ const Features = () => {
         <div className="text-center max-w-3xl mx-auto mb-16 animate-slide-up">
           <h2 className="text-4xl sm:text-5xl font-bold mb-6 text-gray-900">
             Todo lo que necesitas para{' '}
-            <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">transformar tu negocio</span>
+            <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent inline-block pb-2">transformar tu negocio</span>
           </h2>
           <p className="text-xl text-gray-600">
             Soluciones completas de IA diseñadas específicamente para PyMEs que quieren crecer
