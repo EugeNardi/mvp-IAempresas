@@ -35,29 +35,29 @@ const CTA = () => {
   ]
 
   return (
-    <section id="intelligence" className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
+    <section id="intelligence" className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 bg-white">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-16">
-          <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
+        <div className="text-center mb-12 sm:mb-16">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-5 sm:mb-6 leading-tight px-2">
             El Poder de la{' '}
-            <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent inline-block hover:scale-105 transition-transform duration-300 pb-2">
+            <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent inline-block pb-1 sm:pb-2">
               Inteligencia Financiera
             </span>
           </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+          <p className="text-base sm:text-lg md:text-xl text-gray-600 max-w-3xl mx-auto px-2">
             Ejemplos reales de cómo las decisiones financieras inteligentes transforman negocios
           </p>
         </div>
 
         {/* Financial Examples Grid */}
-        <div className="grid md:grid-cols-2 gap-6 mb-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6 mb-12 sm:mb-16">
           {financialExamples.map((example, index) => {
             const Icon = example.icon
             return (
               <div
                 key={index}
-                className="bg-white border border-gray-200 rounded-lg p-6 hover:border-gray-300 shadow-lg hover:shadow-2xl transition-all hover:-translate-y-1"
+                className="bg-white border border-gray-200 rounded-2xl p-6 sm:p-7 hover:border-gray-300 shadow-lg hover:shadow-2xl transition-all hover:-translate-y-1"
               >
                 <div className="flex items-start gap-4 mb-4">
                   <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -249,16 +249,16 @@ const CTA = () => {
         `}</style>
 
         {/* CTA */}
-        <div className="text-center">
-          <h3 className="text-2xl font-bold text-gray-900 mb-4">
+        <div className="text-center px-2 max-w-3xl mx-auto">
+          <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 sm:mb-5">
             Aplica estos principios a tu negocio
           </h3>
-          <p className="text-lg text-gray-600 mb-6 max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg text-gray-600 mb-6 sm:mb-8">
             Nuestra plataforma te ayuda a tomar decisiones financieras inteligentes con análisis en tiempo real
           </p>
           <Link
             to="/register"
-            className="inline-flex items-center gap-2 bg-gray-900 text-white px-8 py-4 rounded-md font-semibold hover:bg-gray-800 transition-colors"
+            className="inline-flex items-center justify-center gap-2 bg-gray-900 text-white px-8 py-4 rounded-lg font-semibold hover:bg-gray-800 transition-colors w-full sm:w-auto shadow-lg text-base"
           >
             <span>Comenzar Gratis</span>
             <ArrowRight className="w-5 h-5" />

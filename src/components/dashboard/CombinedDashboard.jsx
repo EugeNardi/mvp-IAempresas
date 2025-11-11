@@ -383,7 +383,7 @@ const CombinedDashboard = ({ invoices, companyData }) => {
                     </FinancialTooltip>
                     <DollarSign className="w-5 h-5 text-cyan-600" />
                   </div>
-                  <p className="text-3xl font-bold text-cyan-600">
+                  <p className="text-3xl font-bold text-gray-900">
                     ${autoCharts.summary.profit >= 0 ? '+' : '-'}${Math.abs(autoCharts.summary.profit).toLocaleString('es-AR', { maximumFractionDigits: 0 })}
                   </p>
                   <p className="text-xs text-gray-500 mt-1">Ganancia/Pérdida</p>

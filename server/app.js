@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import subscriptionRoutes from './routes/subscriptionRoutes.js';
 import webhookRoutes from './routes/webhookRoutes.js';
+import authRoutes from './routes/authRoutes.js';
 
 dotenv.config();
 
@@ -23,6 +24,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Routes
+app.use('/api/auth', authRoutes);
 app.use('/api/subscriptions', subscriptionRoutes);
 
 // Health check

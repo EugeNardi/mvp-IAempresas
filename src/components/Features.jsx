@@ -49,29 +49,29 @@ const Features = () => {
   ]
 
   return (
-    <section id="features" className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-50">
+    <section id="features" className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 bg-gray-50">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="text-center max-w-3xl mx-auto mb-16 animate-slide-up">
-          <h2 className="text-4xl sm:text-5xl font-bold mb-6 text-gray-900">
+        <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16 animate-slide-up">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-5 sm:mb-6 text-gray-900 leading-tight px-2">
             Todo lo que necesitas para{' '}
-            <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent inline-block pb-2">transformar tu negocio</span>
+            <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent inline-block pb-1 sm:pb-2">transformar tu negocio</span>
           </h2>
-          <p className="text-xl text-gray-600">
-            Soluciones completas de IA diseñadas específicamente para PyMEs que quieren crecer
+          <p className="text-base sm:text-lg md:text-xl text-gray-600 px-2">
+            Soluciones completas de IA diseñadas específicamente para PyMÉs que quieren crecer
           </p>
         </div>
 
         {/* Features Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
           {features.map((feature, index) => (
             <div
               key={index}
-              className="group relative bg-white rounded-2xl p-8 border border-gray-200 hover:border-black hover:shadow-2xl transition-all duration-300 animate-fade-in"
+              className="group relative bg-white rounded-2xl p-7 sm:p-8 border border-gray-200 hover:border-gray-900 hover:shadow-2xl transition-all duration-300 animate-fade-in"
               style={{ animationDelay: `${index * 0.1}s` }}
             >
               {/* Icon */}
-              <div className="w-14 h-14 rounded-xl bg-gray-700 flex items-center justify-center mb-6 transform group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+              <div className="w-14 h-14 rounded-xl bg-gray-900 flex items-center justify-center mb-5 transform group-hover:scale-110 transition-all duration-300">
                 <feature.icon className="w-7 h-7 text-white" />
               </div>
 
@@ -81,14 +81,14 @@ const Features = () => {
                   {feature.title}
                 </span>
               </h3>
-              <p className="text-gray-600 leading-relaxed">
+              <p className="text-base text-gray-600 leading-relaxed mb-4">
                 {feature.description}
               </p>
 
-              {/* Hover Arrow */}
+              {/* Button - Visible en móvil */}
               <button
                 onClick={() => setSelectedFeature(feature)}
-                className="mt-4 text-cyan-600 font-medium opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300 hover:text-cyan-700"
+                className="text-base text-cyan-600 font-medium opacity-100 sm:opacity-0 group-hover:opacity-100 transform translate-y-0 sm:translate-y-2 group-hover:translate-y-0 transition-all duration-300 hover:text-cyan-700"
               >
                 Saber más →
               </button>
@@ -110,32 +110,32 @@ const Features = () => {
 
       {/* Modal */}
       {selectedFeature && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in" onClick={() => setSelectedFeature(null)}>
-          <div className="bg-white rounded-2xl max-w-2xl w-full p-8 shadow-2xl animate-slide-up" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/50 backdrop-blur-sm animate-fade-in" onClick={() => setSelectedFeature(null)}>
+          <div className="bg-white rounded-t-3xl sm:rounded-2xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl animate-slide-up max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-start justify-between mb-6">
-              <div className="flex items-center gap-4">
-                <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${selectedFeature.color} flex items-center justify-center`}>
-                  <selectedFeature.icon className="w-7 h-7 text-white" />
+              <div className="flex items-start gap-3 sm:gap-4 flex-1">
+                <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-br ${selectedFeature.color} flex items-center justify-center flex-shrink-0`}>
+                  <selectedFeature.icon className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
                 </div>
-                <div>
-                  <h3 className="text-2xl font-bold text-gray-900">{selectedFeature.title}</h3>
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-xl sm:text-2xl font-bold text-gray-900">{selectedFeature.title}</h3>
                   <p className="text-sm text-gray-600 mt-1">{selectedFeature.description}</p>
                 </div>
               </div>
               <button
                 onClick={() => setSelectedFeature(null)}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0 ml-2"
               >
                 <X className="w-5 h-5 text-gray-500" />
               </button>
             </div>
             <div className="prose prose-gray max-w-none">
-              <p className="text-gray-700 leading-relaxed">{selectedFeature.details}</p>
+              <p className="text-base text-gray-700 leading-relaxed">{selectedFeature.details}</p>
             </div>
-            <div className="mt-8 flex justify-end">
+            <div className="mt-6 sm:mt-8 flex justify-end">
               <button
                 onClick={() => setSelectedFeature(null)}
-                className="px-6 py-2.5 bg-gray-900 text-white rounded-lg font-medium hover:bg-gray-800 transition-colors"
+                className="w-full sm:w-auto px-6 py-3 bg-gray-900 text-white rounded-lg font-semibold hover:bg-gray-800 transition-colors"
               >
                 Cerrar
               </button>

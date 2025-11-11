@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { Mail, Lock, User, Sparkles, AlertCircle, CheckCircle, Loader2 } from 'lucide-react'
+import { Mail, Lock, User, AlertCircle, CheckCircle, Loader2 } from 'lucide-react'
+import Logo from '../components/common/Logo'
 
 const Register = () => {
   const [fullName, setFullName] = useState('')
@@ -51,11 +52,8 @@ const Register = () => {
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
-          <Link to="/" className="inline-flex items-center justify-center gap-2 group mb-6">
-            <div className="w-10 h-10 bg-gray-900 rounded-md flex items-center justify-center group-hover:bg-gray-800 transition-colors">
-              <Sparkles className="w-6 h-6 text-white" />
-            </div>
-            <span className="text-xl font-semibold text-gray-900">Sistema de Gestión</span>
+          <Link to="/" className="inline-block mb-6">
+            <Logo size="md" />
           </Link>
           <h1 className="text-2xl font-semibold text-gray-900 mb-2">Crea tu cuenta</h1>
           <p className="text-sm text-gray-600">Comienza a gestionar tu empresa hoy</p>

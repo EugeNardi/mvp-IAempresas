@@ -183,7 +183,7 @@ const MovimientosRetiro = ({ movimiento, onClose, onSuccess }) => {
             </div>
             <div>
               <h2 className="text-xl font-semibold text-gray-900">
-                {isEditing ? <><span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">Editar</span> Retiro</> : <><span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">Nuevo</span> Retiro</>}
+                {isEditing ? <><span className="text-gray-900">Editar</span> <span className="text-gray-900">Retiro</span></> : <><span className="text-gray-900">Nuevo</span> <span className="text-gray-900">Retiro</span></>}
               </h2>
               <p className="text-gray-500 text-sm">{isEditing ? 'Modifica los datos del retiro' : 'Registra un retiro de capital o utilidades'}</p>
             </div>

@@ -637,7 +637,7 @@ const MovimientosVenta = ({ movimiento, onClose, onSuccess }) => {
             </div>
             <div>
               <h2 className="text-xl font-semibold text-gray-900">
-                {isEditing ? <><span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">Editar</span> Venta</> : <><span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">Nueva</span> Venta</>}
+                {isEditing ? <><span className="text-gray-900">Editar</span> <span className="text-gray-900">Venta</span></> : <><span className="text-gray-900">Nueva</span> <span className="text-gray-900">Venta</span></>}
               </h2>
               <p className="text-gray-500 text-sm">{isEditing ? 'Modifica los datos de la venta' : 'Registra una venta y actualiza el inventario'}</p>
             </div>
