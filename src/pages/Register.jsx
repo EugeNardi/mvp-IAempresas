@@ -42,7 +42,7 @@ const Register = () => {
       setSuccess(true)
       setLoading(false)
       setTimeout(() => {
-        navigate('/premium')
+        navigate('/verify-email')
       }, 2000)
     }
   }
@@ -71,7 +71,10 @@ const Register = () => {
           {success && (
             <div className="mb-6 p-4 bg-green-500/10 border border-green-500/20 rounded-xl flex items-start space-x-3">
               <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-              <p className="text-green-400 text-sm">¡Cuenta creada exitosamente! Redirigiendo...</p>
+              <div className="text-green-400 text-sm">
+                <p className="font-semibold mb-1">¡Cuenta creada exitosamente!</p>
+                <p>Revisa tu email para verificar tu cuenta. Luego podrás iniciar sesión y disfrutar de 21 días de prueba gratis.</p>
+              </div>
             </div>
           )}
 
@@ -174,10 +177,7 @@ const Register = () => {
         </div>
 
         {/* Links */}
-        <div className="text-center mt-6 space-y-2">
-          <Link to="/premium" className="block text-sm text-gray-700 hover:text-gray-900 font-medium transition-colors">
-            Ver planes Premium →
-          </Link>
+        <div className="text-center mt-6">
           <Link to="/" className="block text-sm text-gray-600 hover:text-gray-800 transition-colors">
             ← Volver al inicio
           </Link>
