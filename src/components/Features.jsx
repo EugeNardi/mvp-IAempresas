@@ -22,10 +22,11 @@ const Features = () => {
     },
     {
       icon: Clock,
-      title: 'Acceso en Cualquier Momento',
-      description: 'Accede a tu sistema de gestión cuando lo necesites, desde cualquier dispositivo.',
+      title: 'Recomendaciones de Inversión y Rendimientos',
+      description: 'Obtén sugerencias inteligentes sobre dónde invertir tus ganancias para maximizar rendimientos.',
       color: 'from-purple-500 to-pink-500',
-      details: 'Sistema web accesible las 24 horas del día. Consulta tu inventario, registra ventas y revisa reportes en cualquier momento desde tu computadora o navegador móvil.'
+      details: 'Sistema de análisis que evalúa tus ganancias y te sugiere opciones de inversión personalizadas, proyectando rendimientos potenciales basados en tu flujo de caja y objetivos financieros.',
+      comingSoon: true
     },
     {
       icon: Shield,
