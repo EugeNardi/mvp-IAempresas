@@ -13,6 +13,7 @@ const CompanyProfile = () => {
     province: '',
     country: 'Argentina',
     industry: '',
+    businessType: '', // 'emprendedor' o 'pyme'
     fiscalCategory: '',
     fiscalYear: new Date().getFullYear().toString(),
     currency: 'ARS',
@@ -190,10 +191,32 @@ const CompanyProfile = () => {
             </div>
           </div>
 
-          {/* Fiscal Category */}
+          {/* Business Type */}
+          <div>
+            <label htmlFor="businessType" className="block text-sm font-medium text-gray-700 mb-2">
+              Tipo de Negocio *
+            </label>
+            <select
+              id="businessType"
+              name="businessType"
+              value={formData.businessType}
+              onChange={handleChange}
+              required
+              className="w-full px-4 py-2.5 rounded-md bg-white border border-gray-300 text-gray-900 focus:border-gray-900 focus:ring-1 focus:ring-gray-900 outline-none transition-colors shadow-sm"
+            >
+              <option value="">Seleccionar tipo...</option>
+              <option value="emprendedor">Emprendedor</option>
+              <option value="pyme">PyME (Pequeña y Mediana Empresa)</option>
+            </select>
+            <p className="mt-1.5 text-xs text-gray-500">
+              Esto determinará las funcionalidades disponibles en el sistema
+            </p>
+          </div>
+
+          {/* Fiscal Category - Simplificado */}
           <div>
             <label htmlFor="fiscalCategory" className="block text-sm font-medium text-gray-700 mb-2">
-              Categoría Fiscal / Tipo de Contribuyente *
+              Categoría Fiscal *
             </label>
             <select
               id="fiscalCategory"
@@ -203,20 +226,13 @@ const CompanyProfile = () => {
               required
               className="w-full px-4 py-2.5 rounded-md bg-white border border-gray-300 text-gray-900 focus:border-gray-900 focus:ring-1 focus:ring-gray-900 outline-none transition-colors shadow-sm"
             >
-              <option value="">Seleccionar categoría fiscal...</option>
+              <option value="">Seleccionar categoría...</option>
               <option value="Monotributo">Monotributo</option>
               <option value="Responsable Inscripto">Responsable Inscripto</option>
-              <option value="Responsable No Inscripto">Responsable No Inscripto</option>
-              <option value="Exento">Exento</option>
-              <option value="IVA No Alcanzado">IVA No Alcanzado</option>
-              <option value="Consumidor Final">Consumidor Final</option>
-              <option value="Emprendedor No Registrado">Emprendedor No Registrado</option>
-              <option value="Régimen Simplificado">Régimen Simplificado</option>
               <option value="Autónomo">Autónomo</option>
-              <option value="Otro">Otro</option>
             </select>
             <p className="mt-1.5 text-xs text-gray-500">
-              Esta categoría determina las regulaciones fiscales aplicables a tu empresa
+              Tu situación fiscal ante AFIP
             </p>
           </div>
 

@@ -350,56 +350,44 @@ const CombinedDashboard = ({ invoices, companyData }) => {
             <div className="space-y-6">
               {/* KPIs Principales */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
+                <div className="bg-white border border-gray-200 rounded-lg p-6">
                   <div className="flex items-center justify-between mb-2">
-                    <FinancialTooltip term="flujo_caja">
-                      <p className="text-sm font-medium text-gray-600">Ingresos Totales</p>
-                    </FinancialTooltip>
+                    <p className="text-sm font-medium text-gray-600">Ingresos</p>
                     <TrendingUp className="w-5 h-5 text-green-600" />
                   </div>
                   <p className="text-3xl font-bold text-gray-900">
                     ${autoCharts.summary.totalIncome.toLocaleString('es-AR', { maximumFractionDigits: 0 })}
                   </p>
-                  <p className="text-xs text-gray-500 mt-1">{autoCharts.summary.incomeCount} facturas</p>
                 </div>
 
-                <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
+                <div className="bg-white border border-gray-200 rounded-lg p-6">
                   <div className="flex items-center justify-between mb-2">
-                    <FinancialTooltip term="flujo_caja">
-                      <p className="text-sm font-medium text-gray-600">Gastos Totales</p>
-                    </FinancialTooltip>
+                    <p className="text-sm font-medium text-gray-600">Gastos</p>
                     <TrendingDown className="w-5 h-5 text-red-600" />
                   </div>
                   <p className="text-3xl font-bold text-gray-900">
                     ${autoCharts.summary.totalExpenses.toLocaleString('es-AR', { maximumFractionDigits: 0 })}
                   </p>
-                  <p className="text-xs text-gray-500 mt-1">{autoCharts.summary.expenseCount} facturas</p>
                 </div>
 
-                <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
+                <div className="bg-white border border-gray-200 rounded-lg p-6">
                   <div className="flex items-center justify-between mb-2">
-                    <FinancialTooltip term="utilidad_neta">
-                      <p className="text-sm font-medium text-gray-600">Utilidad Neta</p>
-                    </FinancialTooltip>
+                    <p className="text-sm font-medium text-gray-600">Utilidad</p>
                     <DollarSign className="w-5 h-5 text-cyan-600" />
                   </div>
                   <p className="text-3xl font-bold text-gray-900">
                     ${autoCharts.summary.profit >= 0 ? '+' : '-'}${Math.abs(autoCharts.summary.profit).toLocaleString('es-AR', { maximumFractionDigits: 0 })}
                   </p>
-                  <p className="text-xs text-gray-500 mt-1">Ganancia/Pérdida</p>
                 </div>
 
-                <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
+                <div className="bg-white border border-gray-200 rounded-lg p-6">
                   <div className="flex items-center justify-between mb-2">
-                    <FinancialTooltip term="margen_neto">
-                      <p className="text-sm font-medium text-gray-600">Margen</p>
-                    </FinancialTooltip>
+                    <p className="text-sm font-medium text-gray-600">Margen</p>
                     <Target className="w-5 h-5 text-purple-600" />
                   </div>
                   <p className="text-3xl font-bold text-gray-900">
                     {autoCharts.summary.profitMargin.toFixed(1)}%
                   </p>
-                  <p className="text-xs text-gray-500 mt-1">Rentabilidad</p>
                 </div>
               </div>
 
@@ -407,9 +395,7 @@ const CombinedDashboard = ({ invoices, companyData }) => {
               <div className="grid md:grid-cols-2 gap-6">
                 {/* Top Categorías */}
                 <div className="bg-white border border-gray-200 rounded-lg p-6">
-                  <h3 className="text-lg font-semibold mb-6">
-                    <span className="text-gray-900">Top 5 Categorías</span>
-                  </h3>
+                  <h3 className="text-lg font-semibold mb-6 text-gray-900">Top Categorías</h3>
                   <div className="space-y-4">
                     {autoCharts.topCategories.map((cat, idx) => {
                       const maxTotal = autoCharts.topCategories[0].total
@@ -435,9 +421,7 @@ const CombinedDashboard = ({ invoices, companyData }) => {
 
                 {/* Evolución Mensual */}
                 <div className="bg-white border border-gray-200 rounded-lg p-6">
-                  <h3 className="text-lg font-semibold mb-6">
-                    <span className="text-gray-900">Evolución Mensual</span>
-                  </h3>
+                  <h3 className="text-lg font-semibold mb-6 text-gray-900">Evolución Mensual</h3>
                   <div className="space-y-4">
                     {Object.entries(autoCharts.byMonth).slice(-5).map(([month, data], idx) => {
                       const maxAmount = Math.max(...Object.values(autoCharts.byMonth).map(d => Math.max(d.income, d.expense)))
@@ -485,39 +469,31 @@ const CombinedDashboard = ({ invoices, companyData }) => {
             <div className="space-y-6">
               {/* Tabla por Categoría */}
               <div className="bg-white border border-gray-200 rounded-lg p-6">
-                <h3 className="text-lg font-semibold mb-4">
-                  <span className="text-cyan-600">Análisis</span> <span className="text-gray-900">por Categoría</span>
-                </h3>
+                <h3 className="text-lg font-semibold mb-4 text-gray-900">Análisis por Categoría</h3>
                 <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead className="bg-gray-50">
                       <tr>
-                        <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Categoría</th>
-                        <th className="text-right py-3 px-4 text-sm font-semibold text-gray-700">Ingresos</th>
-                        <th className="text-right py-3 px-4 text-sm font-semibold text-gray-700">Gastos</th>
-                        <th className="text-right py-3 px-4 text-sm font-semibold text-gray-700">Balance</th>
-                        <th className="text-right py-3 px-4 text-sm font-semibold text-gray-700">% Total</th>
+                        <th className="text-left py-3 px-4 text-xs font-semibold text-gray-700">Categoría</th>
+                        <th className="text-right py-3 px-4 text-xs font-semibold text-gray-700">Ingresos</th>
+                        <th className="text-right py-3 px-4 text-xs font-semibold text-gray-700">Gastos</th>
+                        <th className="text-right py-3 px-4 text-xs font-semibold text-gray-700">Balance</th>
                       </tr>
                     </thead>
                     <tbody>
                       {Object.entries(autoCharts.byCategory).map(([category, data], idx) => {
                         const balance = data.income - data.expense
-                        const total = data.income + data.expense
-                        const percentage = ((total / (autoCharts.summary.totalIncome + autoCharts.summary.totalExpenses)) * 100)
                         return (
                           <tr key={idx} className="border-b border-gray-100 hover:bg-gray-50">
                             <td className="py-3 px-4 text-sm font-medium text-gray-900">{category}</td>
                             <td className="text-right py-3 px-4 text-sm text-green-600 font-medium">
-                              ${data.income.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
+                              ${data.income.toLocaleString('es-AR', { maximumFractionDigits: 0 })}
                             </td>
                             <td className="text-right py-3 px-4 text-sm text-red-600 font-medium">
-                              ${data.expense.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
+                              ${data.expense.toLocaleString('es-AR', { maximumFractionDigits: 0 })}
                             </td>
-                            <td className={`text-right py-3 px-4 text-sm font-bold ${balance >= 0 ? 'text-blue-600' : 'text-orange-600'}`}>
-                              {balance >= 0 ? '+' : '-'}${Math.abs(balance).toLocaleString('es-AR', { minimumFractionDigits: 2 })}
-                            </td>
-                            <td className="text-right py-3 px-4 text-sm text-gray-700">
-                              {percentage.toFixed(1)}%
+                            <td className={`text-right py-3 px-4 text-sm font-bold ${balance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                              {balance >= 0 ? '+' : ''}${balance.toLocaleString('es-AR', { maximumFractionDigits: 0 })}
                             </td>
                           </tr>
                         )

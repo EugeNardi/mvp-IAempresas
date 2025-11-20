@@ -1,5 +1,5 @@
 import React from 'react'
-import { Sparkles, Mail, MapPin } from 'lucide-react'
+import { Sparkles, Phone, MapPin } from 'lucide-react'
 
 const Footer = () => {
   const currentYear = new Date().getFullYear()
@@ -14,22 +14,33 @@ const Footer = () => {
               <div className="w-10 h-10 bg-gray-700 rounded-xl flex items-center justify-center group-hover:bg-gray-600 transition-colors">
                 <Sparkles className="w-6 h-6 text-white" />
               </div>
-              <span className="text-xl font-bold">IA Solutions</span>
+              <span className="text-xl font-bold">Gestionar</span>
             </a>
             <p className="text-gray-400 text-sm max-w-xs">
-              Transformamos PyMEs con soluciones de inteligencia artificial conversacional.
+              Sistema de gestión empresarial con inteligencia artificial.
             </p>
           </div>
 
           {/* Contact Info */}
-          <div className="space-y-2 text-center md:text-left">
-            <div className="flex items-center gap-2 text-gray-400 text-sm">
-              <Mail className="w-4 h-4" />
-              <span>euge060406@gmail.com</span>
-            </div>
-            <div className="flex items-center gap-2 text-gray-400 text-sm">
-              <MapPin className="w-4 h-4" />
-              <span>Córdoba, Argentina</span>
+          <div className="space-y-3">
+            <h3 className="text-sm font-semibold text-white mb-3">Contacto</h3>
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 text-gray-400 text-sm">
+                <Phone className="w-4 h-4" />
+                <span>Eugenio: +54 9 3467 41-2501</span>
+              </div>
+              <div className="flex items-center gap-2 text-gray-400 text-sm">
+                <Phone className="w-4 h-4" />
+                <span>Franco: +54 9 3515 63-7053</span>
+              </div>
+              <div className="flex items-center gap-2 text-gray-400 text-sm">
+                <Phone className="w-4 h-4" />
+                <span>Ignacio: +54 9 3472 58-7090</span>
+              </div>
+              <div className="flex items-center gap-2 text-gray-400 text-sm">
+                <MapPin className="w-4 h-4" />
+                <span>Córdoba, Argentina</span>
+              </div>
             </div>
           </div>
         </div>
@@ -37,7 +48,7 @@ const Footer = () => {
         {/* Bottom Section */}
         <div className="border-t border-gray-800 mt-8 pt-6 text-center">
           <p className="text-gray-400 text-sm">
-            © {currentYear} IA Solutions. Todos los derechos reservados.
+            © {currentYear} Gestionar. Todos los derechos reservados.
           </p>
         </div>
       </div>

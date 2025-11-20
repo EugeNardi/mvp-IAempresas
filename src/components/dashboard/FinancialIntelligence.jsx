@@ -5,7 +5,7 @@ import {
   ArrowUpRight, ArrowDownRight, Shield, Briefcase, LineChart,
   Calendar, Users, ShoppingCart, CreditCard, Percent, Award,
   Brain, Sparkles, ChevronRight, Info, Package, TrendingUpIcon,
-  Clock, ArrowLeft, Receipt, FileText, AlertCircle
+  Clock, ArrowLeft, Receipt, FileText, AlertCircle, Building2
 } from 'lucide-react'
 import FinancialTooltip from './FinancialTooltip'
 import DolarCard from './DolarCard'
@@ -1088,15 +1088,12 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
     )
   }
 
-  // Tipos de análisis disponibles
+  // Tipos de análisis disponibles - Solo 4 principales
   const analysisTypes = [
-    { id: 'financiero', name: 'FINANCIERO', icon: DollarSign, color: 'from-green-500 to-green-600' },
-    { id: 'ventas', name: 'VENTAS', icon: TrendingUp, color: 'from-purple-500 to-purple-600' },
-    { id: 'clientes', name: 'CLIENTES', icon: Users, color: 'from-blue-500 to-blue-600' },
-    { id: 'productos', name: 'PRODUCTOS', icon: Package, color: 'from-orange-500 to-orange-600' },
-    { id: 'proveedores', name: 'PROVEEDORES', icon: ShoppingCart, color: 'from-red-500 to-red-600' },
-    { id: 'gastos', name: 'GASTOS', icon: Receipt, color: 'from-yellow-500 to-yellow-600' },
-    { id: 'deudas', name: 'DEUDAS', icon: FileText, color: 'from-pink-500 to-pink-600' },
+    { id: 'clientes', name: 'CLIENTES', icon: Users, color: 'from-gray-700 to-gray-900' },
+    { id: 'productos', name: 'PRODUCTOS', icon: Package, color: 'from-gray-800 to-black' },
+    { id: 'proveedores', name: 'PROVEEDORES', icon: Building2, color: 'from-gray-600 to-gray-800' },
+    { id: 'gastos', name: 'GASTOS', icon: Receipt, color: 'from-gray-700 to-gray-900' },
   ]
 
   // Componente de gráfico de torta
@@ -1160,26 +1157,30 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
   // Si no hay tipo de análisis seleccionado, mostrar selector
   if (!analysisType) {
     return (
-      <div className="max-w-7xl mx-auto space-y-6 px-4 sm:px-6">
-        <div className="mb-6 sm:mb-8">
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">
-            <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">Análisis</span> Inteligente
+      <div className="max-w-6xl mx-auto space-y-8 px-4 sm:px-6">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3">
+            Análisis de Negocio
           </h1>
-          <p className="text-xs sm:text-sm text-gray-600">Selecciona el tipo de análisis</p>
+          <p className="text-base sm:text-lg text-gray-600">Selecciona una categoría para ver métricas detalladas</p>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-4xl mx-auto">
           {analysisTypes.map((type) => (
             <button
               key={type.id}
               onClick={() => setAnalysisType(type.id)}
-              className="group relative bg-white border-2 border-gray-200 active:border-gray-900 hover:border-gray-900 rounded-xl p-4 sm:p-6 transition-all active:scale-95 hover:shadow-lg min-h-[100px] sm:min-h-[120px]"
+              className="group relative bg-white border-2 border-gray-200 hover:border-gray-900 rounded-2xl p-8 transition-all hover:shadow-xl hover:scale-105 active:scale-100"
             >
-              <div className="flex flex-col items-center justify-center gap-2 sm:gap-3 h-full">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-100 rounded-lg flex items-center justify-center group-hover:bg-gray-900 group-active:bg-gray-900 transition-colors">
-                  <type.icon className="w-5 h-5 sm:w-6 sm:h-6 text-gray-700 group-hover:text-white group-active:text-white transition-colors" />
+              <div className="flex items-center gap-6">
+                <div className={`w-20 h-20 bg-gradient-to-br ${type.color} rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all`}>
+                  <type.icon className="w-10 h-10 text-white" />
                 </div>
-                <span className="text-xs sm:text-sm font-semibold text-gray-900 text-center leading-tight">{type.name}</span>
+                <div className="flex-1 text-left">
+                  <h3 className="text-xl font-bold text-gray-900 mb-1">{type.name}</h3>
+                  <p className="text-sm text-gray-500">Ver análisis detallado</p>
+                </div>
+                <ChevronRight className="w-6 h-6 text-gray-400 group-hover:text-gray-900 transition-colors" />
               </div>
             </button>
           ))}
@@ -1253,7 +1254,7 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
               <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-all">
                 <div className="flex items-center justify-between mb-4">
                   <p className="text-sm font-medium text-gray-600">Total Clientes</p>
-                  <Users className="w-5 h-5 text-blue-600" />
+                  <Users className="w-6 h-6 text-blue-600" />
                 </div>
                 <p className="text-4xl font-bold text-gray-900">{clientAnalysis.totalClientes}</p>
                 <p className="text-xs text-gray-500 mt-2">Clientes únicos registrados</p>
@@ -1263,7 +1264,7 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
               <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-all">
                 <div className="flex items-center justify-between mb-4">
                   <p className="text-sm font-medium text-gray-600">Clientes Activos</p>
-                  <Activity className="w-5 h-5 text-green-600" />
+                  <Activity className="w-6 h-6 text-green-600" />
                 </div>
                 <p className="text-4xl font-bold text-gray-900">{clientAnalysis.clientesActivos}</p>
                 <p className="text-xs text-gray-500 mt-2">Compraron en el último mes</p>
@@ -1273,7 +1274,7 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
               <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-all">
                 <div className="flex items-center justify-between mb-4">
                   <p className="text-sm font-medium text-gray-600">Nuevos Clientes</p>
-                  <Sparkles className="w-5 h-5 bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent" />
+                  <Sparkles className="w-6 h-6 text-cyan-600" />
                 </div>
                 <p className="text-4xl font-bold text-gray-900">{clientAnalysis.nuevosClientesMesActual}</p>
                 <div className="flex items-center gap-2 mt-2">
@@ -1302,7 +1303,7 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
               <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-all">
                 <div className="flex items-center justify-between mb-4">
                   <p className="text-sm font-medium text-gray-600">Clientes Recurrentes</p>
-                  <Award className="w-5 h-5 text-purple-600" />
+                  <Award className="w-6 h-6 text-purple-600" />
                 </div>
                 <p className="text-4xl font-bold text-gray-900">{clientAnalysis.clientesRecurrentes}</p>
                 <p className="text-xs text-gray-500 mt-2">Compraron más de una vez</p>
@@ -1312,7 +1313,7 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
               <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-all">
                 <div className="flex items-center justify-between mb-4">
                   <p className="text-sm font-medium text-gray-600">Ticket Promedio</p>
-                  <DollarSign className="w-5 h-5 text-green-600" />
+                  <DollarSign className="w-6 h-6 text-green-600" />
                 </div>
                 <p className="text-4xl font-bold text-gray-900">
                   ${clientAnalysis.ticketPromedio.toLocaleString('es-AR', { maximumFractionDigits: 0 })}
@@ -1324,7 +1325,7 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
               <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-all">
                 <div className="flex items-center justify-between mb-4">
                   <p className="text-sm font-medium text-gray-600">Compras por Cliente</p>
-                  <ShoppingCart className="w-5 h-5 text-orange-600" />
+                  <ShoppingCart className="w-6 h-6 text-orange-600" />
                 </div>
                 <p className="text-4xl font-bold text-gray-900">
                   {clientAnalysis.comprasPromedioPorCliente.toFixed(1)}
@@ -1336,7 +1337,7 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
               <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-all">
                 <div className="flex items-center justify-between mb-4">
                   <p className="text-sm font-medium text-gray-600">Frecuencia Promedio</p>
-                  <Clock className="w-5 h-5 text-indigo-600" />
+                  <Clock className="w-6 h-6 text-indigo-600" />
                 </div>
                 <p className="text-4xl font-bold text-gray-900">
                   {clientAnalysis.tiempoPromedioGlobal.toFixed(0)}
@@ -6539,161 +6540,116 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
         <AnalisisVisual invoices={invoices} />
       ) : (
         <>
-          {/* Análisis de Compras y Ventas con Dólar */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {/* Dólar Card */}
-        <DolarCard />
-        <div className="bg-white border border-gray-200 rounded-lg p-6">
-          <div className="flex items-center justify-between mb-4">
-            <FinancialTooltip term="flujo_caja">
-              <p className="text-sm font-medium text-gray-600">Total Compras</p>
-            </FinancialTooltip>
-            <ShoppingCart className="w-5 h-5 text-blue-600" />
-          </div>
-          <p className="text-3xl font-bold text-gray-900 mb-2">
-            ${kpis.totalCompras.toLocaleString('es-AR', { maximumFractionDigits: 0 })}
-          </p>
-          <div className="flex items-center gap-2">
-            <div className="flex-1 bg-gray-200 rounded-full h-2">
-              <div 
-                className="bg-blue-600 h-2 rounded-full" 
-                style={{ width: `${Math.min(kpis.porcentajeCompras, 100)}%` }}
-              />
-            </div>
-            <span className="text-sm font-medium text-gray-600">{kpis.porcentajeCompras.toFixed(1)}%</span>
-          </div>
-          <p className="text-xs text-gray-500 mt-2">{kpis.cantidadCompras} compras realizadas</p>
-        </div>
-
-        <div className="bg-white border border-gray-200 rounded-lg p-6">
-          <div className="flex items-center justify-between mb-4">
-            <FinancialTooltip term="flujo_caja">
-              <p className="text-sm font-medium text-gray-600">Total Ventas</p>
-            </FinancialTooltip>
-            <DollarSign className="w-5 h-5 text-green-600" />
-          </div>
-          <p className="text-3xl font-bold text-gray-900 mb-2">
-            ${kpis.totalVentas.toLocaleString('es-AR', { maximumFractionDigits: 0 })}
-          </p>
-          <div className="flex items-center gap-2">
-            <div className="flex-1 bg-gray-200 rounded-full h-2">
-              <div 
-                className="bg-green-600 h-2 rounded-full" 
-                style={{ width: `${Math.min(kpis.porcentajeVentas, 100)}%` }}
-              />
-            </div>
-            <span className="text-sm font-medium text-gray-600">{kpis.porcentajeVentas.toFixed(1)}%</span>
-          </div>
-          <p className="text-xs text-gray-500 mt-2">{kpis.cantidadVentas} ventas realizadas</p>
-        </div>
-
-        <div className="bg-white border border-gray-200 rounded-lg p-6">
-          <div className="flex items-center justify-between mb-4">
-            <FinancialTooltip term="valor_vida_cliente">
-              <p className="text-sm font-medium text-gray-600">Clientes Únicos</p>
-            </FinancialTooltip>
-            <Users className="w-5 h-5 text-purple-600" />
-          </div>
-          <p className="text-3xl font-bold text-gray-900 mb-2">{kpis.clientesUnicos}</p>
-          <FinancialTooltip term="ticket_promedio">
-            <p className="text-sm text-gray-600 mt-2">
-              Promedio por cliente: <span className="font-semibold text-gray-900">
-                ${kpis.ventaPromedioPorCliente.toLocaleString('es-AR', { maximumFractionDigits: 0 })}
-              </span>
-            </p>
-          </FinancialTooltip>
-        </div>
-      </div>
-
-      {/* KPIs Principales */}
-      <div className="grid md:grid-cols-4 gap-6">
-        <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-all">
-          <FinancialTooltip term="margen_neto">
-            <p className="text-sm font-medium text-gray-600 mb-2">Margen de Ganancia</p>
-          </FinancialTooltip>
-          <p className="text-3xl font-bold text-gray-900">{kpis.profitMargin.toFixed(1)}%</p>
-        </div>
-
-        <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-all">
-          <FinancialTooltip term="roi">
-            <p className="text-sm font-medium text-gray-600 mb-2">ROI</p>
-          </FinancialTooltip>
-          <p className="text-3xl font-bold text-gray-900">{kpis.roi.toFixed(1)}%</p>
-        </div>
-
-        <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-all">
-          <FinancialTooltip term="liquidez">
-            <p className="text-sm font-medium text-gray-600 mb-2">Ratio de Liquidez</p>
-          </FinancialTooltip>
-          <p className="text-3xl font-bold text-gray-900">{kpis.currentRatio.toFixed(2)}</p>
-        </div>
-
-        <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-all">
-          <FinancialTooltip term="tasa_conversion">
-            <p className="text-sm font-medium text-gray-600 mb-2">Crecimiento</p>
-          </FinancialTooltip>
-          <p className={`text-3xl font-bold ${kpis.growthRate >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-            {kpis.growthRate > 0 ? '+' : ''}{kpis.growthRate.toFixed(1)}%
-          </p>
-        </div>
-      </div>
-
-      {/* Métricas Adicionales */}
-      <div className="grid md:grid-cols-2 gap-6">
-        <div className="bg-white border border-gray-200 rounded-lg p-6">
-          <p className="text-sm font-medium text-gray-600 mb-4">Eficiencia Operativa</p>
-          <p className="text-3xl font-bold text-gray-900 mb-3">{kpis.operatingEfficiency.toFixed(1)}%</p>
-          <div className="space-y-2 text-sm">
-            <div className="flex justify-between">
-              <span className="text-gray-600">Ingreso promedio:</span>
-              <span className="font-semibold text-gray-900">${kpis.revenuePerTransaction.toLocaleString('es-AR', { maximumFractionDigits: 0 })}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-600">Costo promedio:</span>
-              <span className="font-semibold text-gray-900">${kpis.costPerTransaction.toLocaleString('es-AR', { maximumFractionDigits: 0 })}</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white border border-gray-200 rounded-lg p-6">
-          <p className="text-sm font-medium text-gray-600 mb-4">Proveedores</p>
-          <p className="text-3xl font-bold text-gray-900 mb-3">{kpis.proveedoresUnicos}</p>
-          <div className="text-sm">
-            <div className="flex justify-between">
-              <span className="text-gray-600">Compra promedio:</span>
-              <span className="font-semibold text-gray-900">${kpis.compraPromedioPorProveedor.toLocaleString('es-AR', { maximumFractionDigits: 0 })}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Top Categorías */}
-      <div className="bg-white border border-gray-200 rounded-lg p-6">
-        <p className="text-sm font-medium text-gray-900 mb-4">Top 5 Categorías</p>
-        <div className="space-y-3">
-          {kpis.topCategories.slice(0, 5).map((cat, idx) => {
-            const maxTotal = kpis.topCategories[0].total
-            const percentage = (cat.total / maxTotal) * 100
-            
-            return (
-              <div key={idx}>
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm font-medium text-gray-700">{cat.category}</span>
-                  <span className="text-sm font-semibold text-gray-900">
-                    ${cat.total.toLocaleString('es-AR', { maximumFractionDigits: 0 })}
-                  </span>
+          {/* Métricas Principales - 4 Cuadros Centrados */}
+          <div className="max-w-5xl mx-auto">
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* Clientes */}
+              <div className="bg-white border border-gray-200 rounded-xl p-8 hover:shadow-lg transition-all group">
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <p className="text-sm font-medium text-gray-500 mb-1">Clientes</p>
+                    <p className="text-4xl font-bold text-gray-900">{kpis.clientesUnicos}</p>
+                  </div>
+                  <div className="w-16 h-16 bg-blue-50 rounded-xl flex items-center justify-center group-hover:bg-blue-100 transition-colors">
+                    <Users className="w-8 h-8 text-blue-600" />
+                  </div>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div
-                    className="bg-gray-900 h-2 rounded-full transition-all"
-                    style={{ width: `${percentage}%` }}
-                  />
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600">Total ventas</span>
+                    <span className="text-sm font-semibold text-gray-900">
+                      ${kpis.totalVentas.toLocaleString('es-AR', { maximumFractionDigits: 0 })}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600">Promedio por cliente</span>
+                    <span className="text-sm font-semibold text-gray-900">
+                      ${kpis.ventaPromedioPorCliente.toLocaleString('es-AR', { maximumFractionDigits: 0 })}
+                    </span>
+                  </div>
                 </div>
               </div>
-            )
-          })}
-        </div>
-      </div>
+
+              {/* Productos */}
+              <div className="bg-white border border-gray-200 rounded-xl p-8 hover:shadow-lg transition-all group">
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <p className="text-sm font-medium text-gray-500 mb-1">Productos</p>
+                    <p className="text-4xl font-bold text-gray-900">{kpis.topCategories.length}</p>
+                  </div>
+                  <div className="w-16 h-16 bg-purple-50 rounded-xl flex items-center justify-center group-hover:bg-purple-100 transition-colors">
+                    <Package className="w-8 h-8 text-purple-600" />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600">Categorías activas</span>
+                    <span className="text-sm font-semibold text-gray-900">{kpis.topCategories.length}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600">Transacciones</span>
+                    <span className="text-sm font-semibold text-gray-900">{kpis.transactionCount}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Proveedores */}
+              <div className="bg-white border border-gray-200 rounded-xl p-8 hover:shadow-lg transition-all group">
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <p className="text-sm font-medium text-gray-500 mb-1">Proveedores</p>
+                    <p className="text-4xl font-bold text-gray-900">{kpis.proveedoresUnicos}</p>
+                  </div>
+                  <div className="w-16 h-16 bg-green-50 rounded-xl flex items-center justify-center group-hover:bg-green-100 transition-colors">
+                    <Building2 className="w-8 h-8 text-green-600" />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600">Total compras</span>
+                    <span className="text-sm font-semibold text-gray-900">
+                      ${kpis.totalCompras.toLocaleString('es-AR', { maximumFractionDigits: 0 })}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600">Promedio por proveedor</span>
+                    <span className="text-sm font-semibold text-gray-900">
+                      ${kpis.compraPromedioPorProveedor.toLocaleString('es-AR', { maximumFractionDigits: 0 })}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Gastos */}
+              <div className="bg-white border border-gray-200 rounded-xl p-8 hover:shadow-lg transition-all group">
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <p className="text-sm font-medium text-gray-500 mb-1">Gastos</p>
+                    <p className="text-4xl font-bold text-gray-900">
+                      ${kpis.totalExpenses.toLocaleString('es-AR', { maximumFractionDigits: 0 })}
+                    </p>
+                  </div>
+                  <div className="w-16 h-16 bg-orange-50 rounded-xl flex items-center justify-center group-hover:bg-orange-100 transition-colors">
+                    <Receipt className="w-8 h-8 text-orange-600" />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600">Margen neto</span>
+                    <span className={`text-sm font-semibold ${kpis.profitMargin >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                      {kpis.profitMargin.toFixed(1)}%
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600">Ganancia neta</span>
+                    <span className={`text-sm font-semibold ${kpis.netProfit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                      ${Math.abs(kpis.netProfit).toLocaleString('es-AR', { maximumFractionDigits: 0 })}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </>
       )}
     </div>

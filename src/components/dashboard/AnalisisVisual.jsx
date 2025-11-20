@@ -190,10 +190,10 @@ const AnalisisVisual = ({ invoices }) => {
     })
 
     return (
-      <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-all">
+      <div className="bg-white border border-gray-200 rounded-lg p-6">
         <div className="flex items-center gap-2 mb-4">
           <Icon className="w-5 h-5 text-gray-700" />
-          <h3 className="text-sm font-semibold text-gray-900">{title}</h3>
+          <h3 className="text-base font-semibold text-gray-900">{title}</h3>
         </div>
 
         <div className="flex flex-col lg:flex-row gap-6">
@@ -224,10 +224,7 @@ const AnalisisVisual = ({ invoices }) => {
                   <div className="w-3 h-3 rounded-sm flex-shrink-0" style={{ backgroundColor: chartColors[index % chartColors.length] }} />
                   <span className="text-gray-700 truncate" title={item.nombre}>{item.nombre}</span>
                 </div>
-                <div className="flex items-center gap-2 flex-shrink-0">
-                  <span className="text-xs font-semibold text-gray-900">{item.porcentaje.toFixed(1)}%</span>
-                  <span className="text-xs text-gray-500">${item.monto.toLocaleString('es-AR', { maximumFractionDigits: 0 })}</span>
-                </div>
+                <span className="text-sm font-semibold text-gray-900">${item.monto.toLocaleString('es-AR', { maximumFractionDigits: 0 })}</span>
               </div>
             ))}
           </div>
@@ -263,7 +260,7 @@ const AnalisisVisual = ({ invoices }) => {
     <div className="max-w-7xl mx-auto space-y-6">
       <div className="mb-6">
         <h1 className="text-2xl font-semibold text-gray-900">Análisis Visual</h1>
-        <p className="text-sm text-gray-600 mt-1">Distribución y comparativas en gráficos interactivos</p>
+        <p className="text-sm text-gray-600 mt-1">Gráficos de distribución</p>
       </div>
 
       <div className="grid md:grid-cols-2 gap-6">
@@ -285,32 +282,22 @@ const AnalisisVisual = ({ invoices }) => {
         <div className="bg-white border border-gray-200 rounded-lg p-6">
           <div className="flex items-center gap-2 mb-4">
             <DollarSign className="w-5 h-5 text-gray-700" />
-            <FinancialTooltip term="utilidad_neta">
-              <h3 className="text-sm font-semibold text-gray-900">Utilidad por Producto</h3>
-            </FinancialTooltip>
+            <h3 className="text-base font-semibold text-gray-900">Utilidad por Producto</h3>
           </div>
 
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="border-b border-gray-200">
-                  <th className="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase">Producto</th>
-                  <th className="text-right py-3 px-4 text-xs font-semibold text-gray-600 uppercase">Ventas</th>
-                  <th className="text-right py-3 px-4 text-xs font-semibold text-gray-600 uppercase">Compras</th>
-                  <th className="text-right py-3 px-4 text-xs font-semibold text-gray-600 uppercase">Utilidad</th>
-                  <th className="text-right py-3 px-4 text-xs font-semibold text-gray-600 uppercase">Margen</th>
+                  <th className="text-left py-3 px-4 text-xs font-semibold text-gray-600">Producto</th>
+                  <th className="text-right py-3 px-4 text-xs font-semibold text-gray-600">Utilidad</th>
+                  <th className="text-right py-3 px-4 text-xs font-semibold text-gray-600">Margen</th>
                 </tr>
               </thead>
               <tbody>
                 {analytics.utilidadProductos.map((producto, index) => (
-                  <tr key={index} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                  <tr key={index} className="border-b border-gray-100 hover:bg-gray-50">
                     <td className="py-3 px-4 text-sm font-medium text-gray-900">{producto.nombre}</td>
-                    <td className="py-3 px-4 text-sm text-right text-green-600 font-semibold">
-                      ${producto.ventas.toLocaleString('es-AR', { maximumFractionDigits: 0 })}
-                    </td>
-                    <td className="py-3 px-4 text-sm text-right text-red-600 font-semibold">
-                      ${producto.compras.toLocaleString('es-AR', { maximumFractionDigits: 0 })}
-                    </td>
                     <td className={`py-3 px-4 text-sm text-right font-bold ${
                       producto.utilidad >= 0 ? 'text-green-600' : 'text-red-600'
                     }`}>
@@ -322,7 +309,7 @@ const AnalisisVisual = ({ invoices }) => {
                         producto.margen >= 15 ? 'bg-yellow-100 text-yellow-800' :
                         'bg-red-100 text-red-800'
                       }`}>
-                        {producto.margen.toFixed(1)}%
+                        {producto.margen.toFixed(0)}%
                       </span>
                     </td>
                   </tr>

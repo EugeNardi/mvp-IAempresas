@@ -1,10 +1,22 @@
 import React, { useState, useMemo } from 'react'
-import { Calculator, TrendingUp, AlertCircle, DollarSign, FileText, Building2, Percent, Download } from 'lucide-react'
+import { Calculator, TrendingUp, AlertCircle, DollarSign, FileText, Building2, Percent, Download, Upload, Eye, Trash2, CheckCircle, Sparkles, Loader } from 'lucide-react'
+import { useData } from '../../context/DataContext'
 
 const TaxManagement = ({ invoices, companyData }) => {
+  const { addInvoice } = useData()
+  const [activeTab, setActiveTab] = useState('impuestos') // 'impuestos' o 'remitos'
   const [condicionIVA, setCondicionIVA] = useState('responsable_inscripto')
   const [provincia, setProvincia] = useState('buenos_aires')
   const [tipoSociedad, setTipoSociedad] = useState('sociedades')
+  
+  // Estados para Remitos
+  const [remitos, setRemitos] = useState([])
+  const [uploading, setUploading] = useState(false)
+  const [analyzing, setAnalyzing] = useState(false)
+  const [selectedFile, setSelectedFile] = useState(null)
+  const [analysisResult, setAnalysisResult] = useState(null)
+  const [success, setSuccess] = useState('')
+  const [error, setError] = useState('')
 
   // Alícuotas ARCA Argentina 2024
   const taxRates = {
@@ -201,29 +213,165 @@ const TaxManagement = ({ invoices, companyData }) => {
     window.URL.revokeObjectURL(url)
   }
 
+  // Funciones para Remitos
+  const analyzeWithAI = async (file) => {
+    setAnalyzing(true)
+    setError('')
+
+    try {
+      await new Promise(resolve => setTimeout(resolve, 2000))
+
+      const mockAnalysis = {
+        type: Math.random() > 0.5 ? 'compra' : 'venta',
+        date: new Date().toISOString().split('T')[0],
+        number: `REM-${Math.floor(Math.random() * 10000)}`,
+        provider: file.name.includes('proveedor') ? 'Proveedor SA' : 'Cliente XYZ',
+        items: [{
+          description: 'Producto detectado por IA',
+          quantity: Math.floor(Math.random() * 10) + 1,
+          unitPrice: (Math.random() * 1000).toFixed(2),
+          subtotal: 0
+        }],
+        subtotal: 0, iva: 0, iibb: 0, percepciones: 0, total: 0,
+        category: Math.random() > 0.5 ? 'Mercadería' : 'Servicios',
+        cuit: '20-12345678-9',
+        condicionIVA: 'Responsable Inscripto',
+        tipoComprobante: Math.random() > 0.5 ? 'Factura A' : 'Factura B',
+        puntoVenta: '0001',
+        confidence: (Math.random() * 30 + 70).toFixed(1)
+      }
+
+      mockAnalysis.items[0].subtotal = mockAnalysis.items[0].quantity * mockAnalysis.items[0].unitPrice
+      mockAnalysis.subtotal = mockAnalysis.items.reduce((sum, item) => sum + parseFloat(item.subtotal), 0)
+      mockAnalysis.iva = mockAnalysis.subtotal * 0.21
+      mockAnalysis.iibb = mockAnalysis.subtotal * 0.03
+      mockAnalysis.percepciones = mockAnalysis.subtotal * 0.02
+      mockAnalysis.total = mockAnalysis.subtotal + mockAnalysis.iva + mockAnalysis.iibb + mockAnalysis.percepciones
+
+      setAnalysisResult(mockAnalysis)
+      return mockAnalysis
+    } catch (err) {
+      setError('Error al analizar el documento con IA')
+      throw err
+    } finally {
+      setAnalyzing(false)
+    }
+  }
+
+  const handleFileUpload = async (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+
+    if (file.type !== 'application/pdf') {
+      setError('Solo se permiten archivos PDF')
+      return
+    }
+
+    setUploading(true)
+    setSelectedFile(file)
+
+    try {
+      const analysis = await analyzeWithAI(file)
+      const newRemito = {
+        id: Date.now(),
+        fileName: file.name,
+        uploadDate: new Date().toISOString(),
+        analysis: analysis,
+        status: 'pending',
+      }
+
+      setRemitos(prev => [newRemito, ...prev])
+      setSuccess('Remito cargado y analizado exitosamente')
+      setTimeout(() => setSuccess(''), 3000)
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setUploading(false)
+      e.target.value = ''
+    }
+  }
+
+  const approveRemito = async (remito) => {
+    try {
+      const movement = {
+        type: remito.analysis.type === 'venta' ? 'income' : 'expense',
+        date: remito.analysis.date,
+        amount: remito.analysis.total,
+        description: `${remito.analysis.tipoComprobante} - ${remito.analysis.provider}`,
+        category: remito.analysis.category,
+        number: remito.analysis.number,
+        metadata: {
+          movementType: remito.analysis.type,
+          provider: remito.analysis.provider,
+          fromRemito: true,
+          subtotal: remito.analysis.subtotal,
+          iva: remito.analysis.iva,
+          iibb: remito.analysis.iibb,
+          percepciones: remito.analysis.percepciones,
+        }
+      }
+
+      await addInvoice(movement)
+      setRemitos(prev => prev.map(r => r.id === remito.id ? { ...r, status: 'approved' } : r))
+      setSuccess('Remito aprobado y agregado a movimientos')
+      setTimeout(() => setSuccess(''), 3000)
+    } catch (err) {
+      setError('Error al aprobar remito')
+    }
+  }
+
+  const deleteRemito = (id) => {
+    setRemitos(prev => prev.filter(r => r.id !== id))
+  }
+
   return (
     <div className="max-w-7xl mx-auto space-y-6">
+      {/* Header con Tabs */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-1">
-            <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">Gestión Impositiva</span> ARCA
-          </h1>
-          <p className="text-sm text-gray-600">Sistema regulatorio argentino completo</p>
+          <h1 className="text-2xl font-bold text-gray-900 mb-3">Impuestos y Remitos</h1>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setActiveTab('impuestos')}
+              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                activeTab === 'impuestos'
+                  ? 'bg-gray-900 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              <Calculator className="w-4 h-4 inline mr-2" />
+              Impuestos
+            </button>
+            <button
+              onClick={() => setActiveTab('remitos')}
+              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                activeTab === 'remitos'
+                  ? 'bg-gray-900 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              <FileText className="w-4 h-4 inline mr-2" />
+              Remitos
+            </button>
+          </div>
         </div>
-        <button
-          onClick={downloadReport}
-          className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-lg font-medium hover:bg-gray-800 transition-colors"
-        >
-          <Download className="w-4 h-4" />
-          Descargar Reporte
-        </button>
+        {activeTab === 'impuestos' && (
+          <button
+            onClick={downloadReport}
+            className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-lg font-medium hover:bg-gray-800 transition-colors"
+          >
+            <Download className="w-4 h-4" />
+            Descargar Reporte
+          </button>
+        )}
       </div>
 
+      {/* Contenido de Impuestos */}
+      {activeTab === 'impuestos' && (
+        <>
       {/* Configuración */}
       <div className="bg-white border border-gray-200 rounded-lg p-6">
-        <h3 className="text-lg font-semibold mb-4">
-          <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">Configuración</span> <span className="text-gray-900">Impositiva</span>
-        </h3>
+        <h3 className="text-lg font-semibold mb-4 text-gray-900">Configuración</h3>
         <div className="grid md:grid-cols-3 gap-4">
           <div>
             <label className="block text-sm font-medium mb-2">Condición IVA</label>
@@ -235,24 +383,24 @@ const TaxManagement = ({ invoices, companyData }) => {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium mb-2">Provincia (IIBB)</label>
+            <label className="block text-sm font-medium mb-2">Provincia</label>
             <select value={provincia} onChange={(e) => setProvincia(e.target.value)}
               className="w-full px-4 py-2 rounded-lg border border-gray-300 outline-none">
-              <option value="buenos_aires">Buenos Aires (3%)</option>
-              <option value="caba">CABA (2.5%)</option>
-              <option value="cordoba">Córdoba (3.5%)</option>
-              <option value="santa_fe">Santa Fe (3%)</option>
-              <option value="mendoza">Mendoza (3%)</option>
-              <option value="otras">Otras (3%)</option>
+              <option value="buenos_aires">Buenos Aires</option>
+              <option value="caba">CABA</option>
+              <option value="cordoba">Córdoba</option>
+              <option value="santa_fe">Santa Fe</option>
+              <option value="mendoza">Mendoza</option>
+              <option value="otras">Otras</option>
             </select>
           </div>
           <div>
             <label className="block text-sm font-medium mb-2">Tipo de Sociedad</label>
             <select value={tipoSociedad} onChange={(e) => setTipoSociedad(e.target.value)}
               className="w-full px-4 py-2 rounded-lg border border-gray-300 outline-none">
-              <option value="sociedades">Sociedades (35%)</option>
-              <option value="autonomo">Autónomo (35%)</option>
-              <option value="monotributo">Monotributo (0%)</option>
+              <option value="sociedades">Sociedades</option>
+              <option value="autonomo">Autónomo</option>
+              <option value="monotributo">Monotributo</option>
             </select>
           </div>
         </div>
@@ -262,33 +410,26 @@ const TaxManagement = ({ invoices, companyData }) => {
       <div className="bg-white border rounded-lg p-6">
         <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
           <Percent className="w-5 h-5" />
-          Impuesto al Valor Agregado (IVA)
+          IVA
         </h3>
-        <div className="grid md:grid-cols-4 gap-4">
-          <div className="bg-green-50 p-4 rounded-lg">
-            <p className="text-sm text-gray-600 mb-1">Débito Fiscal</p>
-            <p className="text-2xl font-bold text-green-600">
-              ${taxCalculations.iva.debito.toLocaleString('es-AR')}
+        <div className="grid md:grid-cols-2 gap-4">
+          <div className="bg-gray-50 p-4 rounded-lg">
+            <p className="text-sm text-gray-600 mb-1">Débito</p>
+            <p className="text-2xl font-bold text-gray-900">
+              ${taxCalculations.iva.debito.toLocaleString('es-AR', { maximumFractionDigits: 0 })}
             </p>
           </div>
-          <div className="bg-blue-50 p-4 rounded-lg">
-            <p className="text-sm text-gray-600 mb-1">Crédito Fiscal</p>
-            <p className="text-2xl font-bold text-blue-600">
-              ${taxCalculations.iva.credito.toLocaleString('es-AR')}
+          <div className="bg-gray-50 p-4 rounded-lg">
+            <p className="text-sm text-gray-600 mb-1">Crédito</p>
+            <p className="text-2xl font-bold text-gray-900">
+              ${taxCalculations.iva.credito.toLocaleString('es-AR', { maximumFractionDigits: 0 })}
             </p>
           </div>
-          <div className="bg-purple-50 p-4 rounded-lg">
-            <p className="text-sm text-gray-600 mb-1">Retenciones</p>
-            <p className="text-2xl font-bold text-purple-600">
-              ${taxCalculations.iva.retenciones.toLocaleString('es-AR')}
+          <div className="md:col-span-2 bg-gray-900 p-4 rounded-lg">
+            <p className="text-sm text-gray-300 mb-1">Saldo a Pagar</p>
+            <p className="text-3xl font-bold text-white">
+              ${Math.max(0, taxCalculations.iva.saldo).toLocaleString('es-AR', { maximumFractionDigits: 0 })}
             </p>
-          </div>
-          <div className={`p-4 rounded-lg ${taxCalculations.iva.saldo >= 0 ? 'bg-red-50' : 'bg-green-50'}`}>
-            <p className="text-sm text-gray-600 mb-1">Saldo</p>
-            <p className={`text-2xl font-bold ${taxCalculations.iva.saldo >= 0 ? 'text-red-600' : 'text-green-600'}`}>
-              ${Math.abs(taxCalculations.iva.saldo).toLocaleString('es-AR')}
-            </p>
-            <p className="text-xs text-gray-600">{taxCalculations.iva.saldo >= 0 ? 'A Pagar' : 'A Favor'}</p>
           </div>
         </div>
       </div>
@@ -297,27 +438,13 @@ const TaxManagement = ({ invoices, companyData }) => {
       <div className="bg-white border rounded-lg p-6">
         <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
           <Building2 className="w-5 h-5" />
-          Ingresos Brutos (IIBB)
+          Ingresos Brutos
         </h3>
-        <div className="grid md:grid-cols-3 gap-4">
-          <div className="bg-orange-50 p-4 rounded-lg">
-            <p className="text-sm text-gray-600 mb-1">Total IIBB</p>
-            <p className="text-2xl font-bold text-orange-600">
-              ${taxCalculations.iibb.total.toLocaleString('es-AR')}
-            </p>
-          </div>
-          <div className="bg-yellow-50 p-4 rounded-lg">
-            <p className="text-sm text-gray-600 mb-1">Percepciones</p>
-            <p className="text-2xl font-bold text-yellow-600">
-              ${taxCalculations.iibb.percepciones.toLocaleString('es-AR')}
-            </p>
-          </div>
-          <div className="bg-amber-50 p-4 rounded-lg">
-            <p className="text-sm text-gray-600 mb-1">Retenciones</p>
-            <p className="text-2xl font-bold text-amber-600">
-              ${taxCalculations.iibb.retenciones.toLocaleString('es-AR')}
-            </p>
-          </div>
+        <div className="bg-gray-50 p-4 rounded-lg">
+          <p className="text-sm text-gray-600 mb-1">Total</p>
+          <p className="text-2xl font-bold text-gray-900">
+            ${taxCalculations.iibb.total.toLocaleString('es-AR', { maximumFractionDigits: 0 })}
+          </p>
         </div>
       </div>
 
@@ -325,27 +452,13 @@ const TaxManagement = ({ invoices, companyData }) => {
       <div className="bg-white border rounded-lg p-6">
         <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
           <DollarSign className="w-5 h-5" />
-          Impuesto a las Ganancias
+          Ganancias
         </h3>
-        <div className="grid md:grid-cols-3 gap-4">
-          <div className="bg-indigo-50 p-4 rounded-lg">
-            <p className="text-sm text-gray-600 mb-1">Estimado Anual</p>
-            <p className="text-2xl font-bold text-indigo-600">
-              ${taxCalculations.ganancias.estimado.toLocaleString('es-AR')}
-            </p>
-          </div>
-          <div className="bg-violet-50 p-4 rounded-lg">
-            <p className="text-sm text-gray-600 mb-1">Anticipo Mensual</p>
-            <p className="text-2xl font-bold text-violet-600">
-              ${taxCalculations.ganancias.anticipo.toLocaleString('es-AR')}
-            </p>
-          </div>
-          <div className="bg-purple-50 p-4 rounded-lg">
-            <p className="text-sm text-gray-600 mb-1">Retenciones</p>
-            <p className="text-2xl font-bold text-purple-600">
-              ${taxCalculations.ganancias.retenciones.toLocaleString('es-AR')}
-            </p>
-          </div>
+        <div className="bg-gray-50 p-4 rounded-lg">
+          <p className="text-sm text-gray-600 mb-1">Anticipo Mensual</p>
+          <p className="text-2xl font-bold text-gray-900">
+            ${taxCalculations.ganancias.anticipo.toLocaleString('es-AR', { maximumFractionDigits: 0 })}
+          </p>
         </div>
       </div>
 
@@ -353,12 +466,12 @@ const TaxManagement = ({ invoices, companyData }) => {
       <div className="bg-white border rounded-lg p-6">
         <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
           <FileText className="w-5 h-5" />
-          Contribuciones Patronales
+          Seguridad Social
         </h3>
-        <div className="bg-teal-50 p-4 rounded-lg">
-          <p className="text-sm text-gray-600 mb-1">Seguridad Social (21%)</p>
-          <p className="text-2xl font-bold text-teal-600">
-            ${taxCalculations.seguridad_social.toLocaleString('es-AR')}
+        <div className="bg-gray-50 p-4 rounded-lg">
+          <p className="text-sm text-gray-600 mb-1">Total</p>
+          <p className="text-2xl font-bold text-gray-900">
+            ${taxCalculations.seguridad_social.toLocaleString('es-AR', { maximumFractionDigits: 0 })}
           </p>
         </div>
       </div>
@@ -377,21 +490,121 @@ const TaxManagement = ({ invoices, companyData }) => {
       </div>
 
       {/* Info */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-        <h4 className="font-semibold text-blue-900 mb-3 flex items-center gap-2">
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <h4 className="font-semibold text-blue-900 mb-2 flex items-center gap-2">
           <AlertCircle className="w-5 h-5" />
-          Información ARCA Argentina
+          Información
         </h4>
-        <ul className="space-y-2 text-sm text-blue-800">
-          <li>• <strong>IVA:</strong> Tasa general 21%, reducida 10.5%</li>
-          <li>• <strong>IIBB:</strong> Varía según provincia (2.5% - 3.5%)</li>
-          <li>• <strong>Ganancias:</strong> Sociedades 35%, Autónomos 35%</li>
-          <li>• <strong>Percepciones IVA:</strong> 2.1% sobre ventas</li>
-          <li>• <strong>Retenciones:</strong> Aplicables según régimen</li>
-          <li>• <strong>Seguridad Social:</strong> 21% sobre sueldos</li>
-          <li>• Los cálculos se basan en remitos analizados por IA y movimientos registrados</li>
-        </ul>
+        <p className="text-sm text-blue-800">
+          Los cálculos se basan en tus movimientos y remitos analizados. Los valores son estimados.
+        </p>
       </div>
+        </>
+      )}
+
+      {/* Contenido de Remitos */}
+      {activeTab === 'remitos' && (
+        <div className="space-y-6">
+          {/* Mensajes */}
+          {success && (
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4 flex items-center gap-2">
+              <CheckCircle className="w-5 h-5 text-green-600" />
+              <p className="text-sm text-green-800">{success}</p>
+            </div>
+          )}
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center gap-2">
+              <AlertCircle className="w-5 h-5 text-red-600" />
+              <p className="text-sm text-red-800">{error}</p>
+            </div>
+          )}
+
+          {/* Upload */}
+          <div className="bg-white border border-gray-200 rounded-lg p-6">
+            <h3 className="text-lg font-semibold mb-4">Cargar Remito</h3>
+            <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-gray-400 transition-colors">
+              <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                <Upload className="w-10 h-10 text-gray-400 mb-2" />
+                <p className="text-sm text-gray-600">Haz clic para cargar un PDF</p>
+                <p className="text-xs text-gray-500 mt-1">Máximo 10MB</p>
+              </div>
+              <input type="file" className="hidden" accept=".pdf" onChange={handleFileUpload} disabled={uploading || analyzing} />
+            </label>
+          </div>
+
+          {/* Analyzing */}
+          {analyzing && (
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 flex items-center gap-3">
+              <Loader className="w-6 h-6 text-blue-600 animate-spin" />
+              <div>
+                <p className="font-semibold text-blue-900">Analizando con IA...</p>
+                <p className="text-sm text-blue-700">Extrayendo datos del remito</p>
+              </div>
+            </div>
+          )}
+
+          {/* Lista de Remitos */}
+          <div className="space-y-4">
+            {remitos.map((remito) => (
+              <div key={remito.id} className="bg-white border border-gray-200 rounded-lg p-6">
+                <div className="flex items-start justify-between mb-4">
+                  <div>
+                    <h4 className="font-semibold text-gray-900">{remito.fileName}</h4>
+                    <p className="text-sm text-gray-500">{new Date(remito.uploadDate).toLocaleString('es-AR')}</p>
+                  </div>
+                  <div className="flex gap-2">
+                    {remito.status === 'pending' && (
+                      <button
+                        onClick={() => approveRemito(remito)}
+                        className="px-3 py-1.5 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition-colors"
+                      >
+                        <CheckCircle className="w-4 h-4 inline mr-1" />
+                        Aprobar
+                      </button>
+                    )}
+                    <button
+                      onClick={() => deleteRemito(remito.id)}
+                      className="px-3 py-1.5 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition-colors"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+                <div className="grid md:grid-cols-2 gap-4 bg-gray-50 p-4 rounded-lg">
+                  <div>
+                    <p className="text-xs text-gray-500">Tipo</p>
+                    <p className="font-semibold">{remito.analysis.type === 'venta' ? 'Venta' : 'Compra'}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500">Proveedor/Cliente</p>
+                    <p className="font-semibold">{remito.analysis.provider}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500">Total</p>
+                    <p className="font-semibold text-lg">${remito.analysis.total.toLocaleString('es-AR')}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500">Confianza IA</p>
+                    <p className="font-semibold">{remito.analysis.confidence}%</p>
+                  </div>
+                </div>
+                {remito.status === 'approved' && (
+                  <div className="mt-3 flex items-center gap-2 text-green-600">
+                    <CheckCircle className="w-4 h-4" />
+                    <span className="text-sm font-medium">Aprobado y agregado a movimientos</span>
+                  </div>
+                )}
+              </div>
+            ))}
+            {remitos.length === 0 && !analyzing && (
+              <div className="text-center py-12 text-gray-500">
+                <FileText className="w-12 h-12 mx-auto mb-3 text-gray-400" />
+                <p>No hay remitos cargados</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

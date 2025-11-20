@@ -22,10 +22,12 @@ import {
   Brain,
   Target,
   Package,
-  Crown
+  Crown,
+  CreditCard,
+  Sparkles
 } from 'lucide-react'
 import Logo from '../components/common/Logo'
-import CompanyProfile from '../components/dashboard/CompanyProfile'
+import MyBusiness from '../components/dashboard/MyBusiness'
 import Movimientos from '../components/dashboard/Movimientos'
 import Remitos from '../components/dashboard/Remitos'
 import TaxManagement from '../components/dashboard/TaxManagementNew'
@@ -36,6 +38,7 @@ import CreditCalculator from '../components/dashboard/CreditCalculator'
 import Inventory from './Inventory'
 import DolarWidget from '../components/dashboard/DolarWidget'
 import AnalisisVisual from '../components/dashboard/AnalisisVisual'
+import OnboardingTour from '../components/OnboardingTour'
 
 const Dashboard = () => {
   const { user, signOut } = useAuth()
@@ -49,17 +52,36 @@ const Dashboard = () => {
     navigate('/login')
   }
 
-  const tabs = [
-    { id: 'profile', name: 'Mi Empresa', icon: Building2 },
-    { id: 'movimientos', name: 'Movimientos', icon: FileText },
-    { id: 'dashboard', name: 'Panel de Control', icon: LayoutDashboard },
+  // Determinar si es emprendedor
+  const isEmprendedor = companyData?.businessType === 'emprendedor'
+
+  // Obtener saludo según hora del día
+  const getGreeting = () => {
+    const hour = new Date().getHours()
+    if (hour < 12) return 'Buenos días'
+    if (hour < 20) return 'Buenas tardes'
+    return 'Buenas noches'
+  }
+
+  // Tabs base
+  const allTabs = [
+    { id: 'profile', name: 'Mi Negocio', icon: Building2 },
+    { id: 'dashboard', name: 'Panel', icon: LayoutDashboard },
+    { id: 'movimientos', name: 'Movimientos', icon: TrendingUp },
     { id: 'inventory', name: 'Inventario', icon: Package },
     { id: 'intelligence', name: 'Análisis', icon: BarChart3 },
-    { id: 'projections', name: 'Proyecciones IA', icon: Brain },
-    { id: 'credit', name: 'Créditos', icon: Calculator },
-    { id: 'remitos', name: 'Remitos', icon: Upload },
-    { id: 'taxes', name: 'Impuestos', icon: Target },
+    { id: 'projections', name: 'Proyecciones', icon: Brain },
+    { id: 'credit', name: 'Créditos', icon: CreditCard, hideForEmprendedor: true },
+    { id: 'taxes', name: 'Impuestos', icon: Calculator, hideForEmprendedor: true },
   ]
+
+  // Filtrar tabs según tipo de negocio
+  const tabs = allTabs.filter(tab => {
+    if (isEmprendedor && tab.hideForEmprendedor) {
+      return false
+    }
+    return true
+  })
 
   return (
     <div className="flex h-screen bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden">
@@ -71,18 +93,18 @@ const Dashboard = () => {
         />
       )}
 
-      {/* Sidebar - Vercel Style */}
+      {/* Sidebar - Elegant Style */}
       <div className={`
         fixed lg:sticky top-0 left-0 h-screen
-        w-72 sm:w-80 lg:w-72 bg-white border-r border-gray-200
+        w-72 bg-white border-r border-gray-200
         flex flex-col z-40 transition-transform duration-300
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
         {/* Logo/Header */}
         <div className="p-5 border-b border-gray-200 flex items-center justify-between">
-          <div>
+          <div className="flex-1 min-w-0">
             <Logo size="sm" showIcon={false} />
-            <p className="text-xs text-gray-500 mt-1">Panel Empresarial</p>
+            <p className="text-xs text-gray-500 mt-1">Sistema de Gestión</p>
           </div>
           <button
             onClick={() => setSidebarOpen(false)}
@@ -93,27 +115,28 @@ const Dashboard = () => {
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto p-3 space-y-1">
+        <nav className="flex-1 overflow-y-auto p-3">
           {tabs.map((tab) => (
             <button
               key={tab.id}
+              id={`${tab.id}-tab`}
               onClick={() => {
                 setActiveTab(tab.id)
                 setSidebarOpen(false)
               }}
               className={`
                 w-full flex items-center gap-3 
-                px-4 py-3
-                rounded-lg transition-all duration-150 text-base font-medium group
+                px-4 py-3 mb-1
+                rounded-lg transition-all duration-150 text-sm font-semibold group
                 ${
                   activeTab === tab.id
                     ? 'bg-gray-900 text-white shadow-sm'
-                    : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
+                    : 'text-gray-700 hover:bg-gray-50'
                 }
               `}
             >
               <tab.icon className={`w-5 h-5 flex-shrink-0 ${
-                activeTab === tab.id ? 'text-white' : 'text-gray-400 group-hover:text-gray-600'
+                activeTab === tab.id ? 'text-white' : 'text-gray-500 group-hover:text-gray-700'
               }`} />
               <span className="truncate">{tab.name}</span>
             </button>
@@ -122,31 +145,30 @@ const Dashboard = () => {
 
         {/* User Profile */}
         <div className="p-4 border-t border-gray-200">
-          <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-gray-900 to-gray-700 rounded-full flex items-center justify-center text-white text-base font-semibold">
+          <div className="mb-3">
+            <div className="flex items-center gap-3 px-2 py-2">
+              <div className="w-9 h-9 bg-gray-900 rounded-full flex items-center justify-center text-white text-sm font-semibold flex-shrink-0">
                 {user?.email?.[0]?.toUpperCase() || 'U'}
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold text-gray-900 truncate">{user?.email}</p>
-                <p className="text-xs text-gray-500">Administrador</p>
               </div>
             </div>
-            <Link
-              to="/premium"
-              className="w-full px-4 py-2.5 mb-2 text-sm font-semibold bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-lg transition-colors flex items-center justify-center gap-2 border border-gray-200"
-            >
-              <Crown className="w-4 h-4" />
-              <span>Ver Mi Plan</span>
-            </Link>
-            <button
-              onClick={signOut}
-              className="w-full px-4 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50 rounded-lg transition-colors flex items-center justify-center gap-2 border border-red-200"
-            >
-              <LogOut className="w-4 h-4" />
-              <span>Cerrar Sesión</span>
-            </button>
           </div>
+          <Link
+            to="/premium"
+            className="w-full px-4 py-2.5 mb-2 text-sm font-semibold bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-lg transition-colors flex items-center justify-center gap-2"
+          >
+            <Crown className="w-4 h-4" />
+            <span>Mi Plan</span>
+          </Link>
+          <button
+            onClick={signOut}
+            className="w-full px-4 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50 rounded-lg transition-colors flex items-center justify-center gap-2"
+          >
+            <LogOut className="w-4 h-4" />
+            <span>Salir</span>
+          </button>
         </div>
       </div>
 
@@ -161,16 +183,32 @@ const Dashboard = () => {
             >
               <Menu className="w-6 h-6 text-gray-700" />
             </button>
-            <h2 className="text-base sm:text-lg font-semibold text-gray-900 truncate">
-              {tabs.find(t => t.id === activeTab)?.name}
-            </h2>
+            <div className="flex flex-col">
+              <h2 className="text-base sm:text-lg font-semibold text-gray-900 truncate">
+                {tabs.find(t => t.id === activeTab)?.name}
+              </h2>
+              {companyData?.name && (
+                <p className="hidden sm:block text-xs text-gray-500">
+                  {getGreeting()}, {companyData.name}
+                </p>
+              )}
+            </div>
           </div>
           
           <div className="flex items-center gap-2 sm:gap-3">
-            {companyData && (
-              <div className="hidden md:flex items-center gap-2 text-sm text-gray-600 px-3 py-2 bg-gray-50 rounded-lg border border-gray-200">
-                <Building2 className="w-4 h-4" />
-                <span className="font-medium truncate max-w-[150px]">{companyData.name}</span>
+            {companyData?.businessType && (
+              <div className="hidden lg:flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-full border">
+                {companyData.businessType === 'emprendedor' ? (
+                  <>
+                    <Sparkles className="w-3.5 h-3.5 text-purple-600" />
+                    <span className="text-purple-600">EMPRENDEDOR</span>
+                  </>
+                ) : (
+                  <>
+                    <Building2 className="w-3.5 h-3.5 text-blue-600" />
+                    <span className="text-blue-600">PyME</span>
+                  </>
+                )}
               </div>
             )}
             <Link
@@ -193,7 +231,7 @@ const Dashboard = () => {
         {/* Content Area */}
         <main className="flex-1 overflow-y-auto p-4 sm:p-6">
           {activeTab === 'profile' && (
-            <CompanyProfile />
+            <MyBusiness />
           )}
           {activeTab === 'movimientos' && (
             <Movimientos 
@@ -203,16 +241,34 @@ const Dashboard = () => {
           {activeTab === 'inventory' && (
             <Inventory />
           )}
-          {activeTab === 'remitos' && (
-            <Remitos 
-              companyData={companyData}
-            />
-          )}
           {activeTab === 'taxes' && (
-            <TaxManagement 
-              invoices={invoices}
-              companyData={companyData}
-            />
+            isEmprendedor ? (
+              <div className="max-w-2xl mx-auto mt-20">
+                <div className="bg-gradient-to-br from-gray-50 to-white rounded-2xl border-2 border-gray-200 p-8 text-center shadow-lg">
+                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Calculator className="w-8 h-8 text-gray-400" />
+                  </div>
+                  <h2 className="text-2xl font-bold text-gray-900 mb-3">
+                    Módulo no disponible
+                  </h2>
+                  <p className="text-gray-600 mb-6">
+                    El cálculo de impuestos está disponible solo para cuentas PyME. 
+                    Como emprendedor, puedes gestionar tus finanzas de forma simplificada.
+                  </p>
+                  <button
+                    onClick={() => setActiveTab('profile')}
+                    className="px-6 py-3 bg-gray-900 text-white rounded-lg font-semibold hover:bg-gray-800 transition-colors"
+                  >
+                    Ir a Mi Negocio
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <TaxManagement 
+                invoices={invoices}
+                companyData={companyData}
+              />
+            )
           )}
           {activeTab === 'intelligence' && (
             <FinancialIntelligence 
@@ -232,12 +288,38 @@ const Dashboard = () => {
             />
           )}
           {activeTab === 'credit' && (
-            <CreditCalculator 
-              invoices={invoices}
-            />
+            isEmprendedor ? (
+              <div className="max-w-2xl mx-auto mt-20">
+                <div className="bg-gradient-to-br from-gray-50 to-white rounded-2xl border-2 border-gray-200 p-8 text-center shadow-lg">
+                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <CreditCard className="w-8 h-8 text-gray-400" />
+                  </div>
+                  <h2 className="text-2xl font-bold text-gray-900 mb-3">
+                    Módulo no disponible
+                  </h2>
+                  <p className="text-gray-600 mb-6">
+                    La calculadora de créditos está disponible solo para cuentas PyME. 
+                    Como emprendedor, enfócate en hacer crecer tu negocio primero.
+                  </p>
+                  <button
+                    onClick={() => setActiveTab('profile')}
+                    className="px-6 py-3 bg-gray-900 text-white rounded-lg font-semibold hover:bg-gray-800 transition-colors"
+                  >
+                    Ir a Mi Negocio
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <CreditCalculator 
+                invoices={invoices}
+              />
+            )
           )}
         </main>
       </div>
+
+      {/* Onboarding Tour para nuevos usuarios */}
+      <OnboardingTour />
     </div>
   )
 }

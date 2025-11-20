@@ -296,6 +296,7 @@ const Movimientos = ({ companyData }) => {
           <p className="text-sm text-gray-600">Gestiona todas tus operaciones</p>
         </div>
         <button
+          id="nuevo-movimiento-btn"
           onClick={() => setShowForm(true)}
           className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-md text-sm font-medium hover:bg-gray-800 transition-colors"
         >

@@ -180,18 +180,18 @@ Puedes preguntarme cosas como:
       <div
         className={`${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        } fixed lg:relative lg:translate-x-0 z-50 w-72 lg:w-72 bg-white border-r border-gray-200 transition-transform duration-300 h-full flex flex-col`}
+        } fixed lg:relative lg:translate-x-0 z-50 w-72 bg-white border-r border-gray-200 transition-transform duration-300 h-full flex flex-col`}
       >
         {/* Sidebar Header */}
         <div className="p-4 border-b border-gray-200">
-          <h1 className="text-sm font-semibold text-gray-900 mb-1">Inteligencia Financiera</h1>
-          <p className="text-xs text-gray-500 mb-3">ARCA 2025 + Análisis Empresarial</p>
+          <h1 className="text-sm font-semibold text-gray-900 mb-1">Chat IA</h1>
+          <p className="text-xs text-gray-500 mb-3">ARCA 2025 + Análisis</p>
           <button
             onClick={handleNewChat}
-            className="w-full flex items-center justify-center gap-2 bg-gray-900 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-800 transition-colors"
+            className="w-full flex items-center justify-center gap-2 bg-gray-900 text-white px-4 py-2.5 rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors"
           >
             <Plus className="w-4 h-4" />
-            <span>Nueva Conversación</span>
+            <span>Nueva Chat</span>
           </button>
         </div>
 
@@ -239,33 +239,33 @@ Puedes preguntarme cosas como:
           {/* Quick Questions about Numbers */}
           <div>
             <div className="text-xs font-semibold text-gray-700 mb-2">
-              💡 Preguntas sobre tus Números
+              💡 Preguntas Rápidas
             </div>
             <div className="space-y-2">
               <button
                 onClick={() => handleSuggestedQuestion("¿Cuál es mi margen de ganancia actual?")}
-                className="w-full text-left px-3 py-2 rounded-md bg-gray-50 hover:bg-gray-100 transition-colors text-xs text-gray-700 border border-gray-200"
+                className="w-full text-left px-3 py-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors text-xs text-gray-700 border border-gray-200"
                 disabled={isLoading}
               >
                 📊 Margen de ganancia
               </button>
               <button
                 onClick={() => handleSuggestedQuestion("¿Cuánto debo pagar de IVA este mes?")}
-                className="w-full text-left px-3 py-2 rounded-md bg-gray-50 hover:bg-gray-100 transition-colors text-xs text-gray-700 border border-gray-200"
+                className="w-full text-left px-3 py-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors text-xs text-gray-700 border border-gray-200"
                 disabled={isLoading}
               >
                 🏛️ Cálculo de IVA
               </button>
               <button
                 onClick={() => handleSuggestedQuestion("¿Qué clientes me generan más ingresos?")}
-                className="w-full text-left px-3 py-2 rounded-md bg-gray-50 hover:bg-gray-100 transition-colors text-xs text-gray-700 border border-gray-200"
+                className="w-full text-left px-3 py-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors text-xs text-gray-700 border border-gray-200"
                 disabled={isLoading}
               >
                 👥 Top clientes
               </button>
               <button
                 onClick={() => handleSuggestedQuestion("Analiza mi flujo de caja del último mes")}
-                className="w-full text-left px-3 py-2 rounded-md bg-gray-50 hover:bg-gray-100 transition-colors text-xs text-gray-700 border border-gray-200"
+                className="w-full text-left px-3 py-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors text-xs text-gray-700 border border-gray-200"
                 disabled={isLoading}
               >
                 💰 Flujo de caja
@@ -278,12 +278,12 @@ Puedes preguntarme cosas como:
               <div className="text-xs font-semibold text-gray-700 mb-2">
                 🎯 Análisis Avanzados
               </div>
-              <div className="space-y-2 max-h-64 overflow-y-auto">
+              <div className="space-y-2 max-h-48 overflow-y-auto">
                 {suggestedQuestions.map((question, index) => (
                   <button
                     key={index}
                     onClick={() => handleSuggestedQuestion(question)}
-                    className="w-full text-left px-3 py-2 rounded-md bg-gray-50 hover:bg-gray-100 transition-colors text-xs text-gray-700 border border-gray-200"
+                    className="w-full text-left px-3 py-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors text-xs text-gray-700 border border-gray-200"
                     disabled={isLoading}
                   >
                     {question}
@@ -295,23 +295,30 @@ Puedes preguntarme cosas como:
         </div>
 
         {/* User Profile */}
-        <div className="p-6 border-t border-gray-200/50">
-          <div className="mb-4 p-3 bg-gray-50 rounded-xl">
-            <p className="text-xs font-medium text-gray-500 truncate">{user?.email}</p>
+        <div className="p-4 border-t border-gray-200">
+          <div className="mb-3">
+            <div className="flex items-center gap-3 px-2 py-2">
+              <div className="w-9 h-9 bg-gray-900 rounded-full flex items-center justify-center text-white text-sm font-semibold flex-shrink-0">
+                {user?.email?.[0]?.toUpperCase() || 'U'}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-gray-900 truncate">{user?.email}</p>
+              </div>
+            </div>
           </div>
           <Link
             to="/dashboard"
-            className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-all mb-2 group"
+            className="w-full px-4 py-2.5 mb-2 text-sm font-semibold bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-lg transition-colors flex items-center justify-center gap-2"
           >
-            <LayoutDashboard className="w-4 h-4 text-gray-400 group-hover:text-gray-600" />
-            <span className="font-medium">Dashboard</span>
+            <LayoutDashboard className="w-4 h-4" />
+            <span>Dashboard</span>
           </Link>
           <button
             onClick={handleSignOut}
-            className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm text-gray-600 hover:bg-red-50 hover:text-red-600 transition-all group"
+            className="w-full px-4 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50 rounded-lg transition-colors flex items-center justify-center gap-2"
           >
-            <LogOut className="w-4 h-4 text-gray-400 group-hover:text-red-600" />
-            <span className="font-medium">Salir</span>
+            <LogOut className="w-4 h-4" />
+            <span>Salir</span>
           </button>
         </div>
       </div>

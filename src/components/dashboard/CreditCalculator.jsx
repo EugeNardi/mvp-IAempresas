@@ -139,36 +139,29 @@ const CreditCalculator = ({ invoices }) => {
       {/* Header */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900 mb-1">
-          <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent inline-block pb-2">Calculadora</span> de Créditos
+          Calculadora de Créditos
         </h1>
-        <p className="text-sm text-gray-600">Simule financiamiento para proyectos de inversión</p>
+        <p className="text-sm text-gray-600">Simule su financiamiento</p>
       </div>
 
       {/* Líneas de Crédito Disponibles */}
       <div className="bg-white border border-gray-200 rounded-lg p-6">
-        <h3 className="text-lg font-semibold mb-4">
-          <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent inline-block pb-2">Líneas de Crédito</span> <span className="text-gray-900">PyME Argentina</span>
-        </h3>
-        <div className="grid md:grid-cols-2 gap-4">
+        <h3 className="text-lg font-semibold mb-4 text-gray-900">Líneas de Crédito</h3>
+        <div className="grid md:grid-cols-2 gap-3">
           {creditLines.map((line, idx) => (
-            <div 
+            <button 
               key={idx}
-              className="p-4 border border-gray-200 rounded-lg hover:border-gray-900 hover:shadow-md transition-all cursor-pointer"
+              className="p-4 border border-gray-200 rounded-lg hover:border-gray-900 transition-all text-left"
               onClick={() => {
                 setInterestRate(line.rate)
                 setLoanTerm(line.term)
               }}
             >
-              <div className="flex items-start justify-between mb-2">
-                <h4 className="font-semibold text-gray-900 text-sm">{line.name}</h4>
-                <span className="text-lg font-bold text-gray-900">{line.rate}%</span>
+              <div className="flex items-center justify-between">
+                <span className="font-medium text-gray-900 text-sm">{line.name}</span>
+                <span className="text-base font-bold text-gray-900">{line.rate}%</span>
               </div>
-              <p className="text-xs text-gray-600 mb-2">{line.description}</p>
-              <div className="flex items-center justify-between text-xs text-gray-500">
-                <span>Hasta ${(line.maxAmount / 1000000).toFixed(0)}M</span>
-                <span>Plazo: {line.term} meses</span>
-              </div>
-            </div>
+            </button>
           ))}
         </div>
       </div>
@@ -177,9 +170,7 @@ const CreditCalculator = ({ invoices }) => {
       <div className="grid md:grid-cols-2 gap-6">
         {/* Parámetros */}
         <div className="bg-white border border-gray-200 rounded-lg p-6">
-          <h3 className="text-lg font-semibold mb-4">
-            <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent inline-block pb-2">Parámetros</span> <span className="text-gray-900">del Crédito</span>
-          </h3>
+          <h3 className="text-lg font-semibold mb-4 text-gray-900">Parámetros</h3>
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -269,10 +260,10 @@ const CreditCalculator = ({ invoices }) => {
 
           {/* Resumen */}
           <div className="bg-white border border-gray-200 rounded-lg p-6">
-            <h4 className="font-semibold text-gray-900 mb-4">Resumen del Crédito</h4>
+            <h4 className="font-semibold text-gray-900 mb-4">Resumen</h4>
             <div className="space-y-3">
               <div className="flex justify-between">
-                <span className="text-sm text-gray-600">Monto Solicitado</span>
+                <span className="text-sm text-gray-600">Monto</span>
                 <span className="text-sm font-semibold text-gray-900">
                   ${loanAmount.toLocaleString('es-AR')}
                 </span>
@@ -284,81 +275,37 @@ const CreditCalculator = ({ invoices }) => {
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-sm text-gray-600">Total Intereses</span>
+                <span className="text-sm text-gray-600">Intereses</span>
                 <span className="text-sm font-semibold text-red-600">
                   ${calculation.totalInterest.toLocaleString('es-AR', { maximumFractionDigits: 0 })}
                 </span>
               </div>
-              <div className="flex justify-between pt-3 border-t border-gray-200">
-                <span className="text-sm text-gray-600">Capacidad de Pago Mensual</span>
-                <span className="text-sm font-semibold text-gray-900">
-                  ${paymentCapacity.toLocaleString('es-AR', { maximumFractionDigits: 0 })}
-                </span>
-              </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Análisis de Viabilidad */}
-      <div className="bg-white border border-gray-200 rounded-lg p-6">
-        <h3 className="text-lg font-semibold mb-4">
-          <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent inline-block pb-2">Análisis de Viabilidad</span> <span className="text-gray-900">del Proyecto</span>
-        </h3>
-        <div className="grid md:grid-cols-3 gap-4 mb-4">
-          <div className="p-4 bg-gray-50 rounded-lg">
-            <p className="text-xs text-gray-600 mb-1">ROI Mínimo Recomendado</p>
-            <p className="text-2xl font-bold text-gray-900">{projectROI}%</p>
-            <p className="text-xs text-gray-500">Anual para superar inflación + tasa</p>
-          </div>
-          <div className="p-4 bg-gray-50 rounded-xl">
-            <p className="text-xs text-gray-600 mb-1">Retorno Proyectado</p>
-            <p className="text-2xl font-bold text-green-600">
-              ${projectReturn.toLocaleString('es-AR', { maximumFractionDigits: 0 })}
-            </p>
-            <p className="text-xs text-gray-500">En {loanTerm} meses</p>
-          </div>
-          <div className="p-4 bg-gray-50 rounded-xl">
-            <p className="text-xs text-gray-600 mb-1">Ganancia Neta</p>
-            <p className={`text-2xl font-bold ${netReturn > 0 ? 'text-green-600' : 'text-red-600'}`}>
-              ${netReturn.toLocaleString('es-AR', { maximumFractionDigits: 0 })}
-            </p>
-            <p className="text-xs text-gray-500">Después de intereses</p>
-          </div>
+      {/* Recomendaciones */}
+      {!canAfford && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start space-x-2">
+          <AlertCircle className="w-5 h-5 text-red-600 mt-0.5" />
+          <p className="text-sm text-red-900">
+            La cuota excede su capacidad de pago. Considere reducir el monto o extender el plazo.
+          </p>
         </div>
-
-        {/* Recomendaciones */}
-        <div className="space-y-2">
-          {!canAfford && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-lg flex items-start space-x-2">
-              <AlertCircle className="w-5 h-5 text-red-600 mt-0.5" />
-              <p className="text-sm text-red-900">
-                <strong>Advertencia:</strong> La cuota excede su capacidad de pago actual. Considere reducir el monto o extender el plazo.
-              </p>
-            </div>
-          )}
-          {netReturn < 0 && (
-            <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg flex items-start space-x-2">
-              <AlertCircle className="w-5 h-5 text-yellow-600 mt-0.5" />
-              <p className="text-sm text-yellow-900">
-                <strong>Atención:</strong> El proyecto debe generar un ROI superior al {projectROI}% anual para ser viable en el contexto argentino.
-              </p>
-            </div>
-          )}
-          {canAfford && netReturn > 0 && (
-            <div className="p-3 bg-green-50 border border-green-200 rounded-lg flex items-start space-x-2">
-              <CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />
-              <p className="text-sm text-green-900">
-                <strong>Viable:</strong> El proyecto es financieramente viable con su capacidad de pago actual y ROI proyectado.
-              </p>
-            </div>
-          )}
+      )}
+      {canAfford && (
+        <div className="bg-green-50 border border-green-200 rounded-lg p-4 flex items-start space-x-2">
+          <CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />
+          <p className="text-sm text-green-900">
+            El crédito es viable con su capacidad de pago actual.
+          </p>
         </div>
-      </div>
+      )}
 
       {/* Cronograma de Pagos (primeros 6 meses) */}
-      <div className="bg-white border border-gray-200 rounded-2xl p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Cronograma de Pagos (Primeros 6 Meses)</h3>
+      <div className="bg-white border border-gray-200 rounded-lg p-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Primeros 6 Meses</h3>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-50">

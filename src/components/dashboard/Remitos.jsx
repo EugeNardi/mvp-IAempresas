@@ -178,9 +178,9 @@ const Remitos = ({ companyData }) => {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 mb-1">
-            <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent inline-block pb-2">Remitos</span> y Comprobantes
+            Remitos y Comprobantes
           </h1>
-          <p className="text-sm text-gray-600">Carga y análisis automático con IA</p>
+          <p className="text-sm text-gray-600">Carga y análisis automático</p>
         </div>
         <label className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-lg font-medium hover:bg-gray-800 cursor-pointer transition-colors">
           <Upload className="w-4 h-4" />
@@ -231,21 +231,14 @@ const Remitos = ({ companyData }) => {
       )}
 
       {/* Info Card */}
-      <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-6">
-        <div className="flex items-start gap-4">
-          <Sparkles className="w-8 h-8 text-blue-600 flex-shrink-0" />
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <div className="flex items-start gap-3">
+          <Sparkles className="w-6 h-6 text-blue-600 flex-shrink-0" />
           <div>
-            <h3 className="font-semibold text-gray-900 mb-2">Análisis Automático con IA</h3>
-            <p className="text-sm text-gray-700 mb-3">
-              Nuestra IA analiza automáticamente tus PDFs y extrae:
+            <h3 className="font-semibold text-gray-900 mb-1">Análisis Automático</h3>
+            <p className="text-sm text-gray-700">
+              La IA extrae datos del comprobante: tipo, proveedor, items, precios e impuestos.
             </p>
-            <ul className="text-sm text-gray-700 space-y-1">
-              <li>• Tipo de comprobante (Factura A, B, C, Remito)</li>
-              <li>• Datos del proveedor/cliente (CUIT, razón social)</li>
-              <li>• Items, cantidades y precios</li>
-              <li>• Cálculo de IVA, IIBB y percepciones</li>
-              <li>• Categorización automática para impuestos ARCA</li>
-            </ul>
           </div>
         </div>
       </div>
@@ -341,35 +334,18 @@ const Remitos = ({ companyData }) => {
                 <div className="flex items-center justify-between">
                   <h4 className="font-semibold text-gray-900 flex items-center gap-2">
                     <Sparkles className="w-4 h-4 text-blue-600" />
-                    Análisis de IA
+                    Datos Detectados
                   </h4>
-                  <span className="text-xs text-gray-600">
-                    Confianza: {remito.analysis.confidence}%
-                  </span>
                 </div>
 
-                <div className="grid md:grid-cols-2 gap-4">
+                <div className="grid md:grid-cols-2 gap-3">
                   <div>
-                    <p className="text-xs text-gray-600 mb-1">Tipo de Comprobante</p>
+                    <p className="text-xs text-gray-600 mb-1">Tipo</p>
                     <p className="font-semibold text-gray-900">{remito.analysis.tipoComprobante}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-600 mb-1">Número</p>
-                    <p className="font-semibold text-gray-900">
-                      {remito.analysis.puntoVenta}-{remito.analysis.number}
-                    </p>
                   </div>
                   <div>
                     <p className="text-xs text-gray-600 mb-1">Proveedor/Cliente</p>
                     <p className="font-semibold text-gray-900">{remito.analysis.provider}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-600 mb-1">CUIT</p>
-                    <p className="font-semibold text-gray-900">{remito.analysis.cuit}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-600 mb-1">Condición IVA</p>
-                    <p className="font-semibold text-gray-900">{remito.analysis.condicionIVA}</p>
                   </div>
                   <div>
                     <p className="text-xs text-gray-600 mb-1">Fecha</p>
@@ -377,35 +353,11 @@ const Remitos = ({ companyData }) => {
                       {new Date(remito.analysis.date).toLocaleDateString('es-AR')}
                     </p>
                   </div>
-                </div>
-
-                {/* Totals */}
-                <div className="border-t border-gray-200 pt-3 mt-3">
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                    <div>
-                      <p className="text-xs text-gray-600">Subtotal</p>
-                      <p className="font-semibold text-gray-900">
-                        ${remito.analysis.subtotal.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-600">IVA (21%)</p>
-                      <p className="font-semibold text-gray-900">
-                        ${remito.analysis.iva.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-600">IIBB (3%)</p>
-                      <p className="font-semibold text-gray-900">
-                        ${remito.analysis.iibb.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-600">Total</p>
-                      <p className="font-bold text-lg text-gray-900">
-                        ${remito.analysis.total.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
-                      </p>
-                    </div>
+                  <div>
+                    <p className="text-xs text-gray-600 mb-1">Total</p>
+                    <p className="font-bold text-lg text-gray-900">
+                      ${remito.analysis.total.toLocaleString('es-AR', { maximumFractionDigits: 0 })}
+                    </p>
                   </div>
                 </div>
 

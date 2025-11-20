@@ -21,11 +21,14 @@ const DashboardPreview = () => {
         {/* Dashboard Image - Full Width */}
         <div className="relative animate-fade-in">
           {/* Main container */}
-          <div className="relative rounded-lg sm:rounded-xl md:rounded-2xl overflow-hidden shadow-xl sm:shadow-2xl border border-gray-200">
+          <div className="relative rounded-lg sm:rounded-xl md:rounded-2xl overflow-hidden shadow-xl sm:shadow-2xl border border-gray-200 bg-white">
             <img 
               src="/dashboard-preview.png" 
-              alt="Dashboard de Gestión Empresarial"
-              className="w-full h-auto"
+              alt="Dashboard de Gestión Empresarial - Sistema de Gestión con IA"
+              className="w-full h-auto object-cover"
+              loading="eager"
+              fetchpriority="high"
+              style={{ imageRendering: '-webkit-optimize-contrast' }}
             />
           </div>
 
