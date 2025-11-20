@@ -33,10 +33,10 @@ const PremiumBadge = ({ showUpgrade = true, className = '' }) => {
   return (
     <button
       onClick={() => navigate('/premium')}
-      className={`inline-flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border border-cyan-500/30 rounded-full hover:border-cyan-500/50 transition-all ${className}`}
+      className={`inline-flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-blue-500/10 to-blue-700/10 border border-blue-500/30 rounded-full hover:border-blue-600/50 transition-all ${className}`}
     >
-      <Crown className="w-4 h-4 text-cyan-400" />
-      <span className="text-sm font-semibold text-cyan-400">Hazte Premium</span>
+      <Crown className="w-4 h-4 text-blue-500" />
+      <span className="text-sm font-semibold text-blue-600">Hazte Premium</span>
     </button>
   );
 };

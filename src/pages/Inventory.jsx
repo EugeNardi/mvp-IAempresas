@@ -349,9 +349,6 @@ const Inventory = () => {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-1">
-            <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">Gestión</span> de Inventario
-          </h1>
           <p className="text-sm text-gray-600">Control completo de productos, stock y categorías</p>
         </div>
       </div>

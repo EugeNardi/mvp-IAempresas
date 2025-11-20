@@ -9,7 +9,7 @@ const Logo = ({ size = 'md', showIcon = false, className = '' }) => {
 
   return (
     <div className={`inline-flex items-center justify-center ${className}`} style={{ fontFamily: 'Poppins, sans-serif' }}>
-      <span className={`${sizes[size]} font-bold bg-gradient-to-r from-cyan-400 via-cyan-500 to-blue-500 bg-clip-text text-transparent tracking-tight`}>
+      <span className={`${sizes[size]} font-bold bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 bg-clip-text text-transparent tracking-tight`}>
         Gestionar
       </span>
     </div>

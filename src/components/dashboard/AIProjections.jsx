@@ -215,9 +215,6 @@ const AIProjections = ({ invoices }) => {
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-4 mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-1">
-            <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent inline-block pb-2">Proyecciones</span> con IA
-          </h1>
           <p className="text-sm text-gray-600">Análisis predictivo ajustado al contexto económico argentino</p>
         </div>
         <select
@@ -234,7 +231,7 @@ const AIProjections = ({ invoices }) => {
       {/* Contexto Económico */}
       <div className="bg-white border border-gray-200 rounded-lg p-6">
         <h3 className="text-lg font-semibold mb-4">
-          <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent inline-block pb-2">Contexto Económico</span> <span className="text-gray-900">Argentina 2024-2025</span>
+          <span className="bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 bg-clip-text text-transparent inline-block pb-2">Contexto Económico</span> <span className="text-gray-900">Argentina 2024-2025</span>
         </h3>
         <div className="grid md:grid-cols-3 gap-4">
           <div>
@@ -255,7 +252,7 @@ const AIProjections = ({ invoices }) => {
       {/* Situación Actual */}
       <div className="bg-white border border-gray-200 rounded-lg p-6">
         <h3 className="text-lg font-semibold mb-4">
-          <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent inline-block pb-2">Situación</span> <span className="text-gray-900">Actual</span>
+          <span className="bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 bg-clip-text text-transparent inline-block pb-2">Situación</span> <span className="text-gray-900">Actual</span>
         </h3>
         <div className="grid md:grid-cols-3 gap-4">
           <div>
@@ -282,7 +279,7 @@ const AIProjections = ({ invoices }) => {
       {/* Proyecciones */}
       <div className="bg-white border border-gray-200 rounded-lg p-6">
         <h3 className="text-lg font-semibold mb-4">
-          <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent inline-block pb-2">Proyección a {projectionPeriod} Meses</span> <span className="text-gray-900">(Ajustada por Inflación)</span>
+          <span className="bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 bg-clip-text text-transparent inline-block pb-2">Proyección a {projectionPeriod} Meses</span> <span className="text-gray-900">(Ajustada por Inflación)</span>
         </h3>
         <div className="space-y-3">
           {analysis.projections.map((proj, idx) => (

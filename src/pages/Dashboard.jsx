@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { useData } from '../context/DataContext'
 import { useNavigate, Link } from 'react-router-dom'
@@ -55,6 +55,13 @@ const Dashboard = () => {
   // Determinar si es emprendedor
   const isEmprendedor = companyData?.businessType === 'emprendedor'
 
+  // Redirigir si emprendedor intenta acceder a tabs bloqueados
+  useEffect(() => {
+    if (isEmprendedor && (activeTab === 'taxes' || activeTab === 'credit')) {
+      setActiveTab('dashboard')
+    }
+  }, [isEmprendedor, activeTab])
+
   // Obtener saludo según hora del día
   const getGreeting = () => {
     const hour = new Date().getHours()
@@ -66,7 +73,7 @@ const Dashboard = () => {
   // Tabs base
   const allTabs = [
     { id: 'profile', name: 'Mi Negocio', icon: Building2 },
-    { id: 'dashboard', name: 'Panel', icon: LayoutDashboard },
+    { id: 'dashboard', name: 'Panel de Control', icon: LayoutDashboard },
     { id: 'movimientos', name: 'Movimientos', icon: TrendingUp },
     { id: 'inventory', name: 'Inventario', icon: Package },
     { id: 'intelligence', name: 'Análisis', icon: BarChart3 },
@@ -113,6 +120,31 @@ const Dashboard = () => {
             <X className="w-5 h-5 text-gray-600" />
           </button>
         </div>
+
+        {/* Tipo de Cuenta Badge */}
+        {companyData?.businessType && (
+          <div className="px-3 pt-3 pb-2">
+            <div className={`p-3 rounded-xl ${
+              companyData.businessType === 'emprendedor'
+                ? 'bg-gradient-to-r from-gray-700 to-gray-900'
+                : 'bg-gradient-to-r from-blue-600 to-blue-800'
+            }`}>
+              <div className="flex items-center gap-2 text-white">
+                {companyData.businessType === 'emprendedor' ? (
+                  <Sparkles className="w-4 h-4 flex-shrink-0" />
+                ) : (
+                  <Building2 className="w-4 h-4 flex-shrink-0" />
+                )}
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-semibold opacity-90">Cuenta</p>
+                  <p className="text-sm font-bold truncate">
+                    {companyData.businessType === 'emprendedor' ? 'Emprendedor' : 'PyME'}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Navigation */}
         <nav className="flex-1 overflow-y-auto p-3">
@@ -174,9 +206,9 @@ const Dashboard = () => {
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden w-full bg-gray-50">
-        {/* Header - Vercel Style */}
-        <header className="h-16 sm:h-18 bg-white border-b border-gray-200 flex items-center justify-between px-4 sm:px-6 sticky top-0 z-30">
-          <div className="flex items-center gap-3 flex-1 min-w-0">
+        {/* Header - Más grande y prominente */}
+        <header className="h-20 sm:h-24 bg-white border-b border-gray-200 flex items-center justify-between px-6 sm:px-8 sticky top-0 z-30">
+          <div className="flex items-center gap-4 flex-1 min-w-0">
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
               className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0"
@@ -184,11 +216,11 @@ const Dashboard = () => {
               <Menu className="w-6 h-6 text-gray-700" />
             </button>
             <div className="flex flex-col">
-              <h2 className="text-base sm:text-lg font-semibold text-gray-900 truncate">
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 truncate">
                 {tabs.find(t => t.id === activeTab)?.name}
-              </h2>
+              </h1>
               {companyData?.name && (
-                <p className="hidden sm:block text-xs text-gray-500">
+                <p className="hidden sm:block text-sm text-gray-500 mt-1">
                   {getGreeting()}, {companyData.name}
                 </p>
               )}
@@ -197,16 +229,20 @@ const Dashboard = () => {
           
           <div className="flex items-center gap-2 sm:gap-3">
             {companyData?.businessType && (
-              <div className="hidden lg:flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-full border">
+              <div className={`hidden lg:flex items-center gap-2 text-xs font-bold px-4 py-2 rounded-xl shadow-md ${
+                companyData.businessType === 'emprendedor'
+                  ? 'bg-gradient-to-r from-gray-700 to-gray-900 text-white'
+                  : 'bg-gradient-to-r from-blue-600 to-blue-800 text-white'
+              }`}>
                 {companyData.businessType === 'emprendedor' ? (
                   <>
-                    <Sparkles className="w-3.5 h-3.5 text-purple-600" />
-                    <span className="text-purple-600">EMPRENDEDOR</span>
+                    <Sparkles className="w-4 h-4" />
+                    <span>EMPRENDEDOR</span>
                   </>
                 ) : (
                   <>
-                    <Building2 className="w-3.5 h-3.5 text-blue-600" />
-                    <span className="text-blue-600">PyME</span>
+                    <Building2 className="w-4 h-4" />
+                    <span>PyME</span>
                   </>
                 )}
               </div>
@@ -274,12 +310,14 @@ const Dashboard = () => {
             <FinancialIntelligence 
               invoices={invoices}
               companyData={companyData}
+              isEmprendedor={isEmprendedor}
             />
           )}
           {activeTab === 'dashboard' && (
             <CombinedDashboard 
               invoices={invoices}
               companyData={companyData}
+              isEmprendedor={isEmprendedor}
             />
           )}
           {activeTab === 'projections' && (

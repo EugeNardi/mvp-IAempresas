@@ -36,7 +36,7 @@ const HowItWorks = () => {
         <div className="text-center max-w-3xl mx-auto mb-16 animate-slide-up">
           <h2 className="text-4xl sm:text-5xl font-bold mb-6 text-gray-900">
             Implementación{' '}
-            <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent inline-block pb-2">simple y rápida</span>
+            <span className="bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 bg-clip-text text-transparent inline-block pb-2">simple y rápida</span>
           </h2>
           <p className="text-xl text-gray-600">
             En solo 4 pasos, tu negocio estará equipado con tecnología de IA de última generación

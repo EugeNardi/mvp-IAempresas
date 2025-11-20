@@ -12,7 +12,7 @@ import DolarCard from './DolarCard'
 import AnalisisVisual from './AnalisisVisual'
 import { useData } from '../../context/DataContext'
 
-const FinancialIntelligence = ({ invoices, companyData }) => {
+const FinancialIntelligence = ({ invoices, companyData, isEmprendedor = false }) => {
   const { inventoryItems } = useData()
   const [kpis, setKpis] = useState(null)
   const [recommendations, setRecommendations] = useState([])
@@ -1159,9 +1159,6 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
     return (
       <div className="max-w-6xl mx-auto space-y-8 px-4 sm:px-6">
         <div className="text-center mb-8">
-          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3">
-            Análisis de Negocio
-          </h1>
           <p className="text-base sm:text-lg text-gray-600">Selecciona una categoría para ver métricas detalladas</p>
         </div>
 
@@ -1208,7 +1205,7 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
           <div className="flex items-center gap-3">
             <div>
               <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">
-                <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">Análisis</span> de Clientes
+                <span className="bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 bg-clip-text text-transparent">Análisis</span> de Clientes
               </h2>
               <p className="text-xs sm:text-sm text-gray-600">Métricas y comportamiento de tus clientes</p>
             </div>
@@ -1793,7 +1790,7 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
           
           <div>
             <h2 className="text-2xl font-bold text-gray-900 mb-1">
-              <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">Análisis</span> de Gastos
+              <span className="bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 bg-clip-text text-transparent">Análisis</span> de Gastos
             </h2>
             <p className="text-sm text-gray-600">Distribución y detalle de gastos operativos</p>
           </div>
@@ -2208,7 +2205,7 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
           
           <div>
             <h2 className="text-2xl font-bold text-gray-900 mb-1">
-              <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">Análisis</span> de Deudas
+              <span className="bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 bg-clip-text text-transparent">Análisis</span> de Deudas
             </h2>
             <p className="text-sm text-gray-600">Cuentas por cobrar y por pagar</p>
           </div>
@@ -2633,7 +2630,7 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
           
           <div>
             <h2 className="text-2xl font-bold text-gray-900 mb-1">
-              <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">Análisis</span> de Productos
+              <span className="bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 bg-clip-text text-transparent">Análisis</span> de Productos
             </h2>
             <p className="text-sm text-gray-600">Rendimiento y estadísticas de productos</p>
           </div>
@@ -2727,7 +2724,7 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
               <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-all">
                 <div className="flex items-center justify-between mb-4">
                   <p className="text-sm font-medium text-gray-600">Marcas Disponibles</p>
-                  <Award className="w-5 h-5 bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent" />
+                  <Award className="w-5 h-5 bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 bg-clip-text text-transparent" />
                 </div>
                 <p className="text-4xl font-bold text-gray-900">{marcasDisponibles}</p>
                 <p className="text-xs text-gray-500 mt-2">Marcas en inventario</p>
@@ -2779,7 +2776,7 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
               <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-all">
                 <div className="flex items-center justify-between mb-4">
                   <p className="text-sm font-medium text-gray-600">Marca con Mayor Participación</p>
-                  <Award className="w-5 h-5 bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent" />
+                  <Award className="w-5 h-5 bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 bg-clip-text text-transparent" />
                 </div>
                 <p className="text-2xl font-bold text-gray-900 truncate">
                   {marcaMayorParticipacion ? marcaMayorParticipacion.nombre : 'N/A'}
@@ -2870,7 +2867,7 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
               <div className="bg-white border border-gray-200 rounded-lg p-6">
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="text-lg font-semibold">
-                    <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">TOP 10 Productos</span> Más Vendidos (Unidades)
+                    <span className="bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 bg-clip-text text-transparent">TOP 10 Productos</span> Más Vendidos (Unidades)
                   </h3>
                   
                   {/* Buscador de productos */}
@@ -3003,7 +3000,7 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
               <div className="bg-white border border-gray-200 rounded-lg p-6">
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="text-lg font-semibold">
-                    <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">TOP 10 Productos</span> con Mayor Facturación
+                    <span className="bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 bg-clip-text text-transparent">TOP 10 Productos</span> con Mayor Facturación
                   </h3>
                   
                   {/* Buscador de productos */}
@@ -3666,7 +3663,7 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
           
           <div>
             <h2 className="text-2xl font-bold text-gray-900 mb-1">
-              <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">Análisis</span> de Proveedores
+              <span className="bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 bg-clip-text text-transparent">Análisis</span> de Proveedores
             </h2>
             <p className="text-sm text-gray-600">Gestión y relación con proveedores</p>
           </div>
@@ -4192,36 +4189,36 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
 
               {/* Gráficos de Análisis */}
               <div className="grid md:grid-cols-2 gap-6">
-                {/* TOP 10 Proveedores Más Rentables */}
-                <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-md">
+                {/* TOP 5 Más Rentables */}
+                <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
                   <div className="flex items-center gap-3 mb-6">
-                    <div className="p-2.5 bg-gradient-to-br from-green-50 to-green-100 rounded-xl border border-green-200">
+                    <div className="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center">
                       <TrendingUp className="w-5 h-5 text-green-600" />
                     </div>
                     <div>
-                      <h3 className="text-lg font-semibold text-gray-900">TOP 10 Más Rentables</h3>
-                      <p className="text-xs text-gray-500">Por ganancia neta generada</p>
+                      <h3 className="text-base font-bold text-gray-900">Top Rentables</h3>
+                      <p className="text-xs text-gray-500">Por ganancia</p>
                     </div>
                   </div>
                   <div className="space-y-3">
                     {proveedoresData
                       .sort((a, b) => b.ganancia - a.ganancia)
-                      .slice(0, 10)
+                      .slice(0, 5)
                       .map((proveedor, index) => {
-                        const maxGanancia = Math.max(...proveedoresData.map(p => p.ganancia))
-                        const porcentaje = (proveedor.ganancia / maxGanancia) * 100
+                        const maxGanancia = Math.max(...proveedoresData.slice(0, 5).map(p => p.ganancia))
+                        const porcentaje = Math.min((proveedor.ganancia / maxGanancia) * 100, 100)
                         
                         return (
-                          <div key={index} className="space-y-1">
-                            <div className="flex justify-between items-center text-sm">
-                              <span className="font-medium text-gray-700 truncate">{proveedor.nombre}</span>
-                              <span className="font-bold text-green-600">
+                          <div key={index} className="space-y-1.5">
+                            <div className="flex justify-between items-center">
+                              <span className="text-sm font-medium text-gray-900 truncate max-w-[60%]">{proveedor.nombre}</span>
+                              <span className="text-sm font-bold text-green-600">
                                 ${proveedor.ganancia.toLocaleString('es-AR', { maximumFractionDigits: 0 })}
                               </span>
                             </div>
-                            <div className="w-full bg-gray-200 rounded-full h-2.5">
+                            <div className="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
                               <div 
-                                className="bg-gradient-to-r from-green-500 to-green-600 h-2.5 rounded-full transition-all"
+                                className="bg-gradient-to-r from-green-500 to-green-600 h-2 rounded-full transition-all duration-500"
                                 style={{ width: `${porcentaje}%` }}
                               ></div>
                             </div>
@@ -4231,50 +4228,50 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
                   </div>
                 </div>
 
-                {/* Comparación Comprado vs Ganancia */}
-                <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-md">
+                {/* Comprado vs Ganancia */}
+                <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
                   <div className="flex items-center gap-3 mb-6">
-                    <div className="p-2.5 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border border-blue-200">
+                    <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center">
                       <BarChart3 className="w-5 h-5 text-blue-600" />
                     </div>
                     <div>
-                      <h3 className="text-lg font-semibold text-gray-900">Comprado vs Ganancia</h3>
-                      <p className="text-xs text-gray-500">TOP 5 proveedores</p>
+                      <h3 className="text-base font-bold text-gray-900">Costo vs Ganancia</h3>
+                      <p className="text-xs text-gray-500">Top 3 proveedores</p>
                     </div>
                   </div>
                   <div className="space-y-4">
-                    {proveedoresData.slice(0, 5).map((proveedor, index) => {
+                    {proveedoresData.slice(0, 3).map((proveedor, index) => {
                       const maxValor = Math.max(
-                        ...proveedoresData.slice(0, 5).map(p => Math.max(p.total, p.ganancia))
+                        ...proveedoresData.slice(0, 3).map(p => Math.max(p.total, p.ganancia))
                       )
-                      const porcentajeComprado = (proveedor.total / maxValor) * 100
-                      const porcentajeGanancia = (proveedor.ganancia / maxValor) * 100
+                      const porcentajeComprado = Math.min((proveedor.total / maxValor) * 100, 100)
+                      const porcentajeGanancia = Math.min((proveedor.ganancia / maxValor) * 100, 100)
                       
                       return (
                         <div key={index} className="space-y-2">
-                          <p className="text-sm font-semibold text-gray-700">{proveedor.nombre}</p>
-                          <div className="space-y-1.5">
+                          <p className="text-sm font-semibold text-gray-900 truncate">{proveedor.nombre}</p>
+                          <div className="space-y-2">
                             <div className="flex items-center gap-2">
-                              <span className="text-xs text-gray-500 w-20">Comprado:</span>
-                              <div className="flex-1 bg-gray-200 rounded-full h-2">
+                              <span className="text-xs text-gray-500 w-16 flex-shrink-0">Costo:</span>
+                              <div className="flex-1 bg-gray-100 rounded-full h-2 overflow-hidden">
                                 <div 
-                                  className="bg-gradient-to-r from-red-400 to-red-500 h-2 rounded-full"
+                                  className="bg-gradient-to-r from-red-400 to-red-500 h-2 rounded-full transition-all duration-500"
                                   style={{ width: `${porcentajeComprado}%` }}
                                 ></div>
                               </div>
-                              <span className="text-xs font-semibold text-gray-700 w-24 text-right">
+                              <span className="text-xs font-semibold text-gray-900 w-20 text-right flex-shrink-0">
                                 ${proveedor.total.toLocaleString('es-AR', { maximumFractionDigits: 0 })}
                               </span>
                             </div>
                             <div className="flex items-center gap-2">
-                              <span className="text-xs text-gray-500 w-20">Ganancia:</span>
-                              <div className="flex-1 bg-gray-200 rounded-full h-2">
+                              <span className="text-xs text-gray-500 w-16 flex-shrink-0">Ganancia:</span>
+                              <div className="flex-1 bg-gray-100 rounded-full h-2 overflow-hidden">
                                 <div 
-                                  className="bg-gradient-to-r from-green-400 to-green-500 h-2 rounded-full"
+                                  className="bg-gradient-to-r from-green-400 to-green-500 h-2 rounded-full transition-all duration-500"
                                   style={{ width: `${porcentajeGanancia}%` }}
                                 ></div>
                               </div>
-                              <span className="text-xs font-semibold text-green-600 w-24 text-right">
+                              <span className="text-xs font-semibold text-green-600 w-20 text-right flex-shrink-0">
                                 ${proveedor.ganancia.toLocaleString('es-AR', { maximumFractionDigits: 0 })}
                               </span>
                             </div>
@@ -4288,14 +4285,14 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
 
               {/* Gráficos de Torta - Distribución */}
               <div className="grid md:grid-cols-3 gap-6">
-                {/* Distribución de Ganancia por Proveedor */}
-                <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-md">
+                {/* Distribución de Ganancia */}
+                <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
                   <div className="flex items-center gap-3 mb-6">
-                    <div className="p-2.5 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl border border-purple-200">
+                    <div className="w-10 h-10 bg-purple-50 rounded-xl flex items-center justify-center">
                       <PieChart className="w-5 h-5 text-purple-600" />
                     </div>
                     <div>
-                      <h3 className="text-lg font-semibold text-gray-900">Distribución de Ganancia</h3>
+                      <h3 className="text-base font-bold text-gray-900">Distribución</h3>
                       <p className="text-xs text-gray-500">Por proveedor</p>
                     </div>
                   </div>
@@ -4346,29 +4343,35 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
                   </div>
                 </div>
 
-                {/* Distribución por Categorías */}
-                <div className="bg-white border border-gray-200 rounded-lg p-6">
-                  <h3 className="text-lg font-semibold mb-4">
-                    <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">Categorías</span> en Compras
-                  </h3>
+                {/* Categorías */}
+                <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center">
+                      <Package className="w-5 h-5 text-orange-600" />
+                    </div>
+                    <div>
+                      <h3 className="text-base font-bold text-gray-900">Categorías</h3>
+                      <p className="text-xs text-gray-500">En compras</p>
+                    </div>
+                  </div>
                   <div className="space-y-3">
                     {(() => {
                       const totalCategorias = Object.values(categoriasPorProveedor).reduce((a, b) => a + b, 0)
-                      const top5Categorias = Object.entries(categoriasPorProveedor)
+                      const top3Categorias = Object.entries(categoriasPorProveedor)
                         .sort((a, b) => b[1] - a[1])
-                        .slice(0, 5)
+                        .slice(0, 3)
                       
-                      return top5Categorias.map(([categoria, cantidad], index) => {
-                        const porcentaje = (cantidad / totalCategorias) * 100
+                      return top3Categorias.map(([categoria, cantidad], index) => {
+                        const porcentaje = Math.min((cantidad / totalCategorias) * 100, 100)
                         return (
-                          <div key={index} className="space-y-1">
+                          <div key={index} className="space-y-1.5">
                             <div className="flex items-center justify-between">
-                              <span className="text-sm font-medium text-gray-900">{categoria}</span>
+                              <span className="text-sm font-medium text-gray-900 truncate max-w-[70%]">{categoria}</span>
                               <span className="text-sm font-bold text-gray-900">{porcentaje.toFixed(1)}%</span>
                             </div>
-                            <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                            <div className="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
                               <div 
-                                className="bg-gray-900 h-2 rounded-full transition-all duration-500"
+                                className="bg-gradient-to-r from-orange-500 to-orange-600 h-2 rounded-full transition-all duration-500"
                                 style={{ width: `${porcentaje}%` }}
                               />
                             </div>
@@ -4379,16 +4382,22 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
                   </div>
                 </div>
 
-                {/* Distribución por Marcas */}
-                <div className="bg-white border border-gray-200 rounded-lg p-6">
-                  <h3 className="text-lg font-semibold mb-4">
-                    <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">Marcas</span> en Compras
-                  </h3>
+                {/* Marcas */}
+                <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 bg-pink-50 rounded-xl flex items-center justify-center">
+                      <TrendingUp className="w-5 h-5 text-pink-600" />
+                    </div>
+                    <div>
+                      <h3 className="text-base font-bold text-gray-900">Marcas</h3>
+                      <p className="text-xs text-gray-500">En compras</p>
+                    </div>
+                  </div>
                   
                   <select
                     value={categoriaSeleccionadaMarcas}
                     onChange={(e) => setCategoriaSeleccionadaMarcas(e.target.value)}
-                    className="w-full px-3 py-2 mb-4 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+                    className="w-full px-3 py-2 mb-4 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none transition-all"
                   >
                     <option value="todas">Todas las categorías</option>
                     {Object.keys(categoriasPorProveedor).map((cat, index) => (
@@ -4416,24 +4425,24 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
                       })
                       
                       const totalMarcas = Object.values(marcasFiltradas).reduce((a, b) => a + b, 0)
-                      const top5Marcas = Object.entries(marcasFiltradas)
+                      const top3Marcas = Object.entries(marcasFiltradas)
                         .sort((a, b) => b[1] - a[1])
-                        .slice(0, 5)
+                        .slice(0, 3)
                       
-                      const colores = ['#ec4899', '#f472b6', '#f9a8d4', '#fbcfe8', '#fce7f3']
+                      const colores = ['#ec4899', '#f472b6', '#f9a8d4']
                       
-                      return top5Marcas.map(([marca, cantidad], index) => {
-                        const porcentaje = (cantidad / totalMarcas) * 100
+                      return top3Marcas.map(([marca, cantidad], index) => {
+                        const porcentaje = Math.min((cantidad / totalMarcas) * 100, 100)
                         return (
-                          <div key={index} className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
+                          <div key={index} className="flex items-center justify-between py-2">
+                            <div className="flex items-center gap-2 flex-1 min-w-0">
                               <div 
-                                className="w-3 h-3 rounded-full" 
+                                className="w-3 h-3 rounded-full flex-shrink-0" 
                                 style={{ backgroundColor: colores[index] }}
                               ></div>
-                              <span className="text-sm text-gray-700 truncate max-w-[120px]">{marca}</span>
+                              <span className="text-sm font-medium text-gray-900 truncate">{marca}</span>
                             </div>
-                            <span className="text-sm font-semibold text-gray-900">{porcentaje.toFixed(1)}%</span>
+                            <span className="text-sm font-bold text-gray-900 ml-2">{porcentaje.toFixed(1)}%</span>
                           </div>
                         )
                       })
@@ -4446,7 +4455,7 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
               <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-md">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="p-2.5 bg-gradient-to-br from-cyan-50 to-cyan-100 rounded-xl border border-cyan-200">
-                    <Package className="w-5 h-5 bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent" />
+                    <Package className="w-5 h-5 bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 bg-clip-text text-transparent" />
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900">Modelos en Compras</h3>
@@ -4783,7 +4792,7 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
           
           <div>
             <h2 className="text-2xl font-bold text-gray-900 mb-1">
-              <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">Análisis</span> Financiero
+              <span className="bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 bg-clip-text text-transparent">Análisis</span> Financiero
             </h2>
             <p className="text-sm text-gray-600">Métricas y gráficos financieros detallados</p>
           </div>
@@ -5133,7 +5142,7 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
                   <div className="flex items-center justify-between mb-6">
                     <FinancialTooltip term="punto_equilibrio">
                       <h3 className="text-lg font-semibold">
-                        <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">Punto de Equilibrio</span>
+                        <span className="bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 bg-clip-text text-transparent">Punto de Equilibrio</span>
                       </h3>
                     </FinancialTooltip>
                     
@@ -5321,7 +5330,7 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
                                 <div className="flex items-center justify-between">
                                   <span className="text-xs font-medium text-gray-700">Ganancia Bruta</span>
                                   <span className={`text-xs font-bold ${
-                                    data.gananciaBruta >= 0 ? 'bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent' : 'text-orange-600'
+                                    data.gananciaBruta >= 0 ? 'bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 bg-clip-text text-transparent' : 'text-orange-600'
                                   }`}>
                                     {data.gananciaBruta >= 0 ? '+' : ''}${Math.abs(data.gananciaBruta).toLocaleString('es-AR', { maximumFractionDigits: 0 })}
                                   </span>
@@ -5668,7 +5677,7 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
           
           <div>
             <h2 className="text-2xl font-bold text-gray-900 mb-1">
-              <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">Análisis</span> de Ventas
+              <span className="bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 bg-clip-text text-transparent">Análisis</span> de Ventas
             </h2>
             <p className="text-sm text-gray-600">Métricas detalladas de rendimiento comercial</p>
           </div>
@@ -6275,7 +6284,7 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
             <div className="bg-white border border-gray-200 rounded-lg p-6">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-semibold">
-                  <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">Distribución de Ventas</span> por Período
+                  <span className="bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 bg-clip-text text-transparent">Distribución de Ventas</span> por Período
                 </h3>
                 <select
                   value={salesDistributionType}
@@ -6367,7 +6376,7 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
             {/* Heatmap */}
             <div className="bg-white border border-gray-200 rounded-lg p-6">
               <h3 className="text-lg font-semibold mb-4">
-                <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">Mapa de Calor</span> - Ventas por Día/Semana
+                <span className="bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 bg-clip-text text-transparent">Mapa de Calor</span> - Ventas por Día/Semana
               </h3>
               <div className="overflow-x-auto">
                 <div className="grid grid-cols-8 gap-1 min-w-max">
@@ -6529,10 +6538,6 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
         >
           <ArrowLeft className="w-5 h-5 text-gray-600" />
         </button>
-        <div>
-          <h1 className="text-2xl font-semibold text-gray-900">Análisis</h1>
-          <p className="text-sm text-gray-600 mt-1">Métricas clave de tu negocio</p>
-        </div>
       </div>
 
       {/* Mostrar Gráficos o Métricas */}
@@ -6540,9 +6545,87 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
         <AnalisisVisual invoices={invoices} />
       ) : (
         <>
-          {/* Métricas Principales - 4 Cuadros Centrados */}
+          {/* Métricas Principales - Adaptadas según tipo de cuenta */}
           <div className="max-w-5xl mx-auto">
-            <div className="grid md:grid-cols-2 gap-6">
+            {isEmprendedor ? (
+              // Versión EMPRENDEDOR - Simplificada con 3 métricas clave
+              <div className="space-y-4 mb-6">
+                <div className="flex items-center gap-2 mb-6">
+                  <div className="w-10 h-10 bg-gray-900 rounded-lg flex items-center justify-center">
+                    <TrendingUp className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-gray-900">Vista Simplificada</h3>
+                    <p className="text-sm text-gray-500">Métricas esenciales para tu negocio</p>
+                  </div>
+                </div>
+                <div className="grid md:grid-cols-3 gap-6">
+                  {/* Ventas Totales */}
+                  <div className="bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-200 rounded-2xl p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        <p className="text-sm font-medium text-gray-600 mb-1">Ventas Totales</p>
+                        <p className="text-3xl font-bold text-gray-900">
+                          ${kpis.totalVentas.toLocaleString('es-AR', { maximumFractionDigits: 0 })}
+                        </p>
+                      </div>
+                      <div className="w-14 h-14 bg-green-500 rounded-xl flex items-center justify-center">
+                        <DollarSign className="w-7 h-7 text-white" />
+                      </div>
+                    </div>
+                    <p className="text-xs text-gray-600">{kpis.clientesUnicos} clientes activos</p>
+                  </div>
+
+                  {/* Gastos Totales */}
+                  <div className="bg-gradient-to-br from-red-50 to-orange-50 border-2 border-red-200 rounded-2xl p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        <p className="text-sm font-medium text-gray-600 mb-1">Gastos Totales</p>
+                        <p className="text-3xl font-bold text-gray-900">
+                          ${kpis.totalExpenses.toLocaleString('es-AR', { maximumFractionDigits: 0 })}
+                        </p>
+                      </div>
+                      <div className="w-14 h-14 bg-red-500 rounded-xl flex items-center justify-center">
+                        <Receipt className="w-7 h-7 text-white" />
+                      </div>
+                    </div>
+                    <p className="text-xs text-gray-600">{kpis.proveedoresUnicos} proveedores</p>
+                  </div>
+
+                  {/* Ganancia */}
+                  <div className={`bg-gradient-to-br ${kpis.netProfit >= 0 ? 'from-blue-50 to-cyan-50 border-blue-200' : 'from-gray-50 to-gray-100 border-gray-200'} border-2 rounded-2xl p-6`}>
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        <p className="text-sm font-medium text-gray-600 mb-1">Ganancia</p>
+                        <p className={`text-3xl font-bold ${kpis.netProfit >= 0 ? 'text-blue-600' : 'text-gray-900'}`}>
+                          ${Math.abs(kpis.netProfit).toLocaleString('es-AR', { maximumFractionDigits: 0 })}
+                        </p>
+                      </div>
+                      <div className={`w-14 h-14 ${kpis.netProfit >= 0 ? 'bg-blue-500' : 'bg-gray-500'} rounded-xl flex items-center justify-center`}>
+                        {kpis.netProfit >= 0 ? (
+                          <TrendingUp className="w-7 h-7 text-white" />
+                        ) : (
+                          <TrendingDown className="w-7 h-7 text-white" />
+                        )}
+                      </div>
+                    </div>
+                    <p className="text-xs text-gray-600">Margen: {kpis.profitMargin.toFixed(1)}%</p>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              // Versión PyME - Completa con 4 métricas detalladas
+              <>
+                <div className="flex items-center gap-2 mb-6">
+                  <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+                    <BarChart3 className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-gray-900">Vista Completa PyME</h3>
+                    <p className="text-sm text-gray-500">Análisis detallado de tu negocio</p>
+                  </div>
+                </div>
+                <div className="grid md:grid-cols-2 gap-6">
               {/* Clientes */}
               <div className="bg-white border border-gray-200 rounded-xl p-8 hover:shadow-lg transition-all group">
                 <div className="flex items-center justify-between mb-6">
@@ -6649,6 +6732,8 @@ const FinancialIntelligence = ({ invoices, companyData }) => {
                 </div>
               </div>
             </div>
+              </>
+            )}
           </div>
         </>
       )}

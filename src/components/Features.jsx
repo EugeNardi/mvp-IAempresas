@@ -8,7 +8,7 @@ const Features = () => {
       icon: Bot,
       title: 'IA Conversacional Avanzada',
       description: 'Chatbots inteligentes que entienden el contexto y responden de manera natural y precisa.',
-      color: 'from-blue-500 to-cyan-500',
+      color: 'from-blue-500 to-blue-700',
       details: 'Nuestro sistema utiliza modelos de lenguaje de última generación (GPT-4) para comprender consultas complejas y proporcionar respuestas contextuales. Incluye procesamiento de lenguaje natural, análisis de sentimientos, y capacidad de aprendizaje continuo para mejorar con cada interacción.'
     },
     {
@@ -55,7 +55,7 @@ const Features = () => {
         <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16 animate-slide-up">
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-5 sm:mb-6 text-gray-900 leading-tight px-2">
             Todo lo que necesitas para{' '}
-            <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent inline-block pb-1 sm:pb-2">transformar tu negocio</span>
+            <span className="bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 bg-clip-text text-transparent inline-block pb-1 sm:pb-2">transformar tu negocio</span>
           </h2>
           <p className="text-base sm:text-lg md:text-xl text-gray-600 px-2">
             Soluciones completas de IA diseñadas específicamente para PyMÉs que quieren crecer
@@ -88,7 +88,7 @@ const Features = () => {
               {/* Button - Visible en móvil */}
               <button
                 onClick={() => setSelectedFeature(feature)}
-                className="text-base text-cyan-600 font-medium opacity-100 sm:opacity-0 group-hover:opacity-100 transform translate-y-0 sm:translate-y-2 group-hover:translate-y-0 transition-all duration-300 hover:text-cyan-700"
+                className="text-base text-blue-600 font-medium opacity-100 sm:opacity-0 group-hover:opacity-100 transform translate-y-0 sm:translate-y-2 group-hover:translate-y-0 transition-all duration-300 hover:text-blue-700"
               >
                 Saber más →
               </button>

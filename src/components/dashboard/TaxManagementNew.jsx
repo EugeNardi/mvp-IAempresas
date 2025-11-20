@@ -326,10 +326,9 @@ const TaxManagement = ({ invoices, companyData }) => {
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
-      {/* Header con Tabs */}
+      {/* Tabs */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-3">Impuestos y Remitos</h1>
           <div className="flex gap-2">
             <button
               onClick={() => setActiveTab('impuestos')}

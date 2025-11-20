@@ -3,7 +3,7 @@ import { useData } from '../../context/DataContext'
 import { 
   Plus, Save, X, Search, 
   TrendingUp, TrendingDown, DollarSign, ShoppingCart, 
-  FileText, AlertCircle, Trash2, Eye, Edit
+  FileText, AlertCircle, Trash2, Eye, Edit, CheckSquare, Square
 } from 'lucide-react'
 import MovimientosCompra from './MovimientosCompra'
 import MovimientosVenta from './MovimientosVenta'
@@ -32,6 +32,7 @@ const Movimientos = ({ companyData }) => {
   const [movimientoToDelete, setMovimientoToDelete] = useState(null)
   const [deleteLoading, setDeleteLoading] = useState(false)
   const [editingMovimiento, setEditingMovimiento] = useState(null)
+  const [selectedMovimientos, setSelectedMovimientos] = useState([])
 
   const [formData, setFormData] = useState({
     type: 'venta',
@@ -162,6 +163,27 @@ const Movimientos = ({ companyData }) => {
     setMovimientoToDelete(null)
   }
 
+  const handleDeleteMultiple = async () => {
+    setDeleteLoading(true)
+    setError('')
+    
+    try {
+      // Eliminar todos los movimientos seleccionados
+      await Promise.all(
+        selectedMovimientos.map(id => deleteInvoice(id))
+      )
+      
+      setSuccess(`${selectedMovimientos.length} movimiento(s) eliminado(s) exitosamente`)
+      setSelectedMovimientos([])
+      setTimeout(() => setSuccess(''), 3000)
+    } catch (err) {
+      setError('Error al eliminar los movimientos: ' + err.message)
+      setTimeout(() => setError(''), 3000)
+    } finally {
+      setDeleteLoading(false)
+    }
+  }
+
   const handleViewDetalle = (movimiento) => {
     setSelectedMovimiento(movimiento)
     setShowDetalle(true)
@@ -289,11 +311,29 @@ const Movimientos = ({ companyData }) => {
 
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-1">
-            <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent inline-block pb-2">Movimientos</span> Financieros
-          </h1>
-          <p className="text-sm text-gray-600">Gestiona todas tus operaciones</p>
+        <div className="flex items-center gap-2">
+          {selectedMovimientos.length > 0 && (
+            <>
+              <button
+                onClick={() => setSelectedMovimientos([])}
+                className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-md text-sm font-medium hover:bg-gray-200 transition-colors"
+              >
+                <X className="w-4 h-4" />
+                Cancelar ({selectedMovimientos.length})
+              </button>
+              <button
+                onClick={() => {
+                  if (window.confirm(`¿Eliminar ${selectedMovimientos.length} movimiento(s) seleccionado(s)?`)) {
+                    handleDeleteMultiple()
+                  }
+                }}
+                className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-md text-sm font-medium hover:bg-gray-800 transition-colors"
+              >
+                <Trash2 className="w-4 h-4" />
+                Eliminar Seleccionados
+              </button>
+            </>
+          )}
         </div>
         <button
           id="nuevo-movimiento-btn"
@@ -390,6 +430,25 @@ const Movimientos = ({ companyData }) => {
         <table className="w-full">
           <thead className="bg-gray-50 border-b">
             <tr>
+              <th className="text-center py-3 px-3 text-sm font-semibold w-12">
+                <button
+                  onClick={() => {
+                    if (selectedMovimientos.length === filteredMovements.length) {
+                      setSelectedMovimientos([])
+                    } else {
+                      setSelectedMovimientos(filteredMovements.map(m => m.id))
+                    }
+                  }}
+                  className="p-1 hover:bg-gray-200 rounded transition-colors"
+                  title={selectedMovimientos.length === filteredMovements.length ? "Deseleccionar todos" : "Seleccionar todos"}
+                >
+                  {selectedMovimientos.length === filteredMovements.length && filteredMovements.length > 0 ? (
+                    <CheckSquare className="w-5 h-5 text-gray-900" />
+                  ) : (
+                    <Square className="w-5 h-5 text-gray-400" />
+                  )}
+                </button>
+              </th>
               <th className="text-left py-3 px-4 text-sm font-semibold">Fecha</th>
               <th className="text-left py-3 px-4 text-sm font-semibold">Tipo</th>
               <th className="text-left py-3 px-4 text-sm font-semibold">Descripción</th>
@@ -400,7 +459,7 @@ const Movimientos = ({ companyData }) => {
           </thead>
           <tbody>
             {filteredMovements.length === 0 ? (
-              <tr><td colSpan="6" className="text-center py-12 text-gray-500">
+              <tr><td colSpan="7" className="text-center py-12 text-gray-500">
                 <FileText className="w-12 h-12 mx-auto mb-3 text-gray-400" />
                 <p>No hay movimientos</p>
               </td></tr>
@@ -411,8 +470,32 @@ const Movimientos = ({ companyData }) => {
                   ? (mov.metadata?.cobrado === false || mov.metadata?.cobrado === 'no') && parseFloat(mov.metadata?.deuda || 0) > 0
                   : (mov.metadata?.pagado === false || mov.metadata?.pagado === 'no') && parseFloat(mov.metadata?.deuda || 0) > 0
                 
+                const isSelected = selectedMovimientos.includes(mov.id)
+                
                 return (
-                <tr key={idx} className={`border-b transition-all ${tieneDeuda ? 'bg-gradient-to-r from-red-50 to-orange-50 border-l-4 border-l-red-500 hover:shadow-md' : 'hover:bg-gray-50'}`}>
+                <tr key={idx} className={`border-b transition-all ${
+                  isSelected ? 'bg-gray-50 border-l-4 border-l-gray-900' : 
+                  tieneDeuda ? 'bg-gradient-to-r from-red-50 to-orange-50 border-l-4 border-l-red-500 hover:shadow-md' : 
+                  'hover:bg-gray-50'
+                }`}>
+                  <td className="py-3 px-3 text-sm w-12 text-center">
+                    <button
+                      onClick={() => {
+                        if (isSelected) {
+                          setSelectedMovimientos(prev => prev.filter(id => id !== mov.id))
+                        } else {
+                          setSelectedMovimientos(prev => [...prev, mov.id])
+                        }
+                      }}
+                      className="p-1 hover:bg-gray-200 rounded transition-colors"
+                    >
+                      {isSelected ? (
+                        <CheckSquare className="w-5 h-5 text-gray-900" />
+                      ) : (
+                        <Square className="w-5 h-5 text-gray-400" />
+                      )}
+                    </button>
+                  </td>
                   <td className="py-3 px-4 text-sm">{new Date(mov.date).toLocaleDateString('es-AR')}</td>
                   <td className="py-3 px-4 text-sm">
                     <div className="flex items-center gap-2 flex-wrap">

@@ -6,8 +6,8 @@ import {
 import FinancialTooltip from './FinancialTooltip'
 import DolarCard from './DolarCard'
 
-const CombinedDashboard = ({ invoices, companyData }) => {
-  const [viewMode, setViewMode] = useState('executive') // executive, analytics, reports
+const CombinedDashboard = ({ invoices, companyData, isEmprendedor = false }) => {
+  const [viewMode, setViewMode] = useState('analysis') // analysis, reports
   const [period, setPeriod] = useState('month')
   const [autoCharts, setAutoCharts] = useState(null)
   const [generating, setGenerating] = useState(false)
@@ -302,35 +302,27 @@ const CombinedDashboard = ({ invoices, companyData }) => {
     <div className="max-w-7xl mx-auto space-y-6">
       {/* Header con Tabs */}
       <div className="flex items-center justify-between mb-6">
-        <div className="flex gap-1 p-1 bg-gray-100 rounded-lg">
+        <div className="flex gap-2 p-1 bg-gray-100 rounded-xl">
           <button
-            onClick={() => setViewMode('executive')}
-            className={`px-4 py-2 rounded-md font-medium text-sm transition-all ${
-              viewMode === 'executive' 
-                ? 'bg-gray-900 text-white' 
-                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+            onClick={() => setViewMode('analysis')}
+            className={`px-6 py-2.5 rounded-lg font-semibold text-sm transition-all flex items-center gap-2 ${
+              viewMode === 'analysis' 
+                ? 'bg-gray-900 text-white shadow-md' 
+                : 'text-gray-600 hover:text-gray-900 hover:bg-white'
             }`}
           >
-            Dashboard
-          </button>
-          <button
-            onClick={() => setViewMode('analytics')}
-            className={`px-4 py-2 rounded-md font-medium text-sm transition-all ${
-              viewMode === 'analytics' 
-                ? 'bg-gray-900 text-white' 
-                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-            }`}
-          >
+            <BarChart3 className="w-4 h-4" />
             Análisis
           </button>
           <button
             onClick={() => setViewMode('reports')}
-            className={`px-4 py-2 rounded-md font-medium text-sm transition-all ${
+            className={`px-6 py-2.5 rounded-lg font-semibold text-sm transition-all flex items-center gap-2 ${
               viewMode === 'reports' 
-                ? 'bg-gray-900 text-white' 
-                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                ? 'bg-gray-900 text-white shadow-md' 
+                : 'text-gray-600 hover:text-gray-900 hover:bg-white'
             }`}
           >
+            <FileText className="w-4 h-4" />
             Reportes
           </button>
         </div>
@@ -345,8 +337,8 @@ const CombinedDashboard = ({ invoices, companyData }) => {
 
       {!generating && autoCharts && (
         <>
-          {/* Vista Dashboard Ejecutivo */}
-          {viewMode === 'executive' && (
+          {/* Vista Análisis Unificado */}
+          {viewMode === 'analysis' && (
             <div className="space-y-6">
               {/* KPIs Principales */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -461,12 +453,7 @@ const CombinedDashboard = ({ invoices, companyData }) => {
                   </div>
                 </div>
               </div>
-            </div>
-          )}
 
-          {/* Vista Análisis Detallado */}
-          {viewMode === 'analytics' && (
-            <div className="space-y-6">
               {/* Tabla por Categoría */}
               <div className="bg-white border border-gray-200 rounded-lg p-6">
                 <h3 className="text-lg font-semibold mb-4 text-gray-900">Análisis por Categoría</h3>
@@ -505,9 +492,7 @@ const CombinedDashboard = ({ invoices, companyData }) => {
 
               {/* Tabla Mensual */}
               <div className="bg-white border border-gray-200 rounded-lg p-6">
-                <h3 className="text-lg font-semibold mb-4">
-                  <span className="text-cyan-600">Evolución Mensual</span> <span className="text-gray-900">Detallada</span>
-                </h3>
+                <h3 className="text-lg font-semibold mb-4 text-gray-900">Evolución Mensual Detallada</h3>
                 <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead className="bg-gray-50">
@@ -548,9 +533,7 @@ const CombinedDashboard = ({ invoices, companyData }) => {
 
               {/* Exportar Datos */}
               <div className="bg-white border border-gray-200 rounded-lg p-6">
-                <h3 className="text-lg font-semibold mb-4">
-                  <span className="text-cyan-600">Exportar</span> <span className="text-gray-900">Datos</span>
-                </h3>
+                <h3 className="text-lg font-semibold mb-4 text-gray-900">Exportar Datos</h3>
                 <div className="flex items-center gap-4">
                   <select
                     value={exportFormat}
@@ -577,33 +560,35 @@ const CombinedDashboard = ({ invoices, companyData }) => {
             <div className="space-y-6">
               {/* Selector de Reporte */}
               <div className="bg-white border border-gray-200 rounded-lg p-6">
-                <h3 className="text-lg font-semibold mb-4">
-                  <span className="text-cyan-600">Seleccionar</span> <span className="text-gray-900">Tipo de Reporte</span>
-                </h3>
+                <h3 className="text-lg font-semibold mb-4 text-gray-900">Seleccionar Tipo de Reporte</h3>
                 <div className="grid md:grid-cols-2 gap-4">
                   <button
                     onClick={() => setSelectedReport('balance')}
-                    className={`p-6 rounded-lg border transition-all text-left ${
+                    className={`p-6 rounded-xl border-2 transition-all text-left hover:shadow-lg ${
                       selectedReport === 'balance'
                         ? 'border-gray-900 bg-gray-50'
-                        : 'border-gray-200 hover:border-gray-900 hover:shadow-md'
+                        : 'border-gray-200 hover:border-gray-400'
                     }`}
                   >
-                    <FileText className="w-6 h-6 text-gray-900 mb-3" />
-                    <h4 className="font-semibold text-gray-900 mb-1">Balance General</h4>
+                    <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center mb-4">
+                      <FileText className="w-6 h-6 text-blue-600" />
+                    </div>
+                    <h4 className="font-semibold text-gray-900 mb-2">Balance General</h4>
                     <p className="text-sm text-gray-600">Resumen financiero completo con análisis por categoría</p>
                   </button>
                   
                   <button
                     onClick={() => setSelectedReport('monthly')}
-                    className={`p-6 rounded-lg border transition-all text-left ${
+                    className={`p-6 rounded-xl border-2 transition-all text-left hover:shadow-lg ${
                       selectedReport === 'monthly'
                         ? 'border-gray-900 bg-gray-50'
-                        : 'border-gray-200 hover:border-gray-900 hover:shadow-md'
+                        : 'border-gray-200 hover:border-gray-400'
                     }`}
                   >
-                    <BarChart3 className="w-6 h-6 text-gray-900 mb-3" />
-                    <h4 className="font-semibold text-gray-900 mb-1">Reporte Mensual</h4>
+                    <div className="w-12 h-12 bg-purple-50 rounded-xl flex items-center justify-center mb-4">
+                      <BarChart3 className="w-6 h-6 text-purple-600" />
+                    </div>
+                    <h4 className="font-semibold text-gray-900 mb-2">Reporte Mensual</h4>
                     <p className="text-sm text-gray-600">Evolución mensual de ingresos, gastos y utilidades</p>
                   </button>
                 </div>
@@ -613,9 +598,7 @@ const CombinedDashboard = ({ invoices, companyData }) => {
               {selectedReport === 'balance' && (
                 <div className="bg-white border border-gray-200 rounded-lg p-6">
                   <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-lg font-semibold">
-                      <span className="text-cyan-600">Vista Previa:</span> <span className="text-gray-900">Balance General</span>
-                    </h3>
+                    <h3 className="text-lg font-semibold text-gray-900">Vista Previa: Balance General</h3>
                     <button
                       onClick={() => downloadPDF('balance')}
                       className="px-4 py-2 bg-gray-900 text-white rounded-lg font-medium hover:bg-gray-800 transition-colors flex items-center gap-2"

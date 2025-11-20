@@ -138,9 +138,6 @@ const CreditCalculator = ({ invoices }) => {
     <div className="space-y-6">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 mb-1">
-          Calculadora de Créditos
-        </h1>
         <p className="text-sm text-gray-600">Simule su financiamiento</p>
       </div>
 

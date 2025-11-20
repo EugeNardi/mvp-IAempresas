@@ -47,8 +47,8 @@ const PremiumFeature = ({
       {/* Upgrade overlay */}
       <div className="absolute inset-0 flex items-center justify-center bg-dark-bg/80 backdrop-blur-sm">
         <div className="text-center max-w-md p-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-full mb-4">
-            <Lock className="w-8 h-8 text-cyan-400" />
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500/20 to-blue-700/20 rounded-full mb-4">
+            <Lock className="w-8 h-8 text-blue-500" />
           </div>
           
           <h3 className="text-xl font-bold text-white mb-2">
@@ -61,7 +61,7 @@ const PremiumFeature = ({
 
           <button
             onClick={() => navigate('/premium')}
-            className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-lg font-semibold hover:shadow-lg hover:shadow-cyan-500/50 transition-all"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 text-white rounded-lg font-semibold hover:shadow-lg hover:shadow-blue-500/50 transition-all"
           >
             <Crown className="w-5 h-5" />
             Ver Planes Premium
@@ -94,8 +94,8 @@ export const PremiumGate = ({ children, message = 'Actualiza a Premium para acce
 
   return (
     <div className="bg-dark-card border border-dark-border rounded-xl p-8 text-center">
-      <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-full mb-4">
-        <Crown className="w-8 h-8 text-cyan-400" />
+      <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500/20 to-blue-700/20 rounded-full mb-4">
+        <Crown className="w-8 h-8 text-blue-500" />
       </div>
       
       <h3 className="text-xl font-bold text-white mb-2">
@@ -108,7 +108,7 @@ export const PremiumGate = ({ children, message = 'Actualiza a Premium para acce
 
       <button
         onClick={() => navigate('/premium')}
-        className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-lg font-semibold hover:shadow-lg hover:shadow-cyan-500/50 transition-all"
+        className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 text-white rounded-lg font-semibold hover:shadow-lg hover:shadow-blue-500/50 transition-all"
       >
         <Crown className="w-5 h-5" />
         Hazte Premium

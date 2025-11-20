@@ -9,7 +9,7 @@ const DashboardPreview = () => {
         <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-12 md:mb-16 animate-slide-up">
           <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-4 sm:mb-6 text-gray-900 px-2">
             Tu negocio en{' '}
-            <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent inline-block pb-1 sm:pb-2">
+            <span className="bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 bg-clip-text text-transparent inline-block pb-1 sm:pb-2">
               un solo lugar
             </span>
           </h2>

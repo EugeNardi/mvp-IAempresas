@@ -36,7 +36,7 @@ const AnalisisVisual = ({ invoices }) => {
         porcentaje: totalCompras > 0 ? (monto / totalCompras) * 100 : 0
       }))
       .sort((a, b) => b.monto - a.monto)
-      .slice(0, 8)
+      .slice(0, 5)
 
     // Análisis por Cliente
     const clientesMap = {}
@@ -54,7 +54,7 @@ const AnalisisVisual = ({ invoices }) => {
         porcentaje: totalVentas > 0 ? (monto / totalVentas) * 100 : 0
       }))
       .sort((a, b) => b.monto - a.monto)
-      .slice(0, 8)
+      .slice(0, 5)
 
     // Productos más vendidos
     const productosVendidosMap = {}
@@ -79,7 +79,7 @@ const AnalisisVisual = ({ invoices }) => {
         porcentaje: totalVentasProductos > 0 ? (data.monto / totalVentasProductos) * 100 : 0
       }))
       .sort((a, b) => b.monto - a.monto)
-      .slice(0, 8)
+      .slice(0, 5)
 
     // Productos más comprados
     const productosCompradosMap = {}
@@ -104,7 +104,7 @@ const AnalisisVisual = ({ invoices }) => {
         porcentaje: totalComprasProductos > 0 ? (data.monto / totalComprasProductos) * 100 : 0
       }))
       .sort((a, b) => b.monto - a.monto)
-      .slice(0, 8)
+      .slice(0, 5)
 
     // Utilidad por Producto
     const utilidadProductosMap = {}
@@ -141,7 +141,7 @@ const AnalisisVisual = ({ invoices }) => {
       }))
       .filter(p => p.ventas > 0 || p.compras > 0)
       .sort((a, b) => b.utilidad - a.utilidad)
-      .slice(0, 10)
+      .slice(0, 6)
 
     setAnalytics({
       proveedores,
@@ -258,64 +258,43 @@ const AnalisisVisual = ({ invoices }) => {
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
-      <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-gray-900">Análisis Visual</h1>
-        <p className="text-sm text-gray-600 mt-1">Gráficos de distribución</p>
-      </div>
-
+      {/* Grid de 2 columnas - Solo los gráficos más importantes */}
       <div className="grid md:grid-cols-2 gap-6">
-        {analytics.proveedores.length > 0 && (
-          <PieChartComponent data={analytics.proveedores} title="Distribución por Proveedor" icon={ShoppingCart} colorScheme="blue" />
-        )}
+        {/* Clientes - Más importante para ventas */}
         {analytics.clientes.length > 0 && (
-          <PieChartComponent data={analytics.clientes} title="Distribución por Cliente" icon={Users} colorScheme="green" />
+          <PieChartComponent data={analytics.clientes} title="Top Clientes" icon={Users} colorScheme="green" />
         )}
+        
+        {/* Productos Vendidos - Más importante para inventario */}
         {analytics.productosVendidos.length > 0 && (
-          <PieChartComponent data={analytics.productosVendidos} title="Productos Más Vendidos" icon={TrendingUp} colorScheme="purple" />
-        )}
-        {analytics.productosComprados.length > 0 && (
-          <PieChartComponent data={analytics.productosComprados} title="Productos Más Comprados" icon={TrendingDown} colorScheme="orange" />
+          <PieChartComponent data={analytics.productosVendidos} title="Top Productos" icon={TrendingUp} colorScheme="purple" />
         )}
       </div>
 
+      {/* Tabla de Rentabilidad - Simplificada */}
       {analytics.utilidadProductos.length > 0 && (
-        <div className="bg-white border border-gray-200 rounded-lg p-6">
-          <div className="flex items-center gap-2 mb-4">
-            <DollarSign className="w-5 h-5 text-gray-700" />
-            <h3 className="text-base font-semibold text-gray-900">Utilidad por Producto</h3>
+        <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+          <div className="flex items-center gap-2 mb-6">
+            <DollarSign className="w-5 h-5 text-green-600" />
+            <h3 className="text-lg font-bold text-gray-900">Rentabilidad</h3>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-gray-200">
-                  <th className="text-left py-3 px-4 text-xs font-semibold text-gray-600">Producto</th>
-                  <th className="text-right py-3 px-4 text-xs font-semibold text-gray-600">Utilidad</th>
-                  <th className="text-right py-3 px-4 text-xs font-semibold text-gray-600">Margen</th>
-                </tr>
-              </thead>
-              <tbody>
-                {analytics.utilidadProductos.map((producto, index) => (
-                  <tr key={index} className="border-b border-gray-100 hover:bg-gray-50">
-                    <td className="py-3 px-4 text-sm font-medium text-gray-900">{producto.nombre}</td>
-                    <td className={`py-3 px-4 text-sm text-right font-bold ${
-                      producto.utilidad >= 0 ? 'text-green-600' : 'text-red-600'
-                    }`}>
-                      {producto.utilidad >= 0 ? '+' : ''}${producto.utilidad.toLocaleString('es-AR', { maximumFractionDigits: 0 })}
-                    </td>
-                    <td className="py-3 px-4 text-sm text-right">
-                      <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${
-                        producto.margen >= 30 ? 'bg-green-100 text-green-800' :
-                        producto.margen >= 15 ? 'bg-yellow-100 text-yellow-800' :
-                        'bg-red-100 text-red-800'
-                      }`}>
-                        {producto.margen.toFixed(0)}%
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="space-y-3">
+            {analytics.utilidadProductos.map((producto, index) => (
+              <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-gray-900 truncate">{producto.nombre}</p>
+                  <p className="text-xs text-gray-500 mt-0.5">Margen: {producto.margen.toFixed(0)}%</p>
+                </div>
+                <div className="text-right ml-4">
+                  <p className={`text-base font-bold ${
+                    producto.utilidad >= 0 ? 'text-green-600' : 'text-red-600'
+                  }`}>
+                    {producto.utilidad >= 0 ? '+' : ''}${producto.utilidad.toLocaleString('es-AR', { maximumFractionDigits: 0 })}
+                  </p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       )}
