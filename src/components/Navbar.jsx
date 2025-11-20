@@ -20,7 +20,8 @@ const Navbar = () => {
     { name: 'Características', href: '#features' },
     { name: 'Dashboard', href: '#dashboard-preview' },
     { name: 'Inteligencia', href: '#intelligence' },
-    { name: 'Contacto', href: '#contact' },
+    { name: 'Instrucciones', href: '/instrucciones', isRoute: true },
+    { name: 'Términos', href: '/terminos', isRoute: true },
   ]
 
   return (
@@ -41,23 +42,33 @@ const Navbar = () => {
           {/* Desktop Navigation - Centrado */}
           <div className="hidden lg:flex items-center gap-8 absolute left-1/2 transform -translate-x-1/2">
             {navLinks.map((link) => (
-              <a
-                key={link.name}
-                href={link.href}
-                className="text-sm text-gray-600 hover:text-gray-900 transition-colors font-medium whitespace-nowrap"
-                onClick={(e) => {
-                  e.preventDefault()
-                  const element = document.querySelector(link.href)
-                  element?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-                }}
-              >
-                {link.name}
-              </a>
+              link.isRoute ? (
+                <Link
+                  key={link.name}
+                  to={link.href}
+                  className="text-sm text-gray-600 hover:text-gray-900 transition-colors font-medium whitespace-nowrap"
+                >
+                  {link.name}
+                </Link>
+              ) : (
+                <a
+                  key={link.name}
+                  href={link.href}
+                  className="text-sm text-gray-600 hover:text-gray-900 transition-colors font-medium whitespace-nowrap"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    const element = document.querySelector(link.href)
+                    element?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                  }}
+                >
+                  {link.name}
+                </a>
+              )
             ))}
           </div>
 
-          {/* Auth Buttons */}
-          <div className="hidden lg:flex items-center gap-3 z-10">
+          {/* Auth Buttons - Separados con más espacio */}
+          <div className="hidden lg:flex items-center gap-6 z-10 ml-8 pl-8 border-l border-gray-200">
             <Link
               to="/login"
               className="text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors px-4 py-2 rounded-md hover:bg-gray-100"
@@ -90,19 +101,30 @@ const Navbar = () => {
           <div className="md:hidden border-t border-gray-200 py-4">
             <div className="flex flex-col gap-1">
               {navLinks.map((link) => (
-                <a
-                  key={link.name}
-                  href={link.href}
-                  onClick={(e) => {
-                    e.preventDefault()
-                    setIsMobileMenuOpen(false)
-                    const element = document.querySelector(link.href)
-                    element?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-                  }}
-                  className="text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors font-medium px-4 py-2 rounded-md"
-                >
-                  {link.name}
-                </a>
+                link.isRoute ? (
+                  <Link
+                    key={link.name}
+                    to={link.href}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors font-medium px-4 py-2 rounded-md"
+                  >
+                    {link.name}
+                  </Link>
+                ) : (
+                  <a
+                    key={link.name}
+                    href={link.href}
+                    onClick={(e) => {
+                      e.preventDefault()
+                      setIsMobileMenuOpen(false)
+                      const element = document.querySelector(link.href)
+                      element?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                    }}
+                    className="text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors font-medium px-4 py-2 rounded-md"
+                  >
+                    {link.name}
+                  </a>
+                )
               ))}
               <div className="mt-4 flex flex-col gap-2 px-4">
                 <Link

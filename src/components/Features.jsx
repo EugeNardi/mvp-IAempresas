@@ -6,45 +6,47 @@ const Features = () => {
   const features = [
     {
       icon: Bot,
-      title: 'IA Conversacional Avanzada',
-      description: 'Chatbots inteligentes que entienden el contexto y responden de manera natural y precisa.',
+      title: 'App Móvil',
+      description: 'Gestiona tu negocio desde cualquier lugar con nuestra aplicación móvil.',
       color: 'from-blue-500 to-blue-700',
-      details: 'Nuestro sistema utiliza modelos de lenguaje de última generación (GPT-4) para comprender consultas complejas y proporcionar respuestas contextuales. Incluye procesamiento de lenguaje natural, análisis de sentimientos, y capacidad de aprendizaje continuo para mejorar con cada interacción.'
-    },
-    {
-      icon: Clock,
-      title: 'Disponibilidad 24/7',
-      description: 'Tu asistente virtual nunca duerme. Atiende a tus clientes en cualquier momento del día.',
-      color: 'from-purple-500 to-pink-500',
-      details: 'Sistema de alta disponibilidad con 99.9% de uptime garantizado. Responde instantáneamente a consultas en cualquier horario, incluyendo fines de semana y feriados. Ideal para negocios con clientes en diferentes zonas horarias o que requieren atención fuera del horario laboral.'
+      details: 'Aplicación móvil nativa para iOS y Android con todas las funcionalidades del sistema.',
+      comingSoon: true
     },
     {
       icon: TrendingUp,
-      title: 'Aumenta tus Ventas',
-      description: 'Convierte más visitantes en clientes con respuestas rápidas y personalizadas.',
+      title: 'Automatizaciones de Mensajes y Facturación',
+      description: 'Automatiza recordatorios de pago, envío de facturas y seguimiento de clientes.',
       color: 'from-green-500 to-emerald-500',
-      details: 'Incrementa tu tasa de conversión hasta un 40% con respuestas inmediatas y personalizadas. El sistema identifica oportunidades de venta, recomienda productos basándose en el historial del cliente, y guía a los usuarios a través del proceso de compra de manera natural y efectiva.'
+      details: 'Sistema automatizado de mensajería para recordatorios de pago, envío de facturas por WhatsApp/Email, y seguimiento automático de clientes morosos.',
+      comingSoon: true
+    },
+    {
+      icon: Clock,
+      title: 'Acceso en Cualquier Momento',
+      description: 'Accede a tu sistema de gestión cuando lo necesites, desde cualquier dispositivo.',
+      color: 'from-purple-500 to-pink-500',
+      details: 'Sistema web accesible las 24 horas del día. Consulta tu inventario, registra ventas y revisa reportes en cualquier momento desde tu computadora o navegador móvil.'
     },
     {
       icon: Shield,
-      title: 'Seguridad Garantizada',
-      description: 'Protección de datos de nivel empresarial con encriptación end-to-end.',
+      title: 'Datos Seguros',
+      description: 'Tus datos empresariales protegidos con tecnología de seguridad moderna.',
       color: 'from-orange-500 to-red-500',
-      details: 'Cumplimos con los estándares más altos de seguridad: encriptación AES-256, certificación ISO 27001, cumplimiento GDPR y protección de datos personales. Todos los datos se almacenan en servidores seguros con backups automáticos y auditorías de seguridad regulares.'
+      details: 'Utilizamos Supabase para el almacenamiento seguro de datos con autenticación robusta. Tus datos están protegidos y respaldados automáticamente en la nube.'
     },
     {
       icon: Zap,
-      title: 'Integración Rápida',
-      description: 'Implementación en menos de 48 horas. Compatible con todas las plataformas.',
+      title: 'Fácil de Usar',
+      description: 'Interfaz intuitiva diseñada para que puedas empezar a usarla inmediatamente.',
       color: 'from-yellow-500 to-orange-500',
-      details: 'Proceso de integración simplificado con APIs REST y webhooks. Compatible con WordPress, Shopify, WooCommerce, Mercado Libre, redes sociales (WhatsApp, Facebook, Instagram) y sistemas personalizados. Incluye documentación completa y soporte técnico durante la implementación.'
+      details: 'Sistema diseñado para ser simple y directo. Crea tu cuenta, configura tu negocio y comienza a gestionar tu inventario y ventas en minutos. No requiere conocimientos técnicos.'
     },
     {
       icon: Users,
-      title: 'Soporte Personalizado',
-      description: 'Equipo dedicado para ayudarte en cada paso de la implementación.',
+      title: 'Asistente con IA',
+      description: 'Consulta con nuestro asistente de inteligencia artificial especializado en finanzas.',
       color: 'from-indigo-500 to-purple-500',
-      details: 'Asignamos un Customer Success Manager dedicado a tu cuenta. Incluye: onboarding personalizado, capacitación del equipo, soporte técnico prioritario vía chat/email/teléfono, y sesiones mensuales de optimización para maximizar el retorno de tu inversión.'
+      details: 'Asistente de IA integrado que te ayuda con consultas sobre ARCA 2025, análisis financiero, proyecciones y recomendaciones personalizadas para tu negocio basadas en tus datos reales.'
     },
   ]
 
@@ -76,10 +78,15 @@ const Features = () => {
               </div>
 
               {/* Content */}
-              <h3 className="text-xl font-bold mb-3">
+              <h3 className="text-xl font-bold mb-3 flex items-center gap-2 flex-wrap">
                 <span className="bg-gradient-to-r from-gray-900 to-cyan-600 bg-clip-text text-transparent">
                   {feature.title}
                 </span>
+                {feature.comingSoon && (
+                  <span className="text-xs font-semibold px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full">
+                    Próximamente
+                  </span>
+                )}
               </h3>
               <p className="text-base text-gray-600 leading-relaxed mb-4">
                 {feature.description}
@@ -118,7 +125,14 @@ const Features = () => {
                   <selectedFeature.icon className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-xl sm:text-2xl font-bold text-gray-900">{selectedFeature.title}</h3>
+                  <div className="flex items-center gap-2 flex-wrap mb-1">
+                    <h3 className="text-xl sm:text-2xl font-bold text-gray-900">{selectedFeature.title}</h3>
+                    {selectedFeature.comingSoon && (
+                      <span className="text-xs font-semibold px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full">
+                        Próximamente
+                      </span>
+                    )}
+                  </div>
                   <p className="text-sm text-gray-600 mt-1">{selectedFeature.description}</p>
                 </div>
               </div>

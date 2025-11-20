@@ -14,6 +14,9 @@ import Chat from './pages/Chat'
 import Premium from './pages/Premium'
 import Checkout from './pages/Checkout'
 import Perfil from './pages/Perfil'
+import TermsAndConditions from './pages/TermsAndConditions'
+import UserGuide from './pages/UserGuide'
+import TrialCheck from './components/TrialCheck'
 
 function App() {
   return (
@@ -31,7 +34,9 @@ function App() {
               path="/dashboard"
               element={
                 <ProtectedRoute>
-                  <Dashboard />
+                  <TrialCheck>
+                    <Dashboard />
+                  </TrialCheck>
                 </ProtectedRoute>
               }
             />
@@ -39,12 +44,16 @@ function App() {
               path="/chat"
               element={
                 <ProtectedRoute>
-                  <Chat />
+                  <TrialCheck>
+                    <Chat />
+                  </TrialCheck>
                 </ProtectedRoute>
               }
             />
             <Route path="/premium" element={<Premium />} />
             <Route path="/checkout" element={<Checkout />} />
+            <Route path="/terminos" element={<TermsAndConditions />} />
+            <Route path="/instrucciones" element={<UserGuide />} />
             <Route
               path="/perfil"
               element={

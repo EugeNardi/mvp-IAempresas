@@ -280,8 +280,7 @@ const MovimientosVenta = ({ movimiento, onClose, onSuccess }) => {
             
             if (!isNaN(precio)) {
               const subtotal = cantidad * precio
-              const montoDescuento = subtotal * (descuento / 100)
-              updated.precioTotal = (subtotal - montoDescuento).toFixed(2)
+              updated.precioTotal = (subtotal - descuento).toFixed(2)
             }
           }
         }
@@ -294,8 +293,7 @@ const MovimientosVenta = ({ movimiento, onClose, onSuccess }) => {
           
           if (!isNaN(cantidad) && !isNaN(precio)) {
             const subtotal = cantidad * precio
-            const montoDescuento = subtotal * (descuento / 100)
-            updated.precioTotal = (subtotal - montoDescuento).toFixed(2)
+            updated.precioTotal = (subtotal - (descuento || 0)).toFixed(2)
           }
         }
         
@@ -946,37 +944,41 @@ const MovimientosVenta = ({ movimiento, onClose, onSuccess }) => {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-medium mb-1.5 text-gray-700">Precio Unit. *</label>
-                    <input
-                      type="number"
-                      value={producto.precioUnitario}
-                      onChange={(e) => actualizarProducto(producto.id, 'precioUnitario', e.target.value)}
-                      required
-                      step="0.01"
-                      className="w-full px-4 py-2.5 rounded-lg border-2 border-gray-300 focus:border-green-500 outline-none"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-medium mb-1.5 text-gray-700">Descuento %</label>
-                    <input
-                      type="number"
-                      value={producto.descuento}
-                      onChange={(e) => actualizarProducto(producto.id, 'descuento', e.target.value)}
-                      min="0"
-                      max="100"
-                      step="1"
-                      className="w-full px-4 py-2.5 rounded-lg border-2 border-gray-300 focus:border-green-500 outline-none"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-medium mb-1.5 text-gray-700">Total</label>
+                    <label className="block text-sm font-semibold mb-1.5 text-gray-900">Precio Unitario</label>
                     <input
                       type="text"
-                      value={producto.precioTotal}
+                      value={producto.precioUnitario ? parseFloat(producto.precioUnitario).toLocaleString('es-AR', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) : ''}
+                      onChange={(e) => {
+                        const valor = e.target.value.replace(/\./g, '').replace(/,/g, '.')
+                        actualizarProducto(producto.id, 'precioUnitario', valor)
+                      }}
+                      required
+                      placeholder="0"
+                      className="w-full px-4 py-2.5 rounded-lg border-2 border-gray-300 focus:border-green-500 outline-none text-base font-medium"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold mb-1.5 text-gray-900">Descuento ($)</label>
+                    <input
+                      type="text"
+                      value={producto.descuento ? parseFloat(producto.descuento).toLocaleString('es-AR', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) : ''}
+                      onChange={(e) => {
+                        const valor = e.target.value.replace(/\./g, '').replace(/,/g, '.')
+                        actualizarProducto(producto.id, 'descuento', valor || '0')
+                      }}
+                      placeholder="0"
+                      className="w-full px-4 py-2.5 rounded-lg border-2 border-gray-300 focus:border-green-500 outline-none text-base font-medium"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold mb-1.5 text-gray-900">Total</label>
+                    <input
+                      type="text"
+                      value={producto.precioTotal ? `$${parseFloat(producto.precioTotal).toLocaleString('es-AR', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}` : '$0'}
                       readOnly
-                      className="w-full px-3.5 py-2 rounded-lg border border-green-300 bg-green-50 font-semibold text-green-700 text-sm"
+                      className="w-full px-3.5 py-2 rounded-lg border border-green-300 bg-green-50 font-bold text-green-700 text-base"
                     />
                   </div>
                 </div>
