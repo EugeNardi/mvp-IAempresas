@@ -1,8 +1,9 @@
 import React, { useState } from 'react'
 import { useData } from '../../context/DataContext'
 import { 
-  Save, X, Upload, Sparkles, Loader, 
-  TrendingDown, AlertCircle, CheckCircle, Wallet
+  Save, X, Upload, Mic, Sparkles, Loader, 
+  TrendingDown, AlertCircle, CheckCircle,
+  ChevronDown, ChevronUp, Wallet
 } from 'lucide-react'
 import AudioRecorderComponent from '../common/AudioRecorder'
 import { processAudioForMovement, isOpenAIConfigured } from '../../services/aiService'
@@ -14,6 +15,7 @@ const MovimientosRetiro = ({ movimiento, onClose, onSuccess }) => {
   const [analyzing, setAnalyzing] = useState(false)
   const [error, setError] = useState('')
   const [aiAnalyzed, setAiAnalyzed] = useState(false)
+  const [aiSectionExpanded, setAiSectionExpanded] = useState(false)
 
   const [formData, setFormData] = useState(() => {
     if (isEditing && movimiento) {
@@ -194,49 +196,64 @@ const MovimientosRetiro = ({ movimiento, onClose, onSuccess }) => {
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          {/* IA Analysis */}
-          <div className="bg-gray-50 border border-gray-200 rounded-xl p-5 shadow-sm">
-            <div className="flex items-center gap-3 mb-4">
-              <Sparkles className="w-6 h-6 text-orange-600" />
-              <div>
-                <h3 className="font-semibold text-gray-900">Análisis Automático con IA</h3>
-                <p className="text-sm text-gray-600">Sube un comprobante para autocompletar</p>
-              </div>
-            </div>
-
-            {analyzing && (
-              <div className="flex items-center gap-3 p-4 bg-orange-50 rounded-lg mb-4 border border-orange-200">
-                <Loader className="w-5 h-5 text-orange-600 animate-spin" />
-                <p className="text-sm font-medium text-orange-800">Analizando con IA...</p>
-              </div>
-            )}
-
-            {aiAnalyzed && (
-              <div className="flex items-center gap-3 p-4 bg-orange-100 border-2 border-orange-300 rounded-lg mb-4">
-                <CheckCircle className="w-5 h-5 text-orange-700" />
-                <p className="text-sm font-medium text-orange-900">Formulario completado por IA. Revisa y ajusta.</p>
-              </div>
-            )}
-
-            <div className="space-y-3">
-              <label className="flex items-center gap-3 p-3.5 bg-white border border-gray-300 rounded-lg cursor-pointer hover:border-orange-500 hover:bg-gray-50 transition-all">
-                <Upload className="w-4 h-4 text-gray-600" />
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-900">Subir Comprobante</p>
-                  <p className="text-xs text-gray-500">PDF o Imagen</p>
+          {/* Análisis con IA - Colapsable */}
+          <div className="bg-gray-50 border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+            <button
+              type="button"
+              onClick={() => setAiSectionExpanded(!aiSectionExpanded)}
+              className="w-full flex items-center justify-between p-5 hover:bg-gray-100 transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <Sparkles className="w-5 h-5 text-green-600" />
+                <div className="text-left">
+                  <h3 className="font-semibold text-gray-900">Análisis Automático con IA</h3>
+                  <p className="text-sm text-gray-600">Sube un comprobante para autocompletar</p>
                 </div>
-                <input type="file" accept=".pdf,image/*" onChange={handleFileUpload} className="hidden" disabled={analyzing} />
-              </label>
-
-              <div className="border-t border-gray-200 pt-3">
-                <p className="text-xs font-medium text-gray-700 mb-2 uppercase tracking-wide">O graba un audio</p>
-                <AudioRecorderComponent
-                  onRecordingComplete={(audioFile) => analyzeWithAI(audioFile, 'audio')}
-                  onError={(error) => setError(error)}
-                  disabled={analyzing}
-                />
               </div>
-            </div>
+              {aiSectionExpanded ? (
+                <ChevronUp className="w-5 h-5 text-gray-600" />
+              ) : (
+                <ChevronDown className="w-5 h-5 text-gray-600" />
+              )}
+            </button>
+
+            {aiSectionExpanded && (
+              <div className="px-5 pb-5 space-y-3 border-t border-gray-200 pt-4">
+                {analyzing && (
+                  <div className="flex items-center gap-3 p-3.5 bg-green-50 rounded-lg border border-green-100">
+                    <Loader className="w-4 h-4 text-green-600 animate-spin" />
+                    <p className="text-sm text-green-700">Analizando con IA...</p>
+                  </div>
+                )}
+
+                {aiAnalyzed && (
+                  <div className="flex items-center gap-3 p-3.5 bg-green-50 border border-green-200 rounded-lg">
+                    <CheckCircle className="w-4 h-4 text-green-600" />
+                    <p className="text-sm text-green-700">Formulario completado por IA. Revisa y ajusta.</p>
+                  </div>
+                )}
+
+                <div className="space-y-3">
+                  <label className="flex items-center gap-3 p-3.5 bg-white border border-gray-300 rounded-lg cursor-pointer hover:border-green-500 hover:bg-gray-50 transition-all">
+                    <Upload className="w-4 h-4 text-gray-600" />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-gray-900">Subir Comprobante</p>
+                      <p className="text-xs text-gray-500">PDF o Imagen</p>
+                    </div>
+                    <input type="file" accept=".pdf,image/*" onChange={handleFileUpload} className="hidden" disabled={analyzing} />
+                  </label>
+
+                  <div className="border-t border-gray-200 pt-3">
+                    <p className="text-xs font-medium text-gray-700 mb-2 uppercase tracking-wide">O graba un audio</p>
+                    <AudioRecorderComponent
+                      onRecordingComplete={(audioFile) => analyzeWithAI(audioFile, 'audio')}
+                      onError={(error) => setError(error)}
+                      disabled={analyzing}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {error && (
@@ -308,17 +325,6 @@ const MovimientosRetiro = ({ movimiento, onClose, onSuccess }) => {
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium mb-2 text-gray-700">Descripción</label>
-              <textarea
-                value={formData.descripcion}
-                onChange={(e) => setFormData({...formData, descripcion: e.target.value})}
-                rows="3"
-                placeholder="Detalles adicionales del retiro..."
-                className="w-full px-4 py-2.5 rounded-lg border-2 border-gray-300 focus:border-orange-500 focus:ring-2 focus:ring-orange-200 outline-none transition-all resize-none"
-              />
-            </div>
-
             <div className="grid md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium mb-2 text-gray-700">Medio de Pago *</label>
@@ -340,7 +346,7 @@ const MovimientosRetiro = ({ movimiento, onClose, onSuccess }) => {
                   value={formData.monto}
                   onChange={(e) => setFormData({...formData, monto: e.target.value})}
                   required
-                  step="0.01"
+                  step="1"
                   placeholder="0.00"
                   className="w-full px-4 py-2.5 rounded-lg border-2 border-gray-300 focus:border-orange-500 focus:ring-2 focus:ring-orange-200 outline-none transition-all text-xl font-bold text-orange-700"
                 />

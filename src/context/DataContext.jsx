@@ -265,6 +265,52 @@ export const DataProvider = ({ children }) => {
 
       console.log(`🗑️ Eliminando factura: ${invoiceId}`)
       
+      // Primero obtener la factura para revertir cambios en inventario
+      const { data: invoice, error: fetchError } = await supabase
+        .from('invoices')
+        .select('*')
+        .eq('id', invoiceId)
+        .single()
+
+      if (fetchError) {
+        console.error('❌ Error obteniendo factura:', fetchError)
+        throw fetchError
+      }
+
+      // Revertir cambios en inventario según el tipo de movimiento
+      if (invoice.metadata?.movementType === 'compra' && invoice.metadata?.productos) {
+        console.log('🔄 Revirtiendo cambios de compra en inventario...')
+        
+        for (const producto of invoice.metadata.productos) {
+          if (producto.productoId) {
+            try {
+              // Restar la cantidad que se había agregado
+              await updateProductStock(producto.productoId, producto.cantidad, 'subtract')
+              console.log(`✅ Revertido stock de producto ${producto.nombre}: -${producto.cantidad}`)
+            } catch (stockError) {
+              console.error(`⚠️ Error revirtiendo stock de ${producto.nombre}:`, stockError)
+              // Continuar con otros productos aunque uno falle
+            }
+          }
+        }
+      } else if (invoice.metadata?.movementType === 'venta' && invoice.metadata?.productos) {
+        console.log('🔄 Revirtiendo cambios de venta en inventario...')
+        
+        for (const producto of invoice.metadata.productos) {
+          if (producto.productoId) {
+            try {
+              // Devolver la cantidad que se había restado
+              await updateProductStock(producto.productoId, producto.cantidad, 'add')
+              console.log(`✅ Revertido stock de producto ${producto.nombre}: +${producto.cantidad}`)
+            } catch (stockError) {
+              console.error(`⚠️ Error revirtiendo stock de ${producto.nombre}:`, stockError)
+              // Continuar con otros productos aunque uno falle
+            }
+          }
+        }
+      }
+
+      // Marcar factura como inactiva
       const { error } = await supabase
         .from('invoices')
         .update({ is_active: false })
@@ -277,8 +323,9 @@ export const DataProvider = ({ children }) => {
 
       console.log('✅ Factura eliminada correctamente')
       
-      // Recargar facturas
+      // Recargar facturas e inventario
       await loadInvoices()
+      await loadInventoryItems()
     } catch (error) {
       console.error('Error deleting invoice:', error)
       throw error
@@ -484,10 +531,39 @@ export const DataProvider = ({ children }) => {
         throw searchError
       }
 
-      // Si existe, retornar el primero
+      // Si existe, actualizar precios si se proporcionan
       if (existingProducts && existingProducts.length > 0) {
         console.log('✅ Producto encontrado en inventario')
-        return existingProducts[0]
+        const existingProduct = existingProducts[0]
+        
+        // Actualizar precios si se proporcionan nuevos valores
+        const updates = {}
+        if (productData.precioMinorista && parseFloat(productData.precioMinorista) > 0) {
+          updates.sale_price = parseFloat(productData.precioMinorista)
+        }
+        if (productData.precioMayorista && parseFloat(productData.precioMayorista) > 0) {
+          updates.wholesale_price = parseFloat(productData.precioMayorista)
+        }
+        
+        // Si hay actualizaciones, aplicarlas
+        if (Object.keys(updates).length > 0) {
+          console.log('🔄 Actualizando precios del producto existente')
+          const { data: updatedProduct, error: updateError } = await supabase
+            .from('products')
+            .update(updates)
+            .eq('id', existingProduct.id)
+            .select()
+            .single()
+          
+          if (updateError) {
+            console.warn('⚠️ Error actualizando precios:', updateError)
+            return existingProduct // Retornar el producto sin actualizar si falla
+          }
+          
+          return updatedProduct
+        }
+        
+        return existingProduct
       }
 
       // Si no existe, crear nuevo

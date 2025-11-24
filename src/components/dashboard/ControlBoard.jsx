@@ -117,7 +117,7 @@ const ControlBoard = ({ invoices, companyData }) => {
       <div className="space-y-2">
         <p className="text-3xl font-bold">
           <span className={title === 'Utilidad Neta' ? 'bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent' : 'text-gray-900'}>
-            {prefix}{typeof value === 'number' ? value.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : value}
+            {prefix}{typeof value === 'number' ? Math.abs(value).toLocaleString('es-AR', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) : value}
           </span>
         </p>
         {trend && (

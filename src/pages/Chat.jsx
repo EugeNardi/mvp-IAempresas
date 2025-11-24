@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { useData } from '../context/DataContext'
 import { useNavigate, Link } from 'react-router-dom'
-import { Send, Sparkles, Menu, LogOut, User, Plus, MessageSquare, Loader2, LayoutDashboard, FileText, AlertCircle } from 'lucide-react'
+import { Send, Sparkles, Menu, LogOut, User, Plus, MessageSquare, Loader2, LayoutDashboard, FileText, AlertCircle, Crown } from 'lucide-react'
 import { sendMessageToGPT, generateSuggestedQuestions } from '../services/openaiService'
 
 const Chat = () => {
@@ -296,30 +296,14 @@ Puedes preguntarme cosas como:
 
         {/* User Profile */}
         <div className="p-4 border-t border-gray-200">
-          <div className="mb-3">
-            <div className="flex items-center gap-3 px-2 py-2">
-              <div className="w-9 h-9 bg-gray-900 rounded-full flex items-center justify-center text-white text-sm font-semibold flex-shrink-0">
-                {user?.email?.[0]?.toUpperCase() || 'U'}
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-gray-900 truncate">{user?.email}</p>
-              </div>
+          <div className="flex items-center gap-3 px-2 py-2">
+            <div className="w-9 h-9 bg-gray-900 rounded-full flex items-center justify-center text-white text-sm font-semibold flex-shrink-0">
+              {user?.email?.[0]?.toUpperCase() || 'U'}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-gray-900 truncate">{user?.email}</p>
             </div>
           </div>
-          <Link
-            to="/dashboard"
-            className="w-full px-4 py-2.5 mb-2 text-sm font-semibold bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-lg transition-colors flex items-center justify-center gap-2"
-          >
-            <LayoutDashboard className="w-4 h-4" />
-            <span>Dashboard</span>
-          </Link>
-          <button
-            onClick={handleSignOut}
-            className="w-full px-4 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50 rounded-lg transition-colors flex items-center justify-center gap-2"
-          >
-            <LogOut className="w-4 h-4" />
-            <span>Salir</span>
-          </button>
         </div>
       </div>
 
@@ -334,11 +318,17 @@ Puedes preguntarme cosas como:
             >
               <Menu className="w-5 h-5 text-gray-700" />
             </button>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 sm:gap-3">
               <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gray-900 rounded-md flex items-center justify-center">
                 <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
               </div>
-              <h2 className="text-base sm:text-lg font-semibold text-gray-900">Asistente IA</h2>
+              <div className="flex items-center gap-3 sm:gap-4">
+                <h2 className="text-base sm:text-lg font-semibold text-gray-900">Asistente IA</h2>
+                <div className="hidden sm:flex items-center gap-1.5 text-xs px-2 py-1 bg-gray-50 rounded-md border border-gray-200">
+                  <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                  <span className="font-medium text-gray-600">GPT-4 Turbo</span>
+                </div>
+              </div>
             </div>
           </div>
           <div className="flex items-center gap-2 sm:gap-4">
@@ -348,10 +338,13 @@ Puedes preguntarme cosas como:
                 <span className="hidden sm:inline">Error</span>
               </div>
             )}
-            <div className="hidden sm:flex items-center gap-2 text-sm px-3 py-1 bg-gray-50 rounded-md border border-gray-200">
-              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-              <span className="font-medium text-gray-700">GPT-4 Turbo</span>
-            </div>
+            <Link
+              to="/dashboard"
+              className="hidden lg:flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white bg-gray-900 hover:bg-gray-800 transition-colors"
+            >
+              <LayoutDashboard className="w-4 h-4" />
+              <span>Dashboard</span>
+            </Link>
           </div>
         </div>
 
@@ -449,6 +442,15 @@ Puedes preguntarme cosas como:
           </form>
         </div>
       </div>
+
+      {/* Botón flotante de Dashboard */}
+      <Link
+        to="/dashboard"
+        className="fixed bottom-6 right-6 w-14 h-14 bg-gray-900 hover:bg-gray-800 text-white rounded-full shadow-lg flex items-center justify-center transition-all hover:scale-110 z-30"
+        title="Volver al Dashboard"
+      >
+        <LayoutDashboard className="w-6 h-6" />
+      </Link>
     </div>
   )
 }

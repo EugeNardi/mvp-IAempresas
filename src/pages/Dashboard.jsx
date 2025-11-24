@@ -189,18 +189,10 @@ const Dashboard = () => {
           </div>
           <Link
             to="/premium"
-            className="w-full px-4 py-2.5 mb-2 text-sm font-semibold bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-lg transition-colors flex items-center justify-center gap-2"
+            className="w-full px-4 py-2.5 text-sm font-semibold bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700 rounded-lg transition-colors flex items-center justify-center gap-2"
           >
-            <Crown className="w-4 h-4" />
-            <span>Mi Plan</span>
+            <span>Ver mi plan</span>
           </Link>
-          <button
-            onClick={signOut}
-            className="w-full px-4 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50 rounded-lg transition-colors flex items-center justify-center gap-2"
-          >
-            <LogOut className="w-4 h-4" />
-            <span>Salir</span>
-          </button>
         </div>
       </div>
 
@@ -256,7 +248,7 @@ const Dashboard = () => {
             </Link>
             <button
               onClick={handleSignOut}
-              className="hidden lg:flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
+              className="hidden lg:flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white bg-red-600 hover:bg-red-700 transition-colors"
             >
               <LogOut className="w-4 h-4" />
               <span>Salir</span>

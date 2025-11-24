@@ -3,7 +3,7 @@ import { useData } from '../../context/DataContext'
 import { 
   Plus, Save, X, Search, 
   TrendingUp, TrendingDown, DollarSign, ShoppingCart, 
-  FileText, AlertCircle, Trash2, Eye, Edit, CheckSquare, Square
+  FileText, AlertCircle, Trash2, Eye, Edit, CheckSquare, Square, Filter
 } from 'lucide-react'
 import MovimientosCompra from './MovimientosCompra'
 import MovimientosVenta from './MovimientosVenta'
@@ -23,6 +23,8 @@ const Movimientos = ({ companyData }) => {
   const [showRetiroForm, setShowRetiroForm] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
   const [filterType, setFilterType] = useState('all')
+  const [showOnlyDeudas, setShowOnlyDeudas] = useState(false)
+  const [showFilterMenu, setShowFilterMenu] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
@@ -204,6 +206,15 @@ const Movimientos = ({ companyData }) => {
 
   const filteredMovements = invoices.filter(inv => {
     const matchesSearch = inv.description?.toLowerCase().includes(searchTerm.toLowerCase())
+    
+    // Filtro de deudas
+    if (showOnlyDeudas) {
+      const tieneDeuda = inv.type === 'income'
+        ? (inv.metadata?.cobrado === false || inv.metadata?.cobrado === 'no') && parseFloat(inv.metadata?.deuda || 0) > 0
+        : (inv.metadata?.pagado === false || inv.metadata?.pagado === 'no') && parseFloat(inv.metadata?.deuda || 0) > 0
+      if (!tieneDeuda) return false
+    }
+    
     if (filterType === 'all') return matchesSearch
     const movementType = inv.metadata?.movementType || (inv.type === 'income' ? 'venta' : 'gasto')
     return matchesSearch && movementType === filterType
@@ -410,27 +421,79 @@ const Movimientos = ({ companyData }) => {
       )}
 
       <div className="bg-white border rounded-lg p-4">
-        <div className="flex gap-4">
+        <div className="flex gap-3">
           <div className="flex-1 relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
             <input type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Buscar..." className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 outline-none" />
           </div>
-          <select value={filterType} onChange={(e) => setFilterType(e.target.value)}
-            className="px-4 py-2 rounded-lg border border-gray-300 outline-none">
-            <option value="all">Todos</option>
-            {Object.entries(movementTypes).map(([key, type]) => (
-              <option key={key} value={key}>{type.label}</option>
-            ))}
-          </select>
+          
+          {/* Botón de Deudas */}
+          <button
+            onClick={() => setShowOnlyDeudas(!showOnlyDeudas)}
+            className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors whitespace-nowrap ${
+              showOnlyDeudas 
+                ? 'bg-red-600 text-white hover:bg-red-700' 
+                : 'bg-red-50 text-red-600 border border-red-200 hover:bg-red-100'
+            }`}
+          >
+            {showOnlyDeudas ? '✓ Deudas' : 'Deudas'}
+          </button>
+
+          {/* Botón de Filtro */}
+          <div className="relative">
+            <button
+              onClick={() => setShowFilterMenu(!showFilterMenu)}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium hover:bg-gray-50 transition-colors whitespace-nowrap"
+            >
+              <Filter className="w-4 h-4" />
+              Filtro {filterType !== 'all' && `(${movementTypes[filterType]?.label})`}
+            </button>
+            
+            {showFilterMenu && (
+              <>
+                <div 
+                  className="fixed inset-0 z-10" 
+                  onClick={() => setShowFilterMenu(false)}
+                />
+                <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-20">
+                  <button
+                    onClick={() => {
+                      setFilterType('all')
+                      setShowFilterMenu(false)
+                    }}
+                    className={`w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 transition-colors ${
+                      filterType === 'all' ? 'bg-gray-50 font-semibold' : ''
+                    }`}
+                  >
+                    Todos
+                  </button>
+                  {Object.entries(movementTypes).map(([key, type]) => (
+                    <button
+                      key={key}
+                      onClick={() => {
+                        setFilterType(key)
+                        setShowFilterMenu(false)
+                      }}
+                      className={`w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 transition-colors border-t border-gray-100 ${
+                        filterType === key ? 'bg-gray-50 font-semibold' : ''
+                      }`}
+                    >
+                      {type.label}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </div>
 
-      <div className="bg-white border rounded-lg overflow-hidden">
+      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
         <table className="w-full">
-          <thead className="bg-gray-50 border-b">
+          <thead className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
             <tr>
-              <th className="text-center py-3 px-3 text-sm font-semibold w-12">
+              <th className="text-center py-4 px-4 text-xs font-semibold text-gray-600 uppercase tracking-wider w-12">
                 <button
                   onClick={() => {
                     if (selectedMovimientos.length === filteredMovements.length) {
@@ -439,27 +502,26 @@ const Movimientos = ({ companyData }) => {
                       setSelectedMovimientos(filteredMovements.map(m => m.id))
                     }
                   }}
-                  className="p-1 hover:bg-gray-200 rounded transition-colors"
+                  className="p-1.5 hover:bg-gray-200 rounded-md transition-colors"
                   title={selectedMovimientos.length === filteredMovements.length ? "Deseleccionar todos" : "Seleccionar todos"}
                 >
                   {selectedMovimientos.length === filteredMovements.length && filteredMovements.length > 0 ? (
-                    <CheckSquare className="w-5 h-5 text-gray-900" />
+                    <CheckSquare className="w-4 h-4 text-gray-700" />
                   ) : (
-                    <Square className="w-5 h-5 text-gray-400" />
+                    <Square className="w-4 h-4 text-gray-400" />
                   )}
                 </button>
               </th>
-              <th className="text-left py-3 px-4 text-sm font-semibold">Fecha</th>
-              <th className="text-left py-3 px-4 text-sm font-semibold">Tipo</th>
-              <th className="text-left py-3 px-4 text-sm font-semibold">Descripción</th>
-              <th className="text-left py-3 px-4 text-sm font-semibold">Categoría</th>
-              <th className="text-right py-3 px-4 text-sm font-semibold">Monto</th>
-              <th className="text-right py-3 px-4 text-sm font-semibold">Acciones</th>
+              <th className="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Fecha</th>
+              <th className="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Tipo</th>
+              <th className="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Descripción</th>
+              <th className="text-right py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Monto</th>
+              <th className="text-right py-4 px-6 text-xs font-semibold text-gray-600 uppercase tracking-wider">Acciones</th>
             </tr>
           </thead>
           <tbody>
             {filteredMovements.length === 0 ? (
-              <tr><td colSpan="7" className="text-center py-12 text-gray-500">
+              <tr><td colSpan="6" className="text-center py-12 text-gray-500">
                 <FileText className="w-12 h-12 mx-auto mb-3 text-gray-400" />
                 <p>No hay movimientos</p>
               </td></tr>
@@ -473,12 +535,12 @@ const Movimientos = ({ companyData }) => {
                 const isSelected = selectedMovimientos.includes(mov.id)
                 
                 return (
-                <tr key={idx} className={`border-b transition-all ${
+                <tr key={idx} className={`border-b border-gray-100 transition-all duration-150 ${
                   isSelected ? 'bg-gray-50 border-l-4 border-l-gray-900' : 
-                  tieneDeuda ? 'bg-gradient-to-r from-red-50 to-orange-50 border-l-4 border-l-red-500 hover:shadow-md' : 
-                  'hover:bg-gray-50'
+                  tieneDeuda ? 'bg-gradient-to-r from-red-50/50 to-orange-50/50 border-l-4 border-l-red-400 hover:shadow-sm' : 
+                  'hover:bg-gray-50/50'
                 }`}>
-                  <td className="py-3 px-3 text-sm w-12 text-center">
+                  <td className="py-4 px-4 text-sm w-12 text-center">
                     <button
                       onClick={() => {
                         if (isSelected) {
@@ -487,63 +549,64 @@ const Movimientos = ({ companyData }) => {
                           setSelectedMovimientos(prev => [...prev, mov.id])
                         }
                       }}
-                      className="p-1 hover:bg-gray-200 rounded transition-colors"
+                      className="p-1.5 hover:bg-gray-200 rounded-md transition-colors"
                     >
                       {isSelected ? (
-                        <CheckSquare className="w-5 h-5 text-gray-900" />
+                        <CheckSquare className="w-4 h-4 text-gray-700" />
                       ) : (
-                        <Square className="w-5 h-5 text-gray-400" />
+                        <Square className="w-4 h-4 text-gray-400" />
                       )}
                     </button>
                   </td>
-                  <td className="py-3 px-4 text-sm">{new Date(mov.date).toLocaleDateString('es-AR')}</td>
-                  <td className="py-3 px-4 text-sm">
+                  <td className="py-4 px-6 text-sm text-gray-700 font-medium">{new Date(mov.date).toLocaleDateString('es-AR')}</td>
+                  <td className="py-4 px-6 text-sm">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className={`px-2.5 py-1 rounded-lg text-xs font-semibold shadow-sm ${
-                        mov.type === 'income' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                      <span className={`px-3 py-1.5 rounded-full text-xs font-semibold ${
+                        mov.metadata?.movementType === 'compra' ? 'bg-blue-50 text-blue-700 border border-blue-200' :
+                        mov.metadata?.movementType === 'venta' ? 'bg-green-50 text-green-700 border border-green-200' :
+                        mov.type === 'income' ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-700 border border-red-200'
                       }`}>
                         {movementTypes[mov.metadata?.movementType || (mov.type === 'income' ? 'venta' : 'gasto')]?.label}
                       </span>
                       {tieneDeuda && (
-                        <span className="px-2.5 py-1 rounded-lg text-xs font-bold bg-red-600 text-white">
+                        <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-red-600 text-white shadow-sm">
                           DEUDA
                         </span>
                       )}
                     </div>
                   </td>
-                  <td className="py-3 px-4 text-sm">
-                    <div>{mov.description}</div>
+                  <td className="py-4 px-6 text-sm">
+                    <div className="text-gray-900 font-medium">{mov.description}</div>
                     {tieneDeuda && (
-                      <div className="text-xs text-red-700 font-bold mt-1.5 bg-red-100 px-2 py-1 rounded-md inline-flex">
+                      <div className="text-xs text-red-700 font-semibold mt-2 bg-red-50 px-2.5 py-1 rounded-md inline-flex border border-red-200">
                         Deuda: ${parseFloat(mov.metadata?.deuda || 0).toLocaleString('es-AR')}
                       </div>
                     )}
                   </td>
-                  <td className="py-3 px-4 text-sm">{mov.category}</td>
-                  <td className={`py-3 px-4 text-sm text-right font-semibold ${
+                  <td className={`py-4 px-6 text-sm text-right font-bold ${
                     mov.type === 'income' ? 'text-green-600' : 'text-red-600'
                   }`}>
                     ${parseFloat(mov.amount).toLocaleString('es-AR')}
                   </td>
-                  <td className="py-3 px-4 text-sm text-right">
-                    <div className="flex items-center justify-end gap-1">
+                  <td className="py-4 px-6 text-sm text-right">
+                    <div className="flex items-center justify-end gap-1.5">
                       <button
                         onClick={() => handleViewDetalle(mov)}
-                        className="p-1.5 hover:bg-blue-50 rounded-lg text-blue-600 transition-colors"
+                        className="p-2 hover:bg-blue-50 rounded-lg text-blue-600 transition-colors"
                         title="Ver detalle"
                       >
                         <Eye className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => handleEdit(mov)}
-                        className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-600 transition-colors"
+                        className="p-2 hover:bg-gray-100 rounded-lg text-gray-600 transition-colors"
                         title="Editar movimiento"
                       >
                         <Edit className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => handleDeleteClick(mov)}
-                        className="p-1.5 hover:bg-red-50 rounded-lg text-red-600 transition-colors"
+                        className="p-2 hover:bg-red-50 rounded-lg text-red-600 transition-colors"
                         title="Eliminar movimiento"
                       >
                         <Trash2 className="w-4 h-4" />

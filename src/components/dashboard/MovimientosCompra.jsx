@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react'
 import { useData } from '../../context/DataContext'
 import { 
   Plus, Save, X, Upload, Mic, Sparkles, Loader, 
-  ShoppingCart, AlertCircle, CheckCircle, Image as ImageIcon, Trash2, Search
+  ShoppingCart, AlertCircle, CheckCircle, Image as ImageIcon, Trash2, Search,
+  ChevronDown, ChevronUp
 } from 'lucide-react'
 import AudioRecorderComponent from '../common/AudioRecorder'
 import { processAudioForMovement, isOpenAIConfigured } from '../../services/aiService'
@@ -18,6 +19,8 @@ const MovimientosCompra = ({ movimiento, onClose, onSuccess }) => {
   const [searchProducto, setSearchProducto] = useState('')
   const [showProductSearch, setShowProductSearch] = useState(false)
   const [searchingProductId, setSearchingProductId] = useState(null)
+  const [productosExpandidos, setProductosExpandidos] = useState({})
+  const [aiSectionExpanded, setAiSectionExpanded] = useState(false)
 
   // Cargar inventario y cotización del dólar al montar el componente
   useEffect(() => {
@@ -94,7 +97,6 @@ const MovimientosCompra = ({ movimiento, onClose, onSuccess }) => {
       marca: '',
       modelo: '',
       nombre: '',
-      descripcion: '',
       cantidad: 1,
       costoUnitario: '',
       costoTotal: '',
@@ -236,14 +238,21 @@ const MovimientosCompra = ({ movimiento, onClose, onSuccess }) => {
   }
 
 
+  const toggleProducto = (id) => {
+    setProductosExpandidos(prev => ({
+      ...prev,
+      [id]: !prev[id]
+    }))
+  }
+
   const agregarProducto = () => {
+    const nuevoId = Date.now()
     setProductos([...productos, {
-      id: Date.now(),
+      id: nuevoId,
       categoria: '',
       marca: '',
       modelo: '',
       nombre: '',
-      descripcion: '',
       cantidad: 1,
       costoUnitario: '',
       costoTotal: '',
@@ -251,6 +260,11 @@ const MovimientosCompra = ({ movimiento, onClose, onSuccess }) => {
       precioMinorista: '',
       precioMayorista: ''
     }])
+    // Auto-expandir el nuevo producto
+    setProductosExpandidos(prev => ({
+      ...prev,
+      [nuevoId]: true
+    }))
   }
 
   const eliminarProducto = (id) => {
@@ -266,7 +280,6 @@ const MovimientosCompra = ({ movimiento, onClose, onSuccess }) => {
       marca: productoInventario.brand || '',
       modelo: productoInventario.model || '',
       nombre: productoInventario.name || '',
-      descripcion: productoInventario.description || '',
       cantidad: 1,
       costoUnitario: productoInventario.cost?.toString() || '',
       costoTotal: productoInventario.cost?.toString() || '',
@@ -289,7 +302,6 @@ const MovimientosCompra = ({ movimiento, onClose, onSuccess }) => {
           marca: productoInventario.brand || '',
           modelo: productoInventario.model || '',
           nombre: productoInventario.name || '',
-          descripcion: productoInventario.description || '',
           costoUnitario: productoInventario.cost?.toString() || '',
           costoTotal: (productoInventario.cost * (p.cantidad || 1))?.toString() || '',
           precioMinorista: productoInventario.price?.toString() || '',
@@ -346,47 +358,10 @@ const MovimientosCompra = ({ movimiento, onClose, onSuccess }) => {
         if (!prod.costoUnitario || prod.costoUnitario <= 0) throw new Error('El costo unitario debe ser mayor a 0')
       }
 
-      // Crear movimiento de compra
-      const compraData = {
-        type: 'expense',
-        date: formData.fecha,
-        amount: parseFloat(montoCalculado),
-        description: `Compra ${formData.tipo} - ${formData.proveedor}`,
-        category: 'Mercadería',
-        number: isEditing ? (movimiento.number || movimiento.invoice_number) : `COMPRA-${Date.now()}`,
-        metadata: {
-          movementType: 'compra',
-          tipoCompra: formData.tipo,
-          provider: formData.proveedor,
-          paymentMethod: formData.medio,
-          pagado: formData.pago === 'si',
-          deuda: formData.pago === 'no' ? parseFloat(formData.deuda) : 0,
-          productos: productos.map(p => ({
-            categoria: p.categoria,
-            marca: p.marca,
-            modelo: p.modelo,
-            nombre: p.nombre,
-            descripcion: p.descripcion,
-            cantidad: parseFloat(p.cantidad),
-            costoUnitario: parseFloat(p.costoUnitario),
-            costoTotal: parseFloat(p.costoTotal),
-            precioMinorista: parseFloat(p.precioMinorista) || 0,
-            precioMayorista: parseFloat(p.precioMayorista) || 0,
-            imagen: p.imagen
-          })),
-          comprobante: formData.comprobante,
-          aiAnalyzed: aiAnalyzed
-        }
-      }
-
-      if (isEditing) {
-        await updateInvoice(movimiento.id, compraData)
-      } else {
-        await addInvoice(compraData)
-      }
-      
-      // Actualizar inventario: buscar o crear productos y sumar stock
+      // Actualizar inventario PRIMERO: buscar o crear productos y sumar stock
       console.log('📦 Actualizando inventario con productos de la compra...')
+      const productosConId = []
+      
       for (const prod of productos) {
         try {
           // Buscar o crear producto en inventario
@@ -401,6 +376,22 @@ const MovimientosCompra = ({ movimiento, onClose, onSuccess }) => {
             precioMayorista: prod.precioMayorista
           })
           
+          // Guardar producto con su ID para poder revertir después
+          productosConId.push({
+            productoId: product.id,
+            categoria: prod.categoria,
+            marca: prod.marca,
+            modelo: prod.modelo,
+            nombre: prod.nombre,
+            descripcion: prod.descripcion,
+            cantidad: parseFloat(prod.cantidad),
+            costoUnitario: parseFloat(prod.costoUnitario),
+            costoTotal: parseFloat(prod.costoTotal),
+            precioMinorista: parseFloat(prod.precioMinorista) || 0,
+            precioMayorista: parseFloat(prod.precioMayorista) || 0,
+            imagen: prod.imagen
+          })
+          
           // Sumar stock al producto
           await updateProductStock(product.id, parseFloat(prod.cantidad), 'add')
           console.log(`✅ Stock actualizado para ${prod.nombre}: +${prod.cantidad}`)
@@ -408,6 +399,33 @@ const MovimientosCompra = ({ movimiento, onClose, onSuccess }) => {
           console.error(`Error al actualizar inventario para ${prod.nombre}:`, invError)
           // No bloqueamos la compra si falla el inventario
         }
+      }
+
+      // Crear movimiento de compra CON los IDs de productos
+      const compraData = {
+        type: 'expense',
+        date: formData.fecha,
+        amount: parseFloat(montoCalculado),
+        description: `Compra ${formData.tipo} - ${formData.proveedor}`,
+        category: 'Mercadería',
+        number: isEditing ? (movimiento.number || movimiento.invoice_number) : `COMPRA-${Date.now()}`,
+        metadata: {
+          movementType: 'compra',
+          tipoCompra: formData.tipo,
+          provider: formData.proveedor,
+          paymentMethod: formData.medio,
+          pagado: formData.pago === 'si',
+          deuda: formData.pago === 'no' ? parseFloat(formData.deuda) : 0,
+          productos: productosConId,
+          comprobante: formData.comprobante,
+          aiAnalyzed: aiAnalyzed
+        }
+      }
+
+      if (isEditing) {
+        await updateInvoice(movimiento.id, compraData)
+      } else {
+        await addInvoice(compraData)
       }
       
       onSuccess?.(isEditing ? 'Compra actualizada exitosamente.' : 'Compra registrada exitosamente. Inventario actualizado.')
@@ -440,49 +458,64 @@ const MovimientosCompra = ({ movimiento, onClose, onSuccess }) => {
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          {/* Análisis con IA */}
-          <div className="bg-gray-50 border border-gray-200 rounded-xl p-5 shadow-sm">
-            <div className="flex items-center gap-3 mb-4">
-              <Sparkles className="w-5 h-5 text-blue-600" />
-              <div>
-                <h3 className="font-semibold text-gray-900">Análisis Automático con IA</h3>
-                <p className="text-sm text-gray-600">Sube un comprobante o graba un audio para autocompletar</p>
-              </div>
-            </div>
-
-            {analyzing && (
-              <div className="flex items-center gap-3 p-3.5 bg-blue-50 rounded-lg mb-4 border border-blue-100">
-                <Loader className="w-4 h-4 text-blue-600 animate-spin" />
-                <p className="text-sm text-blue-700">Analizando con IA...</p>
-              </div>
-            )}
-
-            {aiAnalyzed && (
-              <div className="flex items-center gap-3 p-3.5 bg-blue-50 border border-blue-200 rounded-lg mb-4">
-                <CheckCircle className="w-4 h-4 text-blue-600" />
-                <p className="text-sm text-blue-700">Formulario completado por IA. Revisa y ajusta si es necesario.</p>
-              </div>
-            )}
-
-            <div className="space-y-3">
-              <label className="flex items-center gap-3 p-3.5 bg-white border border-gray-300 rounded-lg cursor-pointer hover:border-blue-500 hover:bg-gray-50 transition-all">
-                <Upload className="w-4 h-4 text-gray-600" />
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-900">Subir Comprobante</p>
-                  <p className="text-xs text-gray-500">PDF o Imagen</p>
+          {/* Análisis con IA - Colapsable */}
+          <div className="bg-gray-50 border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+            <button
+              type="button"
+              onClick={() => setAiSectionExpanded(!aiSectionExpanded)}
+              className="w-full flex items-center justify-between p-5 hover:bg-gray-100 transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <Sparkles className="w-5 h-5 text-green-600" />
+                <div className="text-left">
+                  <h3 className="font-semibold text-gray-900">Análisis Automático con IA</h3>
+                  <p className="text-sm text-gray-600">Sube un comprobante o graba un audio para autocompletar</p>
                 </div>
-                <input type="file" accept=".pdf,image/*" onChange={handleFileUpload} className="hidden" disabled={analyzing} />
-              </label>
-
-              <div className="border-t border-gray-200 pt-3">
-                <p className="text-xs font-medium text-gray-700 mb-2 uppercase tracking-wide">O graba un audio</p>
-                <AudioRecorderComponent
-                  onRecordingComplete={(audioFile) => analyzeWithAI(audioFile, 'audio')}
-                  onError={(error) => setError(error)}
-                  disabled={analyzing}
-                />
               </div>
-            </div>
+              {aiSectionExpanded ? (
+                <ChevronUp className="w-5 h-5 text-gray-600" />
+              ) : (
+                <ChevronDown className="w-5 h-5 text-gray-600" />
+              )}
+            </button>
+
+            {aiSectionExpanded && (
+              <div className="px-5 pb-5 space-y-3 border-t border-gray-200 pt-4">
+                {analyzing && (
+                  <div className="flex items-center gap-3 p-3.5 bg-green-50 rounded-lg border border-green-100">
+                    <Loader className="w-4 h-4 text-green-600 animate-spin" />
+                    <p className="text-sm text-green-700">Analizando con IA...</p>
+                  </div>
+                )}
+
+                {aiAnalyzed && (
+                  <div className="flex items-center gap-3 p-3.5 bg-green-50 border border-green-200 rounded-lg">
+                    <CheckCircle className="w-4 h-4 text-green-600" />
+                    <p className="text-sm text-green-700">Formulario completado por IA. Revisa y ajusta si es necesario.</p>
+                  </div>
+                )}
+
+                <div className="space-y-3">
+                  <label className="flex items-center gap-3 p-3.5 bg-white border border-gray-300 rounded-lg cursor-pointer hover:border-green-500 hover:bg-gray-50 transition-all">
+                    <Upload className="w-4 h-4 text-gray-600" />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-gray-900">Subir Comprobante</p>
+                      <p className="text-xs text-gray-500">PDF o Imagen</p>
+                    </div>
+                    <input type="file" accept=".pdf,image/*" onChange={handleFileUpload} className="hidden" disabled={analyzing} />
+                  </label>
+
+                  <div className="border-t border-gray-200 pt-3">
+                    <p className="text-xs font-medium text-gray-700 mb-2 uppercase tracking-wide">O graba un audio</p>
+                    <AudioRecorderComponent
+                      onRecordingComplete={(audioFile) => analyzeWithAI(audioFile, 'audio')}
+                      onError={(error) => setError(error)}
+                      disabled={analyzing}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {error && (
@@ -575,19 +608,12 @@ const MovimientosCompra = ({ movimiento, onClose, onSuccess }) => {
                     value={formData.deuda}
                     onChange={(e) => setFormData({...formData, deuda: e.target.value})}
                     required
-                    step="0.01"
+                    step="1"
                     placeholder="0.00"
                     className="w-full px-4 py-2 rounded-lg border-2 border-red-300 bg-red-50 outline-none"
                   />
                 </div>
               )}
-            </div>
-
-            <div className="bg-blue-50 p-5 rounded-xl border border-blue-200">
-              <p className="text-xs text-gray-600 font-medium mb-1.5">Monto Total Calculado</p>
-              <p className="text-3xl font-bold text-blue-600">
-                ${calcularMontoTotal()}
-              </p>
             </div>
           </div>
 
@@ -600,7 +626,7 @@ const MovimientosCompra = ({ movimiento, onClose, onSuccess }) => {
                   <button
                     type="button"
                     onClick={() => setShowProductSearch(!showProductSearch)}
-                    className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white text-sm rounded-xl font-semibold transition-all shadow-lg hover:shadow-xl hover:scale-105"
+                    className="flex items-center gap-2 px-4 py-2 bg-white border-2 border-gray-300 hover:border-gray-400 text-gray-700 hover:text-gray-900 text-sm rounded-lg font-medium transition-all hover:bg-gray-50"
                   >
                     <Search className="w-4 h-4" />
                     Buscar Existente
@@ -608,7 +634,7 @@ const MovimientosCompra = ({ movimiento, onClose, onSuccess }) => {
                   <button
                     type="button"
                     onClick={agregarProducto}
-                    className="flex items-center gap-2 px-4 py-2.5 bg-gray-900 hover:bg-gray-800 text-white text-sm rounded-xl font-semibold transition-all shadow-lg hover:shadow-xl hover:scale-105"
+                    className="flex items-center gap-2 px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white text-sm rounded-lg font-medium transition-all"
                   >
                     <Plus className="w-4 h-4" />
                     Agregar Nuevo
@@ -618,12 +644,19 @@ const MovimientosCompra = ({ movimiento, onClose, onSuccess }) => {
 
               {/* Buscador de Productos Existentes */}
               {showProductSearch && (
-                <div className="bg-gradient-to-br from-cyan-50 to-blue-50 border-2 border-cyan-200 rounded-2xl p-5 mb-4 shadow-lg">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="p-2 bg-white rounded-lg shadow-sm border border-cyan-200">
-                      <Search className="w-5 h-5 text-cyan-600" />
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-5 mb-4">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2">
+                      <Search className="w-5 h-5 text-gray-600" />
+                      <h4 className="text-sm font-semibold text-gray-900">Buscar en Inventario</h4>
                     </div>
-                    <h4 className="text-base font-bold text-gray-900">Buscar Producto en Inventario</h4>
+                    <button
+                      type="button"
+                      onClick={() => setShowProductSearch(false)}
+                      className="text-gray-400 hover:text-gray-600 transition-colors"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
                   </div>
                   
                   <div className="relative mb-4">
@@ -632,9 +665,9 @@ const MovimientosCompra = ({ movimiento, onClose, onSuccess }) => {
                       value={searchProducto}
                       onChange={(e) => setSearchProducto(e.target.value)}
                       placeholder="Buscar por nombre, marca, modelo o categoría..."
-                      className="w-full px-4 py-3 pr-11 rounded-xl border-2 border-cyan-200 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all shadow-sm bg-white"
+                      className="w-full px-4 py-2.5 pr-10 rounded-lg border border-gray-300 focus:ring-2 focus:ring-gray-900 focus:border-gray-900 transition-all bg-white"
                     />
-                    <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-cyan-400" />
+                    <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                   </div>
 
                   {searchProducto && (
@@ -654,22 +687,22 @@ const MovimientosCompra = ({ movimiento, onClose, onSuccess }) => {
                             key={idx}
                             type="button"
                             onClick={() => agregarProductoExistente(item)}
-                            className="w-full text-left p-4 bg-white border-2 border-gray-200 rounded-xl hover:border-cyan-400 hover:shadow-lg transition-all group"
+                            className="w-full text-left p-3 bg-white border border-gray-200 rounded-lg hover:border-gray-400 hover:bg-gray-50 transition-all group"
                           >
                             <div className="flex items-center justify-between">
                               <div className="flex-1">
-                                <p className="font-semibold text-gray-900 group-hover:text-cyan-600 transition-colors">{item.name}</p>
-                                <div className="flex items-center gap-2 text-xs mt-2 flex-wrap">
-                                  {item.brand && <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-lg font-medium">{item.brand}</span>}
-                                  {item.model && <span className="px-2 py-1 bg-green-100 text-green-700 rounded-lg font-medium">{item.model}</span>}
-                                  {item.category && <span className="px-2 py-1 bg-cyan-100 text-cyan-700 rounded-lg font-medium">{item.category}</span>}
+                                <p className="font-medium text-gray-900 text-sm">{item.name}</p>
+                                <div className="flex items-center gap-1.5 text-xs mt-1.5 flex-wrap">
+                                  {item.brand && <span className="px-2 py-0.5 bg-gray-100 text-gray-700 rounded font-medium">{item.brand}</span>}
+                                  {item.model && <span className="px-2 py-0.5 bg-gray-100 text-gray-700 rounded font-medium">{item.model}</span>}
+                                  {item.category && <span className="px-2 py-0.5 bg-gray-100 text-gray-700 rounded font-medium">{item.category}</span>}
                                 </div>
                               </div>
                               <div className="text-right ml-4">
-                                <p className="text-sm font-bold text-cyan-600">
+                                <p className="text-sm font-semibold text-gray-900">
                                   ${parseFloat(item.cost || 0).toLocaleString('es-AR')}
                                 </p>
-                                <p className="text-xs text-gray-500 mt-1">Stock: {item.stock || 0}</p>
+                                <p className="text-xs text-gray-500 mt-0.5">Stock: {item.stock || 0}</p>
                               </div>
                             </div>
                           </button>
@@ -684,7 +717,7 @@ const MovimientosCompra = ({ movimiento, onClose, onSuccess }) => {
                           item.category?.toLowerCase().includes(search)
                         )
                       }).length === 0 && (
-                        <div className="text-center py-4 text-gray-500">
+                        <div className="text-center py-8 text-gray-500">
                           <p className="text-sm">No se encontraron productos</p>
                         </div>
                       )}
@@ -692,8 +725,8 @@ const MovimientosCompra = ({ movimiento, onClose, onSuccess }) => {
                   )}
 
                   {!searchProducto && (
-                    <p className="text-sm text-cyan-700 text-center py-3 font-medium">
-                      💡 Escribe para buscar productos en tu inventario
+                    <p className="text-sm text-gray-500 text-center py-4">
+                      Escribe para buscar productos en tu inventario
                     </p>
                   )}
                 </div>
@@ -701,49 +734,81 @@ const MovimientosCompra = ({ movimiento, onClose, onSuccess }) => {
             </div>
 
             {productos.map((producto, index) => (
-              <div key={producto.id} className="bg-gray-50 border border-gray-200 rounded-xl p-5 space-y-4">
-                <div className="flex items-center justify-between mb-3">
-                  <h4 className="text-sm font-medium text-gray-700">Producto #{index + 1}</h4>
+              <div key={producto.id} className="bg-white border-2 border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                {/* Header Colapsable */}
+                <button
+                  type="button"
+                  onClick={() => toggleProducto(producto.id)}
+                  className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-gray-100 rounded-lg">
+                      <ShoppingCart className="w-5 h-5 text-gray-700" />
+                    </div>
+                    <div className="text-left">
+                      <h4 className="font-semibold text-gray-900">
+                        Producto #{index + 1} {producto.nombre && `- ${producto.nombre}`}
+                      </h4>
+                      <p className="text-sm text-gray-600">
+                        {producto.costoTotal ? `Total: $${parseFloat(producto.costoTotal).toLocaleString('es-AR')}` : 'Sin completar'}
+                      </p>
+                    </div>
+                  </div>
                   <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setSearchingProductId(searchingProductId === producto.id ? null : producto.id)
-                        setSearchProducto('')
-                      }}
-                      className={`flex items-center gap-2 px-4 py-2 text-xs rounded-lg font-semibold transition-all shadow-sm hover:shadow-md ${
-                        searchingProductId === producto.id 
-                          ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white' 
-                          : 'bg-cyan-50 text-cyan-700 hover:bg-cyan-100 border border-cyan-200'
-                      }`}
-                    >
-                      <Search className="w-4 h-4" />
-                      {searchingProductId === producto.id ? 'Cerrar' : 'Buscar'}
-                    </button>
                     {productos.length > 1 && (
                       <button
                         type="button"
-                        onClick={() => eliminarProducto(producto.id)}
-                        className="p-1.5 hover:bg-red-50 rounded-lg text-red-600 transition-colors"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          eliminarProducto(producto.id)
+                        }}
+                        className="p-2 hover:bg-red-50 rounded-lg text-red-600 transition-colors"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
                     )}
+                    {productosExpandidos[producto.id] ? (
+                      <ChevronUp className="w-5 h-5 text-gray-600" />
+                    ) : (
+                      <ChevronDown className="w-5 h-5 text-gray-600" />
+                    )}
                   </div>
-                </div>
+                </button>
+
+                {/* Contenido Expandible */}
+                {productosExpandidos[producto.id] && (
+                  <div className="p-5 space-y-4 border-t border-gray-200 bg-gray-50">
+                    {/* Botón de búsqueda */}
+                    <div className="flex justify-end">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSearchingProductId(searchingProductId === producto.id ? null : producto.id)
+                          setSearchProducto('')
+                        }}
+                        className={`flex items-center gap-2 px-3 py-1.5 text-xs rounded-lg font-medium transition-all ${
+                          searchingProductId === producto.id 
+                            ? 'bg-gray-900 text-white hover:bg-gray-800' 
+                            : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+                        }`}
+                      >
+                        <Search className="w-3.5 h-3.5" />
+                        {searchingProductId === producto.id ? 'Cerrar' : 'Buscar en Inventario'}
+                      </button>
+                    </div>
 
                 {/* Buscador Individual del Producto */}
                 {searchingProductId === producto.id && (
-                  <div className="bg-gradient-to-br from-cyan-50 to-blue-50 border-2 border-cyan-200 rounded-xl p-4 mb-3 shadow-md">
+                  <div className="bg-white border border-gray-200 rounded-lg p-4 mb-3">
                     <div className="relative mb-3">
                       <input
                         type="text"
                         value={searchProducto}
                         onChange={(e) => setSearchProducto(e.target.value)}
                         placeholder="Buscar producto en inventario..."
-                        className="w-full px-4 py-2.5 pr-10 text-sm rounded-lg border-2 border-cyan-200 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all bg-white shadow-sm"
+                        className="w-full px-4 py-2 pr-10 text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-gray-900 focus:border-gray-900 transition-all bg-white"
                       />
-                      <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-cyan-400" />
+                      <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                     </div>
 
                     {searchProducto && (
@@ -763,19 +828,19 @@ const MovimientosCompra = ({ movimiento, onClose, onSuccess }) => {
                               key={idx}
                               type="button"
                               onClick={() => seleccionarProductoExistente(item, producto.id)}
-                              className="w-full text-left p-3 bg-white border-2 border-gray-200 rounded-lg hover:border-cyan-400 hover:shadow-md transition-all group"
+                              className="w-full text-left p-2.5 bg-gray-50 border border-gray-200 rounded-lg hover:border-gray-400 hover:bg-white transition-all group"
                             >
                               <div className="flex items-center justify-between">
                                 <div className="flex-1 min-w-0">
-                                  <p className="text-sm font-semibold text-gray-900 truncate group-hover:text-cyan-600 transition-colors">{item.name}</p>
-                                  <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
-                                    {item.brand && <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded-md text-xs font-medium">{item.brand}</span>}
-                                    {item.model && <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded-md text-xs font-medium">{item.model}</span>}
-                                    {item.category && <span className="px-2 py-0.5 bg-cyan-100 text-cyan-700 rounded-md text-xs font-medium">{item.category}</span>}
+                                  <p className="text-sm font-medium text-gray-900 truncate">{item.name}</p>
+                                  <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                                    {item.brand && <span className="px-1.5 py-0.5 bg-gray-200 text-gray-700 rounded text-xs font-medium">{item.brand}</span>}
+                                    {item.model && <span className="px-1.5 py-0.5 bg-gray-200 text-gray-700 rounded text-xs font-medium">{item.model}</span>}
+                                    {item.category && <span className="px-1.5 py-0.5 bg-gray-200 text-gray-700 rounded text-xs font-medium">{item.category}</span>}
                                   </div>
                                 </div>
                                 <div className="text-right ml-3">
-                                  <p className="text-xs font-bold text-cyan-600">
+                                  <p className="text-xs font-semibold text-gray-900">
                                     ${parseFloat(item.cost || 0).toLocaleString('es-AR')}
                                   </p>
                                   <p className="text-xs text-gray-500 mt-0.5">Stock: {item.stock || 0}</p>
@@ -793,7 +858,7 @@ const MovimientosCompra = ({ movimiento, onClose, onSuccess }) => {
                             item.category?.toLowerCase().includes(search)
                           )
                         }).length === 0 && (
-                          <div className="text-center py-3 text-gray-500">
+                          <div className="text-center py-6 text-gray-500">
                             <p className="text-xs">No se encontraron productos</p>
                           </div>
                         )}
@@ -801,8 +866,8 @@ const MovimientosCompra = ({ movimiento, onClose, onSuccess }) => {
                     )}
 
                     {!searchProducto && (
-                      <p className="text-xs text-cyan-700 text-center py-2 font-medium">
-                        💡 Escribe para buscar en el inventario
+                      <p className="text-xs text-gray-500 text-center py-3">
+                        Escribe para buscar en el inventario
                       </p>
                     )}
                   </div>
@@ -887,16 +952,6 @@ const MovimientosCompra = ({ movimiento, onClose, onSuccess }) => {
                   </div>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium mb-2">Descripción</label>
-                  <textarea
-                    value={producto.descripcion}
-                    onChange={(e) => actualizarProducto(producto.id, 'descripcion', e.target.value)}
-                    rows="2"
-                    className="w-full px-4 py-2 rounded-lg border border-gray-300 outline-none resize-none"
-                  />
-                </div>
-
                 <div className="grid md:grid-cols-3 gap-4">
                   <div>
                     <label className="block text-sm font-medium mb-2">Costo Unitario *</label>
@@ -905,7 +960,7 @@ const MovimientosCompra = ({ movimiento, onClose, onSuccess }) => {
                       value={producto.costoUnitario}
                       onChange={(e) => actualizarProducto(producto.id, 'costoUnitario', e.target.value)}
                       required
-                      step="0.01"
+                      step="1"
                       placeholder="0.00"
                       className="w-full px-4 py-2 rounded-lg border border-gray-300 outline-none"
                     />
@@ -943,7 +998,7 @@ const MovimientosCompra = ({ movimiento, onClose, onSuccess }) => {
                       type="number"
                       value={producto.precioMinorista}
                       onChange={(e) => actualizarProducto(producto.id, 'precioMinorista', e.target.value)}
-                      step="0.01"
+                      step="1"
                       placeholder="0.00"
                       className="w-full px-4 py-2 rounded-lg border border-green-300 outline-none"
                     />
@@ -955,14 +1010,31 @@ const MovimientosCompra = ({ movimiento, onClose, onSuccess }) => {
                       type="number"
                       value={producto.precioMayorista}
                       onChange={(e) => actualizarProducto(producto.id, 'precioMayorista', e.target.value)}
-                      step="0.01"
+                      step="1"
                       placeholder="0.00"
                       className="w-full px-4 py-2 rounded-lg border border-green-300 outline-none"
                     />
                   </div>
                 </div>
+                  </div>
+                )}
               </div>
             ))}
+
+            {/* Monto Total - Al final de los productos */}
+            {productos.length > 0 && productos.some(p => p.costoTotal) && (
+              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl p-6 shadow-md">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-gray-600 font-medium mb-1">Monto Total Calculado</p>
+                    <p className="text-xs text-gray-500">Suma de todos los productos</p>
+                  </div>
+                  <p className="text-4xl font-bold text-blue-600">
+                    ${calcularMontoTotal()}
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Botones */}

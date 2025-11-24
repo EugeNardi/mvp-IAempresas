@@ -3,7 +3,7 @@ import { useData } from '../../context/DataContext'
 import { 
   Plus, Save, X, Upload, Mic, Sparkles, Loader, 
   TrendingUp, AlertCircle, CheckCircle, Image as ImageIcon, Trash2, Package,
-  FileSpreadsheet, Download, History
+  FileSpreadsheet, Download, History, ChevronDown, ChevronUp
 } from 'lucide-react'
 import AudioRecorderComponent from '../common/AudioRecorder'
 import { processAudioForMovement, isOpenAIConfigured } from '../../services/aiService'
@@ -20,6 +20,9 @@ const MovimientosVenta = ({ movimiento, onClose, onSuccess }) => {
   const [uploadingBulk, setUploadingBulk] = useState(false)
   const [bulkProgress, setBulkProgress] = useState({ current: 0, total: 0 })
   const [bulkSuccess, setBulkSuccess] = useState('')
+  const [productosExpandidos, setProductosExpandidos] = useState({})
+  const [aiSectionExpanded, setAiSectionExpanded] = useState(false)
+  const [bulkSectionExpanded, setBulkSectionExpanded] = useState(false)
 
   // Cargar inventario y cotización del dólar al montar el componente
   useEffect(() => {
@@ -88,6 +91,10 @@ const MovimientosVenta = ({ movimiento, onClose, onSuccess }) => {
         precioUnitario: p.precioUnitario?.toString() || '',
         precioTotal: p.precioTotal?.toString() || '',
         descuento: p.descuento || 0,
+        tipoDescuento: p.tipoDescuento || 'monto',
+        comision: p.comision || 0,
+        tipoComision: p.tipoComision || 'monto',
+        comisionista: p.comisionista || '',
         stockDisponible: p.stockDisponible || 0
       }))
     }
@@ -100,6 +107,10 @@ const MovimientosVenta = ({ movimiento, onClose, onSuccess }) => {
       precioUnitario: '',
       precioTotal: '',
       descuento: 0,
+      tipoDescuento: 'monto',
+      comision: 0,
+      tipoComision: 'monto',
+      comisionista: '',
       stockDisponible: 0
     }]
   })
@@ -112,6 +123,15 @@ const MovimientosVenta = ({ movimiento, onClose, onSuccess }) => {
       .map(inv => inv.metadata.cliente)
   )]
 
+  const comisionistasSugeridos = [...new Set(
+    invoices
+      .filter(inv => inv.metadata?.movementType === 'venta' && inv.metadata?.productos)
+      .flatMap(inv => inv.metadata.productos
+        .filter(p => p.comisionista)
+        .map(p => p.comisionista)
+      )
+  )]
+
   // Actualizar precios cuando cambia el tipo de venta (minorista/mayorista)
   useEffect(() => {
     if (productos.length > 0 && inventoryItems && inventoryItems.length > 0) {
@@ -119,9 +139,21 @@ const MovimientosVenta = ({ movimiento, onClose, onSuccess }) => {
         if (p.productoId) {
           const item = inventoryItems.find(i => i.id === p.productoId)
           if (item) {
-            const nuevoPrecio = formData.tipo === 'mayorista' 
-              ? (item.wholesale_price || item.sale_price || item.unit_cost * 1.3)
-              : (item.sale_price || item.unit_cost * 1.5)
+            // Seleccionar precio según tipo de venta
+            let nuevoPrecio
+            if (formData.tipo === 'mayorista') {
+              // Para venta mayorista: usar wholesale_price si existe y es > 0, sino sale_price, sino calcular
+              nuevoPrecio = (item.wholesale_price && parseFloat(item.wholesale_price) > 0)
+                ? parseFloat(item.wholesale_price)
+                : (item.sale_price && parseFloat(item.sale_price) > 0)
+                  ? parseFloat(item.sale_price)
+                  : parseFloat(item.unit_cost || 0) * 1.3
+            } else {
+              // Para venta minorista: usar sale_price si existe y es > 0, sino calcular
+              nuevoPrecio = (item.sale_price && parseFloat(item.sale_price) > 0)
+                ? parseFloat(item.sale_price)
+                : parseFloat(item.unit_cost || 0) * 1.5
+            }
             
             const cantidad = parseFloat(p.cantidad) || 1
             const descuento = parseFloat(p.descuento) || 0
@@ -238,8 +270,9 @@ const MovimientosVenta = ({ movimiento, onClose, onSuccess }) => {
   }
 
   const agregarProducto = () => {
+    const newId = Date.now()
     setProductos([...productos, {
-      id: Date.now(),
+      id: newId,
       productoId: '',
       nombre: '',
       descripcion: '',
@@ -247,8 +280,18 @@ const MovimientosVenta = ({ movimiento, onClose, onSuccess }) => {
       precioUnitario: '',
       precioTotal: '',
       descuento: 0,
+      tipoDescuento: 'monto',
+      comision: 0,
+      tipoComision: 'monto',
+      comisionista: '',
       stockDisponible: 0
     }])
+    // Expandir automáticamente el nuevo producto
+    setProductosExpandidos(prev => ({ ...prev, [newId]: true }))
+  }
+
+  const toggleProducto = (id) => {
+    setProductosExpandidos(prev => ({ ...prev, [id]: !prev[id] }))
   }
 
   const eliminarProducto = (id) => {
@@ -268,9 +311,22 @@ const MovimientosVenta = ({ movimiento, onClose, onSuccess }) => {
           if (item) {
             updated.nombre = item.name
             updated.descripcion = item.description || ''
-            updated.precioUnitario = formData.tipo === 'mayorista' 
-              ? (item.wholesale_price || item.sale_price || item.unit_cost * 1.3)
-              : (item.sale_price || item.unit_cost * 1.5)
+            
+            // Seleccionar precio según tipo de venta
+            if (formData.tipo === 'mayorista') {
+              // Para venta mayorista: usar wholesale_price si existe y es > 0, sino sale_price, sino calcular
+              updated.precioUnitario = (item.wholesale_price && parseFloat(item.wholesale_price) > 0)
+                ? parseFloat(item.wholesale_price)
+                : (item.sale_price && parseFloat(item.sale_price) > 0)
+                  ? parseFloat(item.sale_price)
+                  : parseFloat(item.unit_cost || 0) * 1.3
+            } else {
+              // Para venta minorista: usar sale_price si existe y es > 0, sino calcular
+              updated.precioUnitario = (item.sale_price && parseFloat(item.sale_price) > 0)
+                ? parseFloat(item.sale_price)
+                : parseFloat(item.unit_cost || 0) * 1.5
+            }
+            
             updated.stockDisponible = item.current_stock || 0
             
             // Calcular precio total automáticamente con cantidad 1
@@ -286,14 +342,39 @@ const MovimientosVenta = ({ movimiento, onClose, onSuccess }) => {
         }
         
         // Calcular precio total
-        if (campo === 'cantidad' || campo === 'precioUnitario' || campo === 'descuento') {
+        if (campo === 'cantidad' || campo === 'precioUnitario' || campo === 'descuento' || campo === 'tipoDescuento' || campo === 'comision' || campo === 'tipoComision') {
           const cantidad = campo === 'cantidad' ? parseFloat(valor) : parseFloat(p.cantidad)
           const precio = campo === 'precioUnitario' ? parseFloat(valor) : parseFloat(p.precioUnitario)
           const descuento = campo === 'descuento' ? parseFloat(valor) : parseFloat(p.descuento)
+          const tipoDescuento = campo === 'tipoDescuento' ? valor : (updated.tipoDescuento || p.tipoDescuento || 'monto')
+          const comision = campo === 'comision' ? parseFloat(valor) : parseFloat(p.comision || 0)
+          const tipoComision = campo === 'tipoComision' ? valor : (updated.tipoComision || p.tipoComision || 'monto')
           
           if (!isNaN(cantidad) && !isNaN(precio)) {
             const subtotal = cantidad * precio
-            updated.precioTotal = (subtotal - (descuento || 0)).toFixed(2)
+            let montoDescuento = 0
+            let montoComision = 0
+            
+            if (tipoDescuento === 'porcentaje') {
+              // Descuento en porcentaje (máximo 100%)
+              const porcentaje = Math.min(descuento || 0, 100)
+              montoDescuento = subtotal * (porcentaje / 100)
+            } else {
+              // Descuento en monto fijo
+              montoDescuento = descuento || 0
+            }
+            
+            if (tipoComision === 'porcentaje') {
+              // Comisión en porcentaje (máximo 100%)
+              const porcentaje = Math.min(comision || 0, 100)
+              montoComision = subtotal * (porcentaje / 100)
+            } else {
+              // Comisión en monto fijo
+              montoComision = comision || 0
+            }
+            
+            // Restar descuento y comisión
+            updated.precioTotal = (subtotal - montoDescuento - montoComision).toFixed(2)
           }
         }
         
@@ -305,6 +386,7 @@ const MovimientosVenta = ({ movimiento, onClose, onSuccess }) => {
 
   const calcularMontoTotal = () => {
     const totalProductos = productos.reduce((sum, p) => sum + (parseFloat(p.precioTotal) || 0), 0)
+    
     // Si es en USD, convertir a ARS
     if (formData.moneda === 'USD' && formData.tipoCambio) {
       return (totalProductos * parseFloat(formData.tipoCambio)).toFixed(2)
@@ -589,7 +671,11 @@ const MovimientosVenta = ({ movimiento, onClose, onSuccess }) => {
             cantidad: parseFloat(p.cantidad),
             precioUnitario: parseFloat(p.precioUnitario),
             precioTotal: parseFloat(p.precioTotal),
-            descuento: parseFloat(p.descuento || 0)
+            descuento: parseFloat(p.descuento || 0),
+            tipoDescuento: p.tipoDescuento || 'monto',
+            comision: parseFloat(p.comision || 0),
+            tipoComision: p.tipoComision || 'monto',
+            comisionista: p.comisionista || ''
           }))
         }
       }
@@ -646,49 +732,62 @@ const MovimientosVenta = ({ movimiento, onClose, onSuccess }) => {
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          {/* IA Analysis */}
-          <div className="bg-gray-50 border border-gray-200 rounded-xl p-5 shadow-sm">
-            <div className="flex items-center gap-3 mb-4">
-              <Sparkles className="w-5 h-5 text-green-600" />
-              <div>
-                <h3 className="font-semibold text-gray-900">Análisis Automático con IA</h3>
-                <p className="text-sm text-gray-600">Sube un comprobante o graba un audio</p>
-              </div>
-            </div>
-
-            {analyzing && (
-              <div className="flex items-center gap-3 p-3.5 bg-green-50 rounded-lg mb-4 border border-green-100">
-                <Loader className="w-4 h-4 text-green-600 animate-spin" />
-                <p className="text-sm text-green-700">Analizando con IA...</p>
-              </div>
-            )}
-
-            {aiAnalyzed && (
-              <div className="flex items-center gap-3 p-3.5 bg-green-50 border border-green-200 rounded-lg mb-4">
-                <CheckCircle className="w-4 h-4 text-green-600" />
-                <p className="text-sm text-green-700">Formulario completado por IA. Revisa y ajusta.</p>
-              </div>
-            )}
-
-            <div className="space-y-3">
-              <label className="flex items-center gap-3 p-3.5 bg-white border border-gray-300 rounded-lg cursor-pointer hover:border-green-500 hover:bg-gray-50 transition-all">
-                <Upload className="w-4 h-4 text-gray-600" />
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-900">Subir Comprobante</p>
-                  <p className="text-xs text-gray-500">PDF o Imagen</p>
+          {/* IA Analysis - Colapsable */}
+          <div className="bg-gray-50 border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+            <button
+              type="button"
+              onClick={() => setAiSectionExpanded(!aiSectionExpanded)}
+              className="w-full flex items-center justify-between p-5 hover:bg-gray-100 transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <Sparkles className="w-5 h-5 text-green-600" />
+                <div className="text-left">
+                  <h3 className="font-semibold text-gray-900">Análisis Automático con IA</h3>
+                  <p className="text-sm text-gray-600">Sube un comprobante o graba un audio</p>
                 </div>
-                <input type="file" accept=".pdf,image/*" onChange={handleFileUpload} className="hidden" disabled={analyzing} />
-              </label>
-
-              <div className="border-t border-gray-200 pt-3">
-                <p className="text-xs font-medium text-gray-700 mb-2 uppercase tracking-wide">O graba un audio</p>
-                <AudioRecorderComponent
-                  onRecordingComplete={(audioFile) => analyzeWithAI(audioFile, 'audio')}
-                  onError={(error) => setError(error)}
-                  disabled={analyzing}
-                />
               </div>
-            </div>
+              {aiSectionExpanded ? (
+                <ChevronUp className="w-5 h-5 text-gray-600" />
+              ) : (
+                <ChevronDown className="w-5 h-5 text-gray-600" />
+              )}
+            </button>
+
+            {aiSectionExpanded && (
+              <div className="px-5 pb-5 space-y-3 border-t border-gray-200 pt-4">
+                {analyzing && (
+                  <div className="flex items-center gap-3 p-3.5 bg-green-50 rounded-lg border border-green-100">
+                    <Loader className="w-4 h-4 text-green-600 animate-spin" />
+                    <p className="text-sm text-green-700">Analizando con IA...</p>
+                  </div>
+                )}
+
+                {aiAnalyzed && (
+                  <div className="flex items-center gap-3 p-3.5 bg-green-50 border border-green-200 rounded-lg">
+                    <CheckCircle className="w-4 h-4 text-green-600" />
+                    <p className="text-sm text-green-700">Formulario completado por IA. Revisa y ajusta.</p>
+                  </div>
+                )}
+
+                <label className="flex items-center gap-3 p-3.5 bg-white border border-gray-300 rounded-lg cursor-pointer hover:border-green-500 hover:bg-gray-50 transition-all">
+                  <Upload className="w-4 h-4 text-gray-600" />
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-gray-900">Subir Comprobante</p>
+                    <p className="text-xs text-gray-500">PDF o Imagen</p>
+                  </div>
+                  <input type="file" accept=".pdf,image/*" onChange={handleFileUpload} className="hidden" disabled={analyzing} />
+                </label>
+
+                <div className="border-t border-gray-200 pt-3">
+                  <p className="text-xs font-medium text-gray-700 mb-2 uppercase tracking-wide">O graba un audio</p>
+                  <AudioRecorderComponent
+                    onRecordingComplete={(audioFile) => analyzeWithAI(audioFile, 'audio')}
+                    onError={(error) => setError(error)}
+                    disabled={analyzing}
+                  />
+                </div>
+              </div>
+            )}
           </div>
 
           {error && (
@@ -771,7 +870,7 @@ const MovimientosVenta = ({ movimiento, onClose, onSuccess }) => {
                     value={formData.tipoCambio}
                     onChange={(e) => setFormData({...formData, tipoCambio: e.target.value})}
                     required
-                    step="0.01"
+                    step="1"
                     placeholder="Ej: 1200.00"
                     className="w-full px-3.5 py-2 rounded-lg border border-gray-300 focus:border-green-500 focus:ring-1 focus:ring-green-500 outline-none transition-all text-sm"
                   />
@@ -815,7 +914,7 @@ const MovimientosVenta = ({ movimiento, onClose, onSuccess }) => {
                     value={formData.deuda}
                     onChange={(e) => setFormData({...formData, deuda: e.target.value})}
                     required
-                    step="0.01"
+                    step="1"
                     placeholder="0.00"
                     className="w-full px-4 py-2.5 rounded-lg border-2 border-red-400 bg-red-50 outline-none font-semibold text-red-800"
                   />
@@ -823,19 +922,6 @@ const MovimientosVenta = ({ movimiento, onClose, onSuccess }) => {
               </div>
             )}
 
-            <div className="bg-green-50 p-5 rounded-xl border border-green-200">
-              <p className="text-xs text-gray-600 font-medium mb-1.5">
-                Monto Total {formData.moneda === 'USD' && '(convertido a ARS)'}
-              </p>
-              <p className="text-3xl font-bold text-green-600">
-                ${calcularMontoTotal()} ARS
-              </p>
-              {formData.moneda === 'USD' && formData.tipoCambio && (
-                <p className="text-xs text-gray-600 mt-2">
-                  USD {(productos.reduce((sum, p) => sum + (parseFloat(p.precioTotal) || 0), 0)).toFixed(2)} × ${formData.tipoCambio}
-                </p>
-              )}
-            </div>
           </div>
 
           {/* Productos */}
@@ -853,19 +939,51 @@ const MovimientosVenta = ({ movimiento, onClose, onSuccess }) => {
             </div>
 
             {productos.map((producto, index) => (
-              <div key={producto.id} className="bg-gray-50 border border-gray-200 rounded-xl p-5 space-y-4">
-                <div className="flex items-center justify-between mb-3">
-                  <h4 className="text-sm font-medium text-gray-700">Producto #{index + 1}</h4>
-                  {productos.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => eliminarProducto(producto.id)}
-                      className="p-1.5 hover:bg-red-50 rounded-lg text-red-600 transition-colors"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  )}
-                </div>
+              <div key={producto.id} className="bg-gray-50 border border-gray-200 rounded-xl overflow-hidden">
+                {/* Header colapsable */}
+                <button
+                  type="button"
+                  onClick={() => toggleProducto(producto.id)}
+                  className="w-full flex items-center justify-between p-4 hover:bg-gray-100 transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <Package className="w-5 h-5 text-gray-600" />
+                    <div className="text-left">
+                      <h4 className="text-sm font-semibold text-gray-900">
+                        Producto #{index + 1}
+                        {producto.nombre && ` - ${producto.nombre}`}
+                      </h4>
+                      {producto.precioTotal && (
+                        <p className="text-xs text-gray-600">
+                          Total: ${parseFloat(producto.precioTotal).toLocaleString('es-AR')}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {productos.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          eliminarProducto(producto.id)
+                        }}
+                        className="p-1.5 hover:bg-red-50 rounded-lg text-red-600 transition-colors"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
+                    {productosExpandidos[producto.id] ? (
+                      <ChevronUp className="w-5 h-5 text-gray-600" />
+                    ) : (
+                      <ChevronDown className="w-5 h-5 text-gray-600" />
+                    )}
+                  </div>
+                </button>
+
+                {/* Contenido del producto */}
+                {productosExpandidos[producto.id] && (
+                  <div className="p-5 space-y-4 border-t border-gray-200">
 
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="md:col-span-2">
@@ -925,7 +1043,7 @@ const MovimientosVenta = ({ movimiento, onClose, onSuccess }) => {
                   </div>
                 </div>
 
-                <div className="grid md:grid-cols-4 gap-4">
+                <div className="grid md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-medium mb-1.5 text-gray-700">Cantidad *</label>
                     <input
@@ -944,65 +1062,173 @@ const MovimientosVenta = ({ movimiento, onClose, onSuccess }) => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold mb-1.5 text-gray-900">Precio Unitario</label>
+                    <label className="block text-xs font-medium mb-1.5 text-gray-700">Precio Unitario *</label>
                     <input
-                      type="text"
-                      value={producto.precioUnitario ? parseFloat(producto.precioUnitario).toLocaleString('es-AR', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) : ''}
-                      onChange={(e) => {
-                        const valor = e.target.value.replace(/\./g, '').replace(/,/g, '.')
-                        actualizarProducto(producto.id, 'precioUnitario', valor)
-                      }}
+                      type="number"
+                      value={producto.precioUnitario || ''}
+                      onChange={(e) => actualizarProducto(producto.id, 'precioUnitario', e.target.value)}
                       required
-                      placeholder="0"
-                      className="w-full px-4 py-2.5 rounded-lg border-2 border-gray-300 focus:border-green-500 outline-none text-base font-medium"
+                      min="0"
+                      step="1"
+                      placeholder="0.00"
+                      className="w-full px-4 py-2.5 rounded-lg border-2 border-gray-300 focus:border-green-500 outline-none"
                     />
+                  </div>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-medium mb-1.5 text-gray-700">
+                      Descuento {producto.tipoDescuento === 'porcentaje' ? '(%)' : '($)'}
+                    </label>
+                    <div className="flex gap-2">
+                      <select
+                        value={producto.tipoDescuento || 'monto'}
+                        onChange={(e) => actualizarProducto(producto.id, 'tipoDescuento', e.target.value)}
+                        className="px-3 py-2.5 rounded-lg border-2 border-gray-300 focus:border-green-500 outline-none text-sm font-medium w-16"
+                      >
+                        <option value="monto">$</option>
+                        <option value="porcentaje">%</option>
+                      </select>
+                      <input
+                        type="number"
+                        value={producto.descuento === 0 ? '' : producto.descuento}
+                        onChange={(e) => {
+                          const valor = e.target.value
+                          if (valor === '') {
+                            actualizarProducto(producto.id, 'descuento', 0)
+                          } else if (producto.tipoDescuento === 'porcentaje') {
+                            actualizarProducto(producto.id, 'descuento', Math.min(parseFloat(valor) || 0, 100))
+                          } else {
+                            actualizarProducto(producto.id, 'descuento', parseFloat(valor) || 0)
+                          }
+                        }}
+                        placeholder="0"
+                        min="0"
+                        max={producto.tipoDescuento === 'porcentaje' ? '100' : undefined}
+                        step="1"
+                        className="flex-1 px-4 py-2.5 rounded-lg border-2 border-gray-300 focus:border-green-500 outline-none"
+                      />
+                    </div>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold mb-1.5 text-gray-900">Descuento ($)</label>
+                    <label className="block text-xs font-medium mb-1.5 text-gray-700">
+                      Comisión {producto.tipoComision === 'porcentaje' ? '(%)' : '($)'}
+                    </label>
+                    <div className="flex gap-2">
+                      <select
+                        value={producto.tipoComision || 'monto'}
+                        onChange={(e) => actualizarProducto(producto.id, 'tipoComision', e.target.value)}
+                        className="px-3 py-2.5 rounded-lg border-2 border-gray-300 focus:border-green-500 outline-none text-sm font-medium w-16"
+                      >
+                        <option value="monto">$</option>
+                        <option value="porcentaje">%</option>
+                      </select>
+                      <input
+                        type="number"
+                        value={producto.comision === 0 ? '' : producto.comision}
+                        onChange={(e) => {
+                          const valor = e.target.value
+                          if (valor === '') {
+                            actualizarProducto(producto.id, 'comision', 0)
+                          } else if (producto.tipoComision === 'porcentaje') {
+                            actualizarProducto(producto.id, 'comision', Math.min(parseFloat(valor) || 0, 100))
+                          } else {
+                            actualizarProducto(producto.id, 'comision', parseFloat(valor) || 0)
+                          }
+                        }}
+                        placeholder="0"
+                        min="0"
+                        max={producto.tipoComision === 'porcentaje' ? '100' : undefined}
+                        step="1"
+                        className="flex-1 px-4 py-2.5 rounded-lg border-2 border-gray-300 focus:border-green-500 outline-none"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-medium mb-1.5 text-gray-700">Comisionista</label>
                     <input
                       type="text"
-                      value={producto.descuento ? parseFloat(producto.descuento).toLocaleString('es-AR', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) : ''}
-                      onChange={(e) => {
-                        const valor = e.target.value.replace(/\./g, '').replace(/,/g, '.')
-                        actualizarProducto(producto.id, 'descuento', valor || '0')
-                      }}
-                      placeholder="0"
-                      className="w-full px-4 py-2.5 rounded-lg border-2 border-gray-300 focus:border-green-500 outline-none text-base font-medium"
+                      list={`comisionistas-${producto.id}`}
+                      value={producto.comisionista || ''}
+                      onChange={(e) => actualizarProducto(producto.id, 'comisionista', e.target.value)}
+                      placeholder="Nombre del comisionista"
+                      className="w-full px-4 py-2.5 rounded-lg border-2 border-gray-300 focus:border-green-500 outline-none"
                     />
+                    <datalist id={`comisionistas-${producto.id}`}>
+                      {comisionistasSugeridos.map((com, idx) => (
+                        <option key={idx} value={com} />
+                      ))}
+                    </datalist>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold mb-1.5 text-gray-900">Total</label>
+                    <label className="block text-xs font-medium mb-1.5 text-gray-700">Total</label>
                     <input
                       type="text"
                       value={producto.precioTotal ? `$${parseFloat(producto.precioTotal).toLocaleString('es-AR', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}` : '$0'}
                       readOnly
-                      className="w-full px-3.5 py-2 rounded-lg border border-green-300 bg-green-50 font-bold text-green-700 text-base"
+                      className="w-full px-3.5 py-2.5 rounded-lg border border-green-300 bg-green-50 font-bold text-green-700"
                     />
                   </div>
                 </div>
+                  </div>
+                )}
               </div>
             ))}
+
+            {/* Monto Total - Al final de los productos */}
+            {productos.length > 0 && productos.some(p => p.precioTotal) && (
+              <div className="bg-green-50 p-5 rounded-xl border border-green-200">
+                <p className="text-xs text-gray-600 font-medium mb-1.5">
+                  Monto Total {formData.moneda === 'USD' && '(convertido a ARS)'}
+                </p>
+                <p className="text-3xl font-bold text-green-600">
+                  ${calcularMontoTotal()} ARS
+                </p>
+                {formData.moneda === 'USD' && formData.tipoCambio && (
+                  <p className="text-xs text-gray-600 mt-2">
+                    USD {(productos.reduce((sum, p) => sum + (parseFloat(p.precioTotal) || 0), 0)).toFixed(2)} × ${formData.tipoCambio}
+                  </p>
+                )}
+              </div>
+            )}
           </div>
 
-          {/* Carga Masiva de Ventas Pasadas */}
+          {/* Carga Masiva de Ventas Pasadas - Colapsable */}
           {!isEditing && (
-            <div className="bg-gradient-to-br from-purple-50 to-blue-50 border-2 border-purple-200 rounded-xl p-6 space-y-4">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="p-2.5 bg-purple-100 rounded-lg">
-                  <History className="w-6 h-6 text-purple-600" />
+            <div className="bg-gradient-to-br from-purple-50 to-blue-50 border-2 border-purple-200 rounded-xl overflow-hidden">
+              <button
+                type="button"
+                onClick={() => setBulkSectionExpanded(!bulkSectionExpanded)}
+                className="w-full flex items-center justify-between p-5 hover:bg-purple-100/50 transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="p-2.5 bg-purple-100 rounded-lg">
+                    <History className="w-6 h-6 text-purple-600" />
+                  </div>
+                  <div className="text-left">
+                    <h3 className="font-semibold text-gray-900 flex items-center gap-2">
+                      Cargar Ventas Pasadas
+                      <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full font-medium">NUEVO</span>
+                    </h3>
+                    <p className="text-sm text-gray-600">Importa múltiples ventas históricas desde Excel sin afectar el inventario</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-semibold text-gray-900 flex items-center gap-2">
-                    Cargar Ventas Pasadas
-                    <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full font-medium">NUEVO</span>
-                  </h3>
-                  <p className="text-sm text-gray-600">Importa múltiples ventas históricas desde Excel sin afectar el inventario</p>
-                </div>
-              </div>
+                {bulkSectionExpanded ? (
+                  <ChevronUp className="w-5 h-5 text-purple-600" />
+                ) : (
+                  <ChevronDown className="w-5 h-5 text-purple-600" />
+                )}
+              </button>
 
-              <div className="bg-white rounded-lg p-4 border border-purple-200">
+              {bulkSectionExpanded && (
+                <div className="px-6 pb-6 space-y-4 border-t border-purple-200 pt-4">
+                  <div className="bg-white rounded-lg p-4 border border-purple-200">
                 <div className="flex items-start gap-3 mb-4">
                   <AlertCircle className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
                   <div className="text-sm text-gray-700 space-y-1">
@@ -1099,6 +1325,8 @@ const MovimientosVenta = ({ movimiento, onClose, onSuccess }) => {
                   </div>
                 </div>
               </div>
+                </div>
+              )}
             </div>
           )}
 

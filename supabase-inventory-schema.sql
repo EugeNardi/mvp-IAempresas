@@ -98,8 +98,12 @@ CREATE TABLE IF NOT EXISTS products (
   sku VARCHAR(100),
   name VARCHAR(255) NOT NULL,
   description TEXT,
+  category VARCHAR(255),
+  brand VARCHAR(255),
+  model VARCHAR(255),
   unit_cost DECIMAL(15, 2) NOT NULL DEFAULT 0,
   sale_price DECIMAL(15, 2) NOT NULL DEFAULT 0,
+  wholesale_price DECIMAL(15, 2) DEFAULT 0,
   current_stock INTEGER DEFAULT 0,
   min_stock INTEGER DEFAULT 0,
   min_value DECIMAL(15, 2) DEFAULT 0,
@@ -428,6 +432,29 @@ FROM information_schema.triggers
 WHERE trigger_schema = 'public'
 AND event_object_table IN ('categories', 'products', 'sales', 'sale_items', 'purchases', 'purchase_items')
 ORDER BY event_object_table, trigger_name;
+
+
+-- ============================================
+-- 5. TABLA: low_stock_rules
+-- ============================================
+CREATE TABLE IF NOT EXISTS low_stock_rules (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  rules JSONB NOT NULL DEFAULT '{"default": 5, "specific": []}'::jsonb,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  CONSTRAINT unique_user_low_stock_rules UNIQUE(user_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_low_stock_rules_user_id ON low_stock_rules(user_id);
+
+-- RLS Policies
+ALTER TABLE low_stock_rules ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can manage their own low stock rules"
+  ON low_stock_rules FOR ALL
+  USING (auth.uid() = user_id);
+
 
 -- ============================================
 -- ¡LISTO!

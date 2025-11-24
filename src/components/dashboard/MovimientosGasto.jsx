@@ -2,7 +2,8 @@ import React, { useState } from 'react'
 import { useData } from '../../context/DataContext'
 import { 
   Save, X, Upload, Mic, Sparkles, Loader, 
-  TrendingDown, AlertCircle, CheckCircle, FileText
+  TrendingDown, AlertCircle, CheckCircle, FileText,
+  ChevronDown, ChevronUp
 } from 'lucide-react'
 import AudioRecorderComponent from '../common/AudioRecorder'
 import { processAudioForMovement, isOpenAIConfigured } from '../../services/aiService'
@@ -14,13 +15,13 @@ const MovimientosGasto = ({ movimiento, onClose, onSuccess }) => {
   const [analyzing, setAnalyzing] = useState(false)
   const [error, setError] = useState('')
   const [aiAnalyzed, setAiAnalyzed] = useState(false)
+  const [aiSectionExpanded, setAiSectionExpanded] = useState(false)
 
   const [formData, setFormData] = useState(() => {
     if (isEditing && movimiento) {
       return {
         fecha: movimiento.date || movimiento.invoice_date || new Date().toISOString().split('T')[0],
         categoria: movimiento.category || '',
-        concepto: movimiento.metadata?.concepto || '',
         descripcion: movimiento.description || '',
         beneficiario: movimiento.metadata?.beneficiario || '',
         medio: movimiento.metadata?.paymentMethod || 'efectivo',
@@ -28,14 +29,13 @@ const MovimientosGasto = ({ movimiento, onClose, onSuccess }) => {
         deuda: movimiento.metadata?.deuda || '',
         monto: movimiento.amount?.toString() || '',
         comprobante: null,
-        recurrente: movimiento.metadata?.recurrente ? 'si' : 'no',
-        frecuencia: movimiento.metadata?.frecuencia || 'mensual'
+        tipoGasto: movimiento.metadata?.tipoGasto || 'variable',
+        periodicidad: movimiento.metadata?.periodicidad || 'mensual'
       }
     }
     return {
       fecha: new Date().toISOString().split('T')[0],
       categoria: '',
-      concepto: '',
       descripcion: '',
       beneficiario: '',
       medio: 'efectivo',
@@ -43,8 +43,8 @@ const MovimientosGasto = ({ movimiento, onClose, onSuccess }) => {
       deuda: '',
       monto: '',
       comprobante: null,
-      recurrente: 'no',
-      frecuencia: 'mensual'
+      tipoGasto: 'variable',
+      periodicidad: 'mensual'
     }
   })
 
@@ -78,14 +78,13 @@ const MovimientosGasto = ({ movimiento, onClose, onSuccess }) => {
         const mappedData = {
           fecha: aiData.fecha || new Date().toISOString().split('T')[0],
           categoria: aiData.categoria || '',
-          concepto: aiData.concepto || '',
           descripcion: aiData.descripcion || '',
           beneficiario: aiData.beneficiario || '',
           medio: aiData.medio || 'efectivo',
           pagado: aiData.pagado ? 'si' : 'no',
           monto: aiData.monto?.toString() || '',
-          recurrente: aiData.recurrente ? 'si' : 'no',
-          frecuencia: aiData.frecuencia || 'mensual',
+          tipoGasto: aiData.tipoGasto || 'variable',
+          periodicidad: aiData.periodicidad || 'mensual',
           comprobante: file
         }
 
@@ -98,14 +97,13 @@ const MovimientosGasto = ({ movimiento, onClose, onSuccess }) => {
         const aiData = {
           fecha: new Date().toISOString().split('T')[0],
           categoria: 'Servicios',
-          concepto: 'Servicio de Internet',
           descripcion: 'Pago mensual de internet empresarial',
           beneficiario: 'Proveedor de Servicios SA',
           medio: 'debito_automatico',
           pagado: 'si',
           monto: '15000',
-          recurrente: 'si',
-          frecuencia: 'mensual'
+          tipoGasto: 'fijo',
+          periodicidad: 'mensual'
         }
 
         setFormData(prev => ({ ...prev, ...aiData, comprobante: file }))
@@ -138,26 +136,24 @@ const MovimientosGasto = ({ movimiento, onClose, onSuccess }) => {
 
     try {
       if (!formData.categoria) throw new Error('La categoría es obligatoria')
-      if (!formData.concepto) throw new Error('El concepto es obligatorio')
       if (!formData.monto || parseFloat(formData.monto) <= 0) throw new Error('El monto debe ser mayor a 0')
 
       const gastoData = {
         type: 'expense',
         date: formData.fecha,
         amount: parseFloat(formData.monto),
-        description: `${formData.categoria} - ${formData.concepto}`,
+        description: formData.descripcion || formData.categoria,
         category: formData.categoria,
         number: isEditing ? (movimiento.number || movimiento.invoice_number) : `GASTO-${Date.now()}`,
         metadata: {
           movementType: 'gasto',
-          concepto: formData.concepto,
           descripcion: formData.descripcion,
           beneficiario: formData.beneficiario,
           paymentMethod: formData.medio,
           pagado: formData.pagado === 'si',
           deuda: formData.pagado === 'no' ? parseFloat(formData.deuda) : 0,
-          recurrente: formData.recurrente === 'si',
-          frecuencia: formData.recurrente === 'si' ? formData.frecuencia : null,
+          tipoGasto: formData.tipoGasto,
+          periodicidad: formData.tipoGasto === 'fijo' ? formData.periodicidad : null,
           comprobante: formData.comprobante,
           aiAnalyzed: aiAnalyzed
         }
@@ -198,49 +194,64 @@ const MovimientosGasto = ({ movimiento, onClose, onSuccess }) => {
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          {/* IA Analysis */}
-          <div className="bg-gray-50 border border-gray-200 rounded-xl p-5 shadow-sm">
-            <div className="flex items-center gap-3 mb-4">
-              <Sparkles className="w-6 h-6 text-red-600" />
-              <div>
-                <h3 className="font-semibold text-gray-900">Análisis Automático con IA</h3>
-                <p className="text-sm text-gray-600">Sube un comprobante o graba un audio</p>
-              </div>
-            </div>
-
-            {analyzing && (
-              <div className="flex items-center gap-3 p-4 bg-red-50 rounded-lg mb-4 border border-red-200">
-                <Loader className="w-5 h-5 text-red-600 animate-spin" />
-                <p className="text-sm font-medium text-red-800">Analizando con IA...</p>
-              </div>
-            )}
-
-            {aiAnalyzed && (
-              <div className="flex items-center gap-3 p-4 bg-red-100 border-2 border-red-300 rounded-lg mb-4">
-                <CheckCircle className="w-5 h-5 text-red-700" />
-                <p className="text-sm font-medium text-red-900">Formulario completado por IA. Revisa y ajusta.</p>
-              </div>
-            )}
-
-            <div className="space-y-3">
-              <label className="flex items-center gap-3 p-3.5 bg-white border border-gray-300 rounded-lg cursor-pointer hover:border-red-500 hover:bg-gray-50 transition-all">
-                <Upload className="w-4 h-4 text-gray-600" />
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-900">Subir Comprobante</p>
-                  <p className="text-xs text-gray-500">PDF o Imagen</p>
+          {/* Análisis con IA - Colapsable */}
+          <div className="bg-gray-50 border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+            <button
+              type="button"
+              onClick={() => setAiSectionExpanded(!aiSectionExpanded)}
+              className="w-full flex items-center justify-between p-5 hover:bg-gray-100 transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <Sparkles className="w-5 h-5 text-green-600" />
+                <div className="text-left">
+                  <h3 className="font-semibold text-gray-900">Análisis Automático con IA</h3>
+                  <p className="text-sm text-gray-600">Sube un comprobante o graba un audio</p>
                 </div>
-                <input type="file" accept=".pdf,image/*" onChange={handleFileUpload} className="hidden" disabled={analyzing} />
-              </label>
-
-              <div className="border-t border-gray-200 pt-3">
-                <p className="text-xs font-medium text-gray-700 mb-2 uppercase tracking-wide">O graba un audio</p>
-                <AudioRecorderComponent
-                  onRecordingComplete={(audioFile) => analyzeWithAI(audioFile, 'audio')}
-                  onError={(error) => setError(error)}
-                  disabled={analyzing}
-                />
               </div>
-            </div>
+              {aiSectionExpanded ? (
+                <ChevronUp className="w-5 h-5 text-gray-600" />
+              ) : (
+                <ChevronDown className="w-5 h-5 text-gray-600" />
+              )}
+            </button>
+
+            {aiSectionExpanded && (
+              <div className="px-5 pb-5 space-y-3 border-t border-gray-200 pt-4">
+                {analyzing && (
+                  <div className="flex items-center gap-3 p-3.5 bg-green-50 rounded-lg border border-green-100">
+                    <Loader className="w-4 h-4 text-green-600 animate-spin" />
+                    <p className="text-sm text-green-700">Analizando con IA...</p>
+                  </div>
+                )}
+
+                {aiAnalyzed && (
+                  <div className="flex items-center gap-3 p-3.5 bg-green-50 border border-green-200 rounded-lg">
+                    <CheckCircle className="w-4 h-4 text-green-600" />
+                    <p className="text-sm text-green-700">Formulario completado por IA. Revisa y ajusta.</p>
+                  </div>
+                )}
+
+                <div className="space-y-3">
+                  <label className="flex items-center gap-3 p-3.5 bg-white border border-gray-300 rounded-lg cursor-pointer hover:border-green-500 hover:bg-gray-50 transition-all">
+                    <Upload className="w-4 h-4 text-gray-600" />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-gray-900">Subir Comprobante</p>
+                      <p className="text-xs text-gray-500">PDF o Imagen</p>
+                    </div>
+                    <input type="file" accept=".pdf,image/*" onChange={handleFileUpload} className="hidden" disabled={analyzing} />
+                  </label>
+
+                  <div className="border-t border-gray-200 pt-3">
+                    <p className="text-xs font-medium text-gray-700 mb-2 uppercase tracking-wide">O graba un audio</p>
+                    <AudioRecorderComponent
+                      onRecordingComplete={(audioFile) => analyzeWithAI(audioFile, 'audio')}
+                      onError={(error) => setError(error)}
+                      disabled={analyzing}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {error && (
@@ -280,29 +291,6 @@ const MovimientosGasto = ({ movimiento, onClose, onSuccess }) => {
                   ))}
                 </select>
               </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-2 text-gray-700">Concepto *</label>
-              <input
-                type="text"
-                value={formData.concepto}
-                onChange={(e) => setFormData({...formData, concepto: e.target.value})}
-                required
-                placeholder="Ej: Pago de alquiler, Servicio de luz, etc."
-                className="w-full px-4 py-2.5 rounded-lg border-2 border-gray-300 focus:border-red-500 focus:ring-2 focus:ring-red-200 outline-none transition-all"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-2 text-gray-700">Descripción</label>
-              <textarea
-                value={formData.descripcion}
-                onChange={(e) => setFormData({...formData, descripcion: e.target.value})}
-                rows="3"
-                placeholder="Detalles adicionales del gasto..."
-                className="w-full px-4 py-2.5 rounded-lg border-2 border-gray-300 focus:border-red-500 focus:ring-2 focus:ring-red-200 outline-none transition-all resize-none"
-              />
             </div>
 
             <div>
@@ -364,7 +352,7 @@ const MovimientosGasto = ({ movimiento, onClose, onSuccess }) => {
                   value={formData.deuda}
                   onChange={(e) => setFormData({...formData, deuda: e.target.value})}
                   required
-                  step="0.01"
+                  step="1"
                   placeholder="0.00"
                   className="w-full px-4 py-2.5 rounded-lg border-2 border-red-400 bg-red-50 outline-none font-semibold text-red-800"
                 />
@@ -378,36 +366,39 @@ const MovimientosGasto = ({ movimiento, onClose, onSuccess }) => {
                 value={formData.monto}
                 onChange={(e) => setFormData({...formData, monto: e.target.value})}
                 required
-                step="0.01"
+                step="1"
                 placeholder="0.00"
                 className="w-full px-4 py-2.5 rounded-lg border-2 border-gray-300 focus:border-red-500 focus:ring-2 focus:ring-red-200 outline-none transition-all text-xl font-bold"
               />
             </div>
           </div>
 
-          {/* Recurrencia */}
+          {/* Tipo de Gasto */}
           <div className="bg-white rounded-xl p-5 space-y-4 border border-gray-200">
-            <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">Recurrencia</h3>
+            <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">Tipo de Gasto</h3>
 
             <div className="grid md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium mb-2 text-gray-700">¿Es Recurrente?</label>
+                <label className="block text-sm font-medium mb-2 text-gray-700">Clasificación del Gasto *</label>
                 <select
-                  value={formData.recurrente}
-                  onChange={(e) => setFormData({...formData, recurrente: e.target.value})}
+                  value={formData.tipoGasto}
+                  onChange={(e) => setFormData({...formData, tipoGasto: e.target.value})}
                   className="w-full px-4 py-2.5 rounded-lg border-2 border-gray-300 focus:border-red-500 focus:ring-2 focus:ring-red-200 outline-none transition-all"
                 >
-                  <option value="no">No</option>
-                  <option value="si">Sí</option>
+                  <option value="variable">Variable (ocasional o fluctuante)</option>
+                  <option value="fijo">Fijo (recurrente y constante)</option>
                 </select>
+                <p className="text-xs text-gray-500 mt-2">
+                  <strong>Fijo:</strong> Alquiler, sueldos, servicios básicos, etc. | <strong>Variable:</strong> Marketing, mantenimiento, compras ocasionales, etc.
+                </p>
               </div>
 
-              {formData.recurrente === 'si' && (
+              {formData.tipoGasto === 'fijo' && (
                 <div>
-                  <label className="block text-sm font-medium mb-2 text-gray-700">Frecuencia</label>
+                  <label className="block text-sm font-medium mb-2 text-gray-700">Periodicidad del Pago *</label>
                   <select
-                    value={formData.frecuencia}
-                    onChange={(e) => setFormData({...formData, frecuencia: e.target.value})}
+                    value={formData.periodicidad}
+                    onChange={(e) => setFormData({...formData, periodicidad: e.target.value})}
                     className="w-full px-4 py-2.5 rounded-lg border-2 border-gray-300 focus:border-red-500 focus:ring-2 focus:ring-red-200 outline-none transition-all"
                   >
                     <option value="semanal">Semanal</option>
@@ -415,8 +406,12 @@ const MovimientosGasto = ({ movimiento, onClose, onSuccess }) => {
                     <option value="mensual">Mensual</option>
                     <option value="bimestral">Bimestral</option>
                     <option value="trimestral">Trimestral</option>
+                    <option value="semestral">Semestral</option>
                     <option value="anual">Anual</option>
                   </select>
+                  <p className="text-xs text-gray-500 mt-2">
+                    Indica cada cuánto tiempo se realiza este pago fijo
+                  </p>
                 </div>
               )}
             </div>
