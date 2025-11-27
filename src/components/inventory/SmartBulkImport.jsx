@@ -27,8 +27,8 @@ const SmartBulkImport = ({ companyData, categories, onClose, onImportComplete })
     { key: 'description', label: 'Descripción', required: false },
     { key: 'category', label: 'Categoría', required: false },
     { key: 'supplier', label: 'Proveedor', required: false },
-    { key: 'unit_cost', label: 'Costo Unitario', required: false }, // Ahora opcional
-    { key: 'sale_price', label: 'Precio de Venta', required: false }, // Ahora opcional
+    { key: 'unit_cost', label: 'Costo Unitario (Precio de Compra)', required: true }, // OBLIGATORIO
+    { key: 'sale_price', label: 'Precio de Venta', required: false },
     { key: 'current_stock', label: 'Stock Actual', required: false },
     { key: 'min_stock', label: 'Stock Mínimo', required: false },
     { key: 'unit_measure', label: 'Unidad de Medida', required: false },
@@ -461,6 +461,40 @@ const SmartBulkImport = ({ companyData, categories, onClose, onImportComplete })
 
       console.log('✅ Productos insertados exitosamente:', data.length)
       console.log('Primeros productos insertados:', data.slice(0, 2))
+
+      // Crear factura de compra por la importación
+      if (companyId && data.length > 0) {
+        const totalCompra = productsToInsert.reduce((sum, p) => {
+          return sum + (p.unit_cost * p.current_stock)
+        }, 0)
+
+        if (totalCompra > 0) {
+          const invoiceData = {
+            user_id: user.id,
+            company_id: companyId,
+            type: 'expense',
+            amount: totalCompra,
+            description: `Compra de inventario - Importación Excel (${data.length} productos)`,
+            date: new Date().toISOString().split('T')[0],
+            category: 'Compras',
+            metadata: {
+              movementType: 'compra',
+              source: 'excel_import',
+              productCount: data.length
+            }
+          }
+
+          const { error: invoiceError } = await supabase
+            .from('invoices')
+            .insert([invoiceData])
+
+          if (invoiceError) {
+            console.error('⚠️ Error creando factura de compra:', invoiceError)
+          } else {
+            console.log('✅ Factura de compra creada: $', totalCompra)
+          }
+        }
+      }
 
       setSuccess(true)
       setImportStats({

@@ -733,6 +733,16 @@ const Inventory = () => {
     try {
       console.log(`📦 Actualizando stock del producto ${productId} a ${newStock}`)
       
+      // Obtener el producto actual para calcular la diferencia
+      const product = products.find(p => p.id === productId)
+      if (!product) {
+        throw new Error('Producto no encontrado')
+      }
+
+      const oldStock = parseInt(product.current_stock) || 0
+      const stockDifference = newStock - oldStock
+
+      // Actualizar stock
       const { error } = await supabase
         .from('products')
         .update({ 
@@ -744,6 +754,44 @@ const Inventory = () => {
       if (error) {
         console.error('❌ Error actualizando stock:', error)
         throw error
+      }
+
+      // Si se agregó stock (diferencia positiva), registrar como compra
+      if (stockDifference > 0 && companyData) {
+        const purchasePrice = parseFloat(product.purchase_price) || 0
+        const totalCost = purchasePrice * stockDifference
+
+        if (totalCost > 0) {
+          const { data: { user } } = await supabase.auth.getUser()
+          
+          const invoiceData = {
+            user_id: user.id,
+            company_id: companyData.id,
+            type: 'expense',
+            amount: totalCost,
+            description: `Compra de inventario - ${product.name} (+${stockDifference} unidades)`,
+            date: new Date().toISOString().split('T')[0],
+            category: 'Compras',
+            metadata: {
+              movementType: 'compra',
+              source: 'manual_stock_add',
+              productId: productId,
+              productName: product.name,
+              quantity: stockDifference,
+              unitCost: purchasePrice
+            }
+          }
+
+          const { error: invoiceError } = await supabase
+            .from('invoices')
+            .insert([invoiceData])
+
+          if (invoiceError) {
+            console.error('⚠️ Error creando factura de compra:', invoiceError)
+          } else {
+            console.log(`✅ Factura de compra creada: $${totalCost} (${stockDifference} unidades)`)
+          }
+        }
       }
 
       console.log('✅ Stock actualizado correctamente')
