@@ -11,15 +11,15 @@ const FloatingChat = ({ dashboardContext }) => {
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
-      content: '¡Hola! Soy tu **Asistente Financiero Inteligente**. Estoy aquí para ayudarte a analizar y entender mejor tus datos financieros.\n\n**Puedo ayudarte con:**\n• Análisis de ingresos y gastos\n• Ratios financieros y liquidez\n• Proyecciones y tendencias\n• Recomendaciones personalizadas\n\n¿Qué te gustaría saber?'
+      content: '¡Hola! Soy tu **Asesor Financiero Práctico**. Te doy recomendaciones **concretas y accionables** basadas en TUS números reales.\n\n**Te ayudo con:**\n• 💰 Acciones para aumentar ganancias HOY\n• 📉 Dónde reducir costos específicos\n• 🎯 Qué productos/clientes priorizar\n• 📊 Decisiones con impacto en pesos\n\n**Preguntame cosas como:**\n"¿Dónde puedo ahorrar dinero?"\n"¿Qué cliente me conviene más?"\n"¿Cómo aumento mi ganancia este mes?"\n\nDame números reales, te doy soluciones reales.'
     }
   ])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [quickActions, setQuickActions] = useState([
-    { id: 1, icon: DollarSign, label: '¿Cuál es mi liquidez?', query: '¿Cuál es mi ratio de liquidez actual y qué significa?' },
-    { id: 2, icon: TrendingUp, label: 'Análisis de gastos', query: 'Analiza mis gastos y dame recomendaciones' },
-    { id: 3, icon: BarChart3, label: 'Resumen financiero', query: 'Dame un resumen completo de mi situación financiera' }
+    { id: 1, icon: DollarSign, label: '¿Dónde ahorrar?', query: 'Analizá mis gastos y decime exactamente dónde puedo ahorrar dinero este mes con montos específicos' },
+    { id: 2, icon: TrendingUp, label: '¿Cómo ganar más?', query: 'Dame 3 acciones concretas para aumentar mi ganancia este mes con impacto en pesos' },
+    { id: 3, icon: BarChart3, label: 'Mejores clientes', query: 'Qué clientes me generan más ganancia y cuáles debería priorizar con números exactos' }
   ])
   const [conversationId, setConversationId] = useState(null)
   const messagesEndRef = useRef(null)

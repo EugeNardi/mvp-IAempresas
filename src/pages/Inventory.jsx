@@ -758,7 +758,7 @@ const Inventory = () => {
 
       // Si se agregó stock (diferencia positiva), registrar como compra
       if (stockDifference > 0 && companyData) {
-        const purchasePrice = parseFloat(product.purchase_price) || 0
+        const purchasePrice = parseFloat(product.unit_cost) || parseFloat(product.purchase_price) || 0
         const totalCost = purchasePrice * stockDifference
 
         if (totalCost > 0) {
@@ -984,7 +984,7 @@ const Inventory = () => {
                         ${(() => {
                           const productsToCalc = hasActiveFilters() ? filteredProducts : products
                           const totalCost = productsToCalc.reduce((sum, p) => {
-                            const cost = parseFloat(p.purchase_price) || 0
+                            const cost = parseFloat(p.unit_cost) || parseFloat(p.purchase_price) || 0
                             const stock = parseInt(p.current_stock) || 0
                             return sum + (cost * stock)
                           }, 0)
@@ -1025,7 +1025,7 @@ const Inventory = () => {
                           const productsToCalc = hasActiveFilters() ? filteredProducts : products
                           const totalProfit = productsToCalc.reduce((sum, p) => {
                             const salePrice = parseFloat(p.sale_price) || 0
-                            const costPrice = parseFloat(p.purchase_price) || 0
+                            const costPrice = parseFloat(p.unit_cost) || parseFloat(p.purchase_price) || 0
                             const stock = parseInt(p.current_stock) || 0
                             return sum + ((salePrice - costPrice) * stock)
                           }, 0)

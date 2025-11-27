@@ -191,7 +191,7 @@ const CombinedDashboard = ({ invoices, companyData, isEmprendedor = false }) => 
     
     // Calcular costo de inventario (precio de compra × stock actual)
     const inventoryCost = products.reduce((sum, p) => {
-      const cost = parseFloat(p.purchase_price) || 0
+      const cost = parseFloat(p.unit_cost) || parseFloat(p.purchase_price) || 0
       const stock = parseInt(p.current_stock) || 0
       return sum + (cost * stock)
     }, 0)
