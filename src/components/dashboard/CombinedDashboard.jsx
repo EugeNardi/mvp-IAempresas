@@ -188,20 +188,30 @@ const CombinedDashboard = ({ invoices, companyData, isEmprendedor = false }) => 
     const expenses = filtered.filter(inv => inv.type === 'expense')
     const totalIncome = income.reduce((sum, inv) => sum + parseFloat(inv.amount), 0)
     const totalExpenses = expenses.reduce((sum, inv) => sum + parseFloat(inv.amount), 0)
-    const profit = totalIncome - totalExpenses
+    
+    // Calcular costo de inventario (precio de compra × stock actual)
+    const inventoryCost = products.reduce((sum, p) => {
+      const cost = parseFloat(p.purchase_price) || 0
+      const stock = parseInt(p.current_stock) || 0
+      return sum + (cost * stock)
+    }, 0)
+    
+    // Sumar el costo del inventario a los gastos totales
+    const totalExpensesWithInventory = totalExpenses + inventoryCost
+    const profit = totalIncome - totalExpensesWithInventory
     
     // ROI = (Ganancia / Inversión) * 100
-    const roi = totalExpenses > 0 ? (profit / totalExpenses) * 100 : 0
+    const roi = totalExpensesWithInventory > 0 ? (profit / totalExpensesWithInventory) * 100 : 0
     
     // Ratio de Liquidez = Ingresos / Gastos
-    const liquidityRatio = totalExpenses > 0 ? totalIncome / totalExpenses : 0
+    const liquidityRatio = totalExpensesWithInventory > 0 ? totalIncome / totalExpensesWithInventory : 0
     
     // Flujo de Caja = Ingresos - Gastos
     const cashFlow = profit
     
     // Punto de Equilibrio = Costos Fijos / Margen de Contribución
     const profitMargin = totalIncome > 0 ? (profit / totalIncome) : 0
-    const breakEven = profitMargin > 0 ? totalExpenses / profitMargin : totalExpenses
+    const breakEven = profitMargin > 0 ? totalExpensesWithInventory / profitMargin : totalExpensesWithInventory
     
     setAdvancedMetrics({
       roi,
@@ -1162,7 +1172,35 @@ const CombinedDashboard = ({ invoices, companyData, isEmprendedor = false }) => 
                 </div>
               </div>
 
-              {/* B. RENTABILIDAD Y LIQUIDEZ */}
+              {/* B. ALERTAS INTELIGENTES */}
+              <div className="space-y-4">
+                <h2 className="text-2xl font-bold text-gray-900">Alertas Inteligentes</h2>
+                <div className="grid md:grid-cols-2 gap-3">
+                  {detectSmartAlerts().map((alert, idx) => {
+                    const Icon = alert.icon
+                    const colorClasses = {
+                      danger: 'bg-red-50 border-red-200 text-red-800',
+                      warning: 'bg-yellow-50 border-yellow-200 text-yellow-800',
+                      success: 'bg-green-50 border-green-200 text-green-800'
+                    }
+                    
+                    return (
+                      <div key={idx} className={`border rounded-lg p-4 flex items-start gap-3 ${colorClasses[alert.type]}`}>
+                        <Icon className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                        <p className="text-sm font-medium">{alert.message}</p>
+                      </div>
+                    )
+                  })}
+                  {detectSmartAlerts().length === 0 && (
+                    <div className="col-span-full bg-gray-50 border border-gray-200 rounded-lg p-6 text-center">
+                      <CheckCircle className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                      <p className="text-sm text-gray-600">No hay alertas en este momento. ¡Todo está bajo control!</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* C. RENTABILIDAD Y LIQUIDEZ */}
               <div className="space-y-4">
                 <h2 className="text-2xl font-bold text-gray-900">Rentabilidad y Liquidez</h2>
                 
@@ -1188,12 +1226,16 @@ const CombinedDashboard = ({ invoices, companyData, isEmprendedor = false }) => 
                               </span>
                             </div>
                           </div>
-                          <div className="grid grid-cols-2 gap-2">
-                            <div className="bg-gray-100 rounded-full h-3">
-                              <div className="bg-gradient-to-r from-green-500 to-green-600 h-3 rounded-full transition-all" style={{ width: `${incomePercentage}%` }} />
+                          <div className="grid grid-cols-2 gap-3">
+                            <div className="relative">
+                              <div className="bg-gradient-to-r from-gray-100 to-gray-50 rounded-xl h-4 shadow-inner overflow-hidden">
+                                <div className="bg-gradient-to-r from-blue-400 via-blue-500 to-blue-600 h-4 rounded-xl transition-all duration-500 shadow-sm" style={{ width: `${incomePercentage}%` }} />
+                              </div>
                             </div>
-                            <div className="bg-gray-100 rounded-full h-3">
-                              <div className={`h-3 rounded-full transition-all ${monthData.profit >= 0 ? 'bg-gradient-to-r from-cyan-500 to-cyan-600' : 'bg-gradient-to-r from-red-500 to-red-600'}`} style={{ width: `${profitPercentage}%` }} />
+                            <div className="relative">
+                              <div className="bg-gradient-to-r from-gray-100 to-gray-50 rounded-xl h-4 shadow-inner overflow-hidden">
+                                <div className={`h-4 rounded-xl transition-all duration-500 shadow-sm ${monthData.profit >= 0 ? 'bg-gradient-to-r from-indigo-400 via-indigo-500 to-indigo-600' : 'bg-gradient-to-r from-slate-400 via-slate-500 to-slate-600'}`} style={{ width: `${profitPercentage}%` }} />
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -1219,8 +1261,8 @@ const CombinedDashboard = ({ invoices, companyData, isEmprendedor = false }) => 
                               <span className="text-gray-600">CPV (Costo de Productos)</span>
                               <span className="font-semibold">${grossMetrics.cpv.toLocaleString('es-AR', { maximumFractionDigits: 0 })}</span>
                             </div>
-                            <div className="bg-gray-100 rounded-full h-3 overflow-hidden">
-                              <div className="bg-red-500 h-3 rounded-full" style={{ width: `${Math.min(100, Math.max(0, (Math.abs(grossMetrics.cpv) / total) * 100))}%` }} />
+                            <div className="relative bg-gradient-to-r from-gray-100 to-gray-50 rounded-xl h-4 shadow-inner overflow-hidden">
+                              <div className="bg-gradient-to-r from-slate-400 via-slate-500 to-slate-600 h-4 rounded-xl transition-all duration-500 shadow-sm" style={{ width: `${Math.min(100, Math.max(0, (Math.abs(grossMetrics.cpv) / total) * 100))}%` }} />
                             </div>
                           </div>
                           <div>
@@ -1228,8 +1270,8 @@ const CombinedDashboard = ({ invoices, companyData, isEmprendedor = false }) => 
                               <span className="text-gray-600">Gastos Operativos</span>
                               <span className="font-semibold">${netMetrics.totalGastos.toLocaleString('es-AR', { maximumFractionDigits: 0 })}</span>
                             </div>
-                            <div className="bg-gray-100 rounded-full h-3 overflow-hidden">
-                              <div className="bg-orange-500 h-3 rounded-full" style={{ width: `${Math.min(100, Math.max(0, (Math.abs(netMetrics.totalGastos) / total) * 100))}%` }} />
+                            <div className="relative bg-gradient-to-r from-gray-100 to-gray-50 rounded-xl h-4 shadow-inner overflow-hidden">
+                              <div className="bg-gradient-to-r from-gray-400 via-gray-500 to-gray-600 h-4 rounded-xl transition-all duration-500 shadow-sm" style={{ width: `${Math.min(100, Math.max(0, (Math.abs(netMetrics.totalGastos) / total) * 100))}%` }} />
                             </div>
                           </div>
                           <div>
@@ -1237,8 +1279,8 @@ const CombinedDashboard = ({ invoices, companyData, isEmprendedor = false }) => 
                               <span className="text-gray-600">Ganancia Neta</span>
                               <span className="font-semibold text-green-600">${netMetrics.netProfit.toLocaleString('es-AR', { maximumFractionDigits: 0 })}</span>
                             </div>
-                            <div className="bg-gray-100 rounded-full h-3 overflow-hidden">
-                              <div className="bg-green-500 h-3 rounded-full" style={{ width: `${Math.min(100, Math.max(0, (Math.abs(netMetrics.netProfit) / total) * 100))}%` }} />
+                            <div className="relative bg-gradient-to-r from-gray-100 to-gray-50 rounded-xl h-4 shadow-inner overflow-hidden">
+                              <div className="bg-gradient-to-r from-blue-400 via-blue-500 to-blue-600 h-4 rounded-xl transition-all duration-500 shadow-sm" style={{ width: `${Math.min(100, Math.max(0, (Math.abs(netMetrics.netProfit) / total) * 100))}%` }} />
                             </div>
                           </div>
                         </div>
@@ -1278,34 +1320,6 @@ const CombinedDashboard = ({ invoices, companyData, isEmprendedor = false }) => 
                       </p>
                     </div>
                   </div>
-                </div>
-              </div>
-
-              {/* C. ALERTAS INTELIGENTES */}
-              <div className="space-y-4">
-                <h2 className="text-2xl font-bold text-gray-900">Alertas Inteligentes</h2>
-                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-3">
-                  {detectSmartAlerts().map((alert, idx) => {
-                    const Icon = alert.icon
-                    const colorClasses = {
-                      danger: 'bg-red-50 border-red-200 text-red-800',
-                      warning: 'bg-yellow-50 border-yellow-200 text-yellow-800',
-                      success: 'bg-green-50 border-green-200 text-green-800'
-                    }
-                    
-                    return (
-                      <div key={idx} className={`border rounded-lg p-4 flex items-start gap-3 ${colorClasses[alert.type]}`}>
-                        <Icon className="w-5 h-5 flex-shrink-0 mt-0.5" />
-                        <p className="text-sm font-medium">{alert.message}</p>
-                      </div>
-                    )
-                  })}
-                  {detectSmartAlerts().length === 0 && (
-                    <div className="col-span-full bg-gray-50 border border-gray-200 rounded-lg p-6 text-center">
-                      <CheckCircle className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                      <p className="text-sm text-gray-600">No hay alertas en este momento. ¡Todo está bajo control!</p>
-                    </div>
-                  )}
                 </div>
               </div>
             </div>

@@ -1,0 +1,89 @@
+╔══════════════════════════════════════════════════════════════╗
+║                  🚨 SOLUCIÓN INMEDIATA 🚨                    ║
+╚══════════════════════════════════════════════════════════════╝
+
+PROBLEMA:
+---------
+❌ "Could not find the table 'public.profiles'"
+❌ La tabla profiles NO EXISTE en Supabase
+
+
+SOLUCIÓN EN 3 PASOS:
+--------------------
+
+1️⃣  IR A SUPABASE
+   → https://supabase.com
+   → Tu proyecto
+   → SQL Editor (menú izquierdo)
+
+
+2️⃣  EJECUTAR ESTE SCRIPT (OBLIGATORIO):
+   
+   Archivo: create-profiles-table.sql
+   
+   → Copia TODO el contenido
+   → Pega en SQL Editor
+   → Clic en "Run" o Ctrl+Enter
+   → Espera mensaje: "Tabla profiles creada exitosamente!"
+
+
+3️⃣  EJECUTAR ESTOS SCRIPTS (EN ORDEN):
+   
+   a) create-chat-tables.sql
+   b) create-whatsapp-auth-table.sql
+   
+   (Mismo proceso: copiar, pegar, Run)
+
+
+4️⃣  REFRESCAR NAVEGADOR:
+   
+   → Ve a http://localhost:5173
+   → Presiona Ctrl + Shift + R
+   → Los errores de profiles desaparecerán ✅
+
+
+5️⃣  INICIAR BACKEND:
+   
+   Terminal:
+   cd server
+   npm install
+   npm run dev
+   
+   Espera ver: "🚀 Server running on port 3001"
+
+
+6️⃣  VERIFICAR:
+   
+   ✅ http://localhost:3001/health → {"status":"ok"}
+   ✅ http://localhost:5173 → Sin errores en consola
+
+
+═══════════════════════════════════════════════════════════════
+
+ARCHIVOS IMPORTANTES:
+---------------------
+⭐ create-profiles-table.sql    ← EJECUTAR PRIMERO
+⭐ create-chat-tables.sql       ← EJECUTAR SEGUNDO
+⭐ create-whatsapp-auth-table.sql ← EJECUTAR TERCERO
+
+📖 EJECUTAR_EN_ORDEN.md         ← Guía detallada
+📖 README_URGENTE.md            ← Solución rápida
+
+
+═══════════════════════════════════════════════════════════════
+
+DESPUÉS DE EJECUTAR:
+--------------------
+✅ Sin errores 404 de profiles
+✅ Sin errores 403 de chat_messages
+✅ WhatsApp funcionando (después de iniciar backend)
+✅ Chatbot con OpenAI funcionando
+
+
+═══════════════════════════════════════════════════════════════
+
+TIEMPO ESTIMADO: 5 minutos ⏱️
+
+¡Sigue estos pasos y todo funcionará! 🎉
+
+═══════════════════════════════════════════════════════════════

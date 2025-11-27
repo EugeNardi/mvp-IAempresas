@@ -1090,10 +1090,10 @@ const FinancialIntelligence = ({ invoices, companyData, isEmprendedor = false })
 
   // Tipos de análisis disponibles - Solo 4 principales
   const analysisTypes = [
-    { id: 'clientes', name: 'CLIENTES', icon: Users, color: 'from-gray-700 to-gray-900' },
-    { id: 'productos', name: 'PRODUCTOS', icon: Package, color: 'from-gray-800 to-black' },
-    { id: 'proveedores', name: 'PROVEEDORES', icon: Building2, color: 'from-gray-600 to-gray-800' },
-    { id: 'gastos', name: 'GASTOS', icon: Receipt, color: 'from-gray-700 to-gray-900' },
+    { id: 'clientes', name: 'CLIENTES', icon: Users, color: 'from-blue-50 to-blue-100', iconColor: 'text-blue-600', borderColor: 'border-blue-200' },
+    { id: 'productos', name: 'PRODUCTOS', icon: Package, color: 'from-purple-50 to-purple-100', iconColor: 'text-purple-600', borderColor: 'border-purple-200' },
+    { id: 'proveedores', name: 'PROVEEDORES', icon: Building2, color: 'from-indigo-50 to-indigo-100', iconColor: 'text-indigo-600', borderColor: 'border-indigo-200' },
+    { id: 'gastos', name: 'GASTOS', icon: Receipt, color: 'from-slate-50 to-slate-100', iconColor: 'text-slate-600', borderColor: 'border-slate-200' },
   ]
 
   // Componente de gráfico de torta
@@ -1167,11 +1167,11 @@ const FinancialIntelligence = ({ invoices, companyData, isEmprendedor = false })
             <button
               key={type.id}
               onClick={() => setAnalysisType(type.id)}
-              className="group relative bg-white border-2 border-gray-200 hover:border-gray-900 rounded-2xl p-8 transition-all hover:shadow-xl hover:scale-105 active:scale-100"
+              className={`group relative bg-white border-2 ${type.borderColor} hover:border-gray-400 rounded-2xl p-8 transition-all hover:shadow-lg hover:scale-102 active:scale-100`}
             >
               <div className="flex items-center gap-6">
-                <div className={`w-20 h-20 bg-gradient-to-br ${type.color} rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all`}>
-                  <type.icon className="w-10 h-10 text-white" />
+                <div className={`w-20 h-20 bg-gradient-to-br ${type.color} rounded-2xl flex items-center justify-center border ${type.borderColor} transition-all`}>
+                  <type.icon className={`w-10 h-10 ${type.iconColor}`} />
                 </div>
                 <div className="flex-1 text-left">
                   <h3 className="text-xl font-bold text-gray-900 mb-1">{type.name}</h3>
@@ -4939,122 +4939,31 @@ const FinancialIntelligence = ({ invoices, companyData, isEmprendedor = false })
                   </div>
                 </div>
 
-                {/* Métricas Principales - Ingresos y Gastos */}
-                <div className="grid md:grid-cols-3 gap-6">
+                {/* Métricas Esenciales - Máxima Simplificación */}
+                <div className="grid md:grid-cols-3 gap-4">
+                  {/* Ganancia Neta */}
                   <div className="bg-white border border-gray-200 rounded-lg p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <FinancialTooltip term="ingresos">
-                        <p className="text-sm font-medium text-gray-600">Ingresos Totales</p>
-                      </FinancialTooltip>
-                      <TrendingUp className="w-5 h-5 text-green-600" />
-                    </div>
-                    <p className="text-3xl font-bold text-gray-900">
-                      ${financialMetrics.ingresosTotales.toLocaleString('es-AR', { maximumFractionDigits: 0 })}
-                    </p>
-                  </div>
-
-                  <div className="bg-white border border-gray-200 rounded-lg p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <p className="text-sm font-medium text-gray-600">Promedio de Ingresos</p>
-                      <BarChart3 className="w-5 h-5 text-blue-600" />
-                    </div>
-                    <p className="text-3xl font-bold text-gray-900">
-                      ${financialMetrics.promedioIngresos.toLocaleString('es-AR', { maximumFractionDigits: 0 })}
-                    </p>
-                    <p className="text-xs text-gray-500 mt-2">Por {promedioType}</p>
-                  </div>
-
-                  <div className="bg-white border border-gray-200 rounded-lg p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <FinancialTooltip term="gastos_operativos">
-                        <p className="text-sm font-medium text-gray-600">Gastos Totales</p>
-                      </FinancialTooltip>
-                      <TrendingDown className="w-5 h-5 text-red-600" />
-                    </div>
-                    <p className="text-3xl font-bold text-gray-900">
-                      ${financialMetrics.gastosTotales.toLocaleString('es-AR', { maximumFractionDigits: 0 })}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Ganancias */}
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div className="bg-white border border-gray-200 rounded-lg p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <FinancialTooltip term="ganancia_bruta">
-                        <p className="text-sm font-medium text-gray-600">Ganancia Bruta</p>
-                      </FinancialTooltip>
-                      <DollarSign className="w-5 h-5 text-blue-600" />
-                    </div>
-                    <p className={`text-3xl font-bold ${
-                      financialMetrics.gananciaBruta >= 0 ? 'text-green-600' : 'text-red-600'
-                    }`}>
-                      {financialMetrics.gananciaBruta >= 0 ? '+' : ''}${financialMetrics.gananciaBruta.toLocaleString('es-AR', { maximumFractionDigits: 0 })}
-                    </p>
-                    <p className="text-xs text-gray-500 mt-2">Ingresos - Costos de productos</p>
-                  </div>
-
-                  <div className="bg-white border border-gray-200 rounded-lg p-6">
-                    <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center justify-between mb-3">
                       <FinancialTooltip term="utilidad_neta">
                         <p className="text-sm font-medium text-gray-600">Ganancia Neta</p>
                       </FinancialTooltip>
-                      <Award className="w-5 h-5 text-purple-600" />
+                      <Award className="w-5 h-5 text-blue-600" />
                     </div>
                     <p className={`text-3xl font-bold ${
                       financialMetrics.gananciaNeta >= 0 ? 'text-green-600' : 'text-red-600'
                     }`}>
                       {financialMetrics.gananciaNeta >= 0 ? '+' : ''}${financialMetrics.gananciaNeta.toLocaleString('es-AR', { maximumFractionDigits: 0 })}
                     </p>
-                    <p className="text-xs text-gray-500 mt-2">Ganancia bruta - Gastos operativos</p>
-                  </div>
-                </div>
-
-                {/* Márgenes y Rentabilidad */}
-                <div className="grid md:grid-cols-4 gap-6">
-                  <div className="bg-white border border-gray-200 rounded-lg p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <FinancialTooltip term="margen_bruto">
-                        <p className="text-sm font-medium text-gray-600">Margen Bruto</p>
-                      </FinancialTooltip>
-                      <Percent className="w-5 h-5 text-blue-600" />
-                    </div>
-                    <p className="text-3xl font-bold text-gray-900">
-                      {financialMetrics.margenBruto.toFixed(1)}%
-                    </p>
+                    <p className="text-xs text-gray-500 mt-2">Margen: {financialMetrics.margenNeto.toFixed(1)}%</p>
                   </div>
 
+                  {/* ROI */}
                   <div className="bg-white border border-gray-200 rounded-lg p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <FinancialTooltip term="margen_neto">
-                        <p className="text-sm font-medium text-gray-600">Margen Neto</p>
-                      </FinancialTooltip>
-                      <Percent className="w-5 h-5 text-green-600" />
-                    </div>
-                    <p className="text-3xl font-bold text-gray-900">
-                      {financialMetrics.margenNeto.toFixed(1)}%
-                    </p>
-                  </div>
-
-                  <div className="bg-white border border-gray-200 rounded-lg p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <FinancialTooltip term="rentabilidad">
-                        <p className="text-sm font-medium text-gray-600">Rentabilidad Total</p>
-                      </FinancialTooltip>
-                      <Target className="w-5 h-5 text-orange-600" />
-                    </div>
-                    <p className="text-3xl font-bold text-gray-900">
-                      {financialMetrics.rentabilidadTotal.toFixed(1)}%
-                    </p>
-                    <p className="text-xs text-gray-500 mt-2">Ganancia neta / Ingresos</p>
-                  </div>
-
-                  <div className="bg-white border border-gray-200 rounded-lg p-6">
-                    <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center justify-between mb-3">
                       <FinancialTooltip term="roi">
                         <p className="text-sm font-medium text-gray-600">ROI</p>
                       </FinancialTooltip>
-                      <TrendingUpIcon className="w-5 h-5 text-green-600" />
+                      <TrendingUpIcon className="w-5 h-5 text-purple-600" />
                     </div>
                     <p className={`text-3xl font-bold ${
                       financialMetrics.roi >= 0 ? 'text-green-600' : 'text-red-600'
@@ -5063,16 +4972,14 @@ const FinancialIntelligence = ({ invoices, companyData, isEmprendedor = false })
                     </p>
                     <p className="text-xs text-gray-500 mt-2">Retorno de inversión</p>
                   </div>
-                </div>
 
-                {/* Indicadores Financieros */}
-                <div className="grid md:grid-cols-3 gap-6">
+                  {/* Liquidez */}
                   <div className="bg-white border border-gray-200 rounded-lg p-6">
-                    <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center justify-between mb-3">
                       <FinancialTooltip term="ratio_liquidez">
-                        <p className="text-sm font-medium text-gray-600">Ratio de Liquidez</p>
+                        <p className="text-sm font-medium text-gray-600">Liquidez</p>
                       </FinancialTooltip>
-                      <Activity className="w-5 h-5 text-blue-600" />
+                      <Activity className="w-5 h-5 text-indigo-600" />
                     </div>
                     <p className="text-3xl font-bold text-gray-900">
                       {financialMetrics.ratioLiquidez.toFixed(2)}
@@ -5081,39 +4988,10 @@ const FinancialIntelligence = ({ invoices, companyData, isEmprendedor = false })
                       {financialMetrics.ratioLiquidez >= 1.5 ? '✓ Excelente' : financialMetrics.ratioLiquidez >= 1 ? '✓ Bueno' : '⚠ Bajo'}
                     </p>
                   </div>
-
-                  <div className="bg-white border border-gray-200 rounded-lg p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <FinancialTooltip term="flujo_caja">
-                        <p className="text-sm font-medium text-gray-600">Flujo de Caja</p>
-                      </FinancialTooltip>
-                      <LineChart className="w-5 h-5 text-purple-600" />
-                    </div>
-                    <p className={`text-3xl font-bold ${
-                      financialMetrics.flujoCaja >= 0 ? 'text-green-600' : 'text-red-600'
-                    }`}>
-                      {financialMetrics.flujoCaja >= 0 ? '+' : ''}${financialMetrics.flujoCaja.toLocaleString('es-AR', { maximumFractionDigits: 0 })}
-                    </p>
-                  </div>
-
-                  <div className="bg-white border border-gray-200 rounded-lg p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <FinancialTooltip term="endeudamiento">
-                        <p className="text-sm font-medium text-gray-600">% Endeudamiento</p>
-                      </FinancialTooltip>
-                      <AlertTriangle className="w-5 h-5 text-orange-600" />
-                    </div>
-                    <p className="text-3xl font-bold text-gray-900">
-                      {financialMetrics.porcentajeEndeudamiento.toFixed(1)}%
-                    </p>
-                    <p className="text-xs text-gray-500 mt-2">
-                      {financialMetrics.porcentajeEndeudamiento < 30 ? '✓ Bajo' : financialMetrics.porcentajeEndeudamiento < 60 ? '⚠ Moderado' : '⚠ Alto'}
-                    </p>
-                  </div>
                 </div>
 
-                {/* Capacidad de Pago */}
-                <div className="grid md:grid-cols-2 gap-6">
+                {/* Capacidad de Pago - Simplificado */}
+                <div className="grid md:grid-cols-2 gap-4">
                   <div className="bg-white border border-gray-200 rounded-lg p-6">
                     <div className="flex items-center justify-between mb-4">
                       <p className="text-sm font-medium text-gray-600">Días Promedio para Cobrar</p>

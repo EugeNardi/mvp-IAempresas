@@ -48,7 +48,6 @@ export const DataProvider = ({ children }) => {
         .from('companies')
         .select('*')
         .eq('user_id', user.id)
-        .eq('is_active', true)
         .single()
 
       if (error) {
@@ -69,7 +68,8 @@ export const DataProvider = ({ children }) => {
       const transformedData = {
         id: data.id,
         name: data.name,
-        cuit: data.tax_id || '',
+        cuit: data.tax_id || data.cuit || '',
+        businessType: data.business_type || '',
         address: data.address || '',
         locality: data.locality || '',
         city: data.city || '',
@@ -98,7 +98,8 @@ export const DataProvider = ({ children }) => {
       const companyDataToSave = {
         user_id: user.id,
         name: companyInfo.name,
-        tax_id: companyInfo.cuit || null,
+        cuit: companyInfo.cuit || null,
+        business_type: companyInfo.businessType || 'emprendedor',
         address: companyInfo.address || null,
         locality: companyInfo.locality || null,
         city: companyInfo.city || null,

@@ -25,3 +25,6 @@ export const authenticateUser = async (req, res, next) => {
     res.status(500).json({ error: 'Authentication failed' });
   }
 };
+
+// Alias for consistency
+export const verifyToken = authenticateUser;

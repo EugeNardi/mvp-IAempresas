@@ -11,31 +11,75 @@ const CreditCalculator = ({ invoices }) => {
   const creditLines = [
     {
       name: 'Línea PyME BICE',
+      bank: 'BICE',
+      logo: 'https://logos-world.net/wp-content/uploads/2023/09/Banco-BICE-Logo.png',
       rate: 75,
       maxAmount: 50000000,
       term: 36,
       description: 'Para capital de trabajo e inversión productiva'
     },
     {
-      name: 'Crédito Productivo Banco Nación',
-      rate: 80,
-      maxAmount: 30000000,
-      term: 24,
-      description: 'Financiamiento para PyMEs productivas'
-    },
-    {
       name: 'Línea FONDEP',
+      bank: 'FONDEP',
+      logo: 'https://www.argentina.gob.ar/sites/default/files/2018/10/logo_fondep.png',
       rate: 70,
       maxAmount: 20000000,
       term: 48,
       description: 'Desarrollo productivo con tasa subsidiada'
     },
     {
-      name: 'Crédito Bancario Tradicional',
-      rate: 90,
-      maxAmount: 100000000,
-      term: 60,
-      description: 'Línea comercial estándar'
+      name: 'Crédito PyME Galicia',
+      bank: 'Banco Galicia',
+      logo: 'https://logos-world.net/wp-content/uploads/2023/09/Banco-Galicia-Logo.png',
+      rate: 85,
+      maxAmount: 40000000,
+      term: 36,
+      description: 'Financiamiento para capital de trabajo'
+    },
+    {
+      name: 'Crédito Santander Río',
+      bank: 'Santander',
+      logo: 'https://logos-world.net/wp-content/uploads/2020/09/Santander-Logo.png',
+      rate: 88,
+      maxAmount: 50000000,
+      term: 48,
+      description: 'Línea de inversión productiva'
+    },
+    {
+      name: 'Crédito BBVA PyME',
+      bank: 'BBVA',
+      logo: 'https://logos-world.net/wp-content/uploads/2020/09/BBVA-Logo.png',
+      rate: 87,
+      maxAmount: 35000000,
+      term: 36,
+      description: 'Capital de trabajo y equipamiento'
+    },
+    {
+      name: 'Crédito Macro Empresas',
+      bank: 'Banco Macro',
+      logo: 'https://logos-world.net/wp-content/uploads/2023/09/Banco-Macro-Logo.png',
+      rate: 86,
+      maxAmount: 45000000,
+      term: 42,
+      description: 'Financiamiento integral para PyMEs'
+    },
+    {
+      name: 'Crédito ICBC PyME',
+      bank: 'ICBC',
+      logo: 'https://logos-world.net/wp-content/uploads/2021/03/ICBC-Logo.png',
+      rate: 84,
+      maxAmount: 38000000,
+      term: 36,
+      description: 'Línea de crédito para inversión'
+    },
+    {
+      name: 'Crédito Supervielle',
+      bank: 'Banco Supervielle',
+      logo: 'https://logos-world.net/wp-content/uploads/2023/09/Banco-Supervielle-Logo.png',
+      rate: 89,
+      maxAmount: 30000000,
+      term: 36,
+      description: 'Financiamiento comercial'
     }
   ]
 
@@ -143,20 +187,48 @@ const CreditCalculator = ({ invoices }) => {
 
       {/* Líneas de Crédito Disponibles */}
       <div className="bg-white border border-gray-200 rounded-lg p-6">
-        <h3 className="text-lg font-semibold mb-4 text-gray-900">Líneas de Crédito</h3>
+        <h3 className="text-lg font-semibold mb-4 text-gray-900">Líneas de Crédito Disponibles</h3>
         <div className="grid md:grid-cols-2 gap-3">
           {creditLines.map((line, idx) => (
             <button 
               key={idx}
-              className="p-4 border border-gray-200 rounded-lg hover:border-gray-900 transition-all text-left"
+              className="p-4 border-2 border-gray-200 rounded-xl hover:border-gray-900 hover:shadow-lg transition-all text-left group"
               onClick={() => {
                 setInterestRate(line.rate)
                 setLoanTerm(line.term)
               }}
             >
-              <div className="flex items-center justify-between">
-                <span className="font-medium text-gray-900 text-sm">{line.name}</span>
-                <span className="text-base font-bold text-gray-900">{line.rate}%</span>
+              <div className="flex items-start gap-4">
+                {/* Logo del Banco */}
+                <div className="w-16 h-16 flex-shrink-0 bg-gradient-to-br from-gray-50 to-white rounded-xl border-2 border-gray-200 p-2 flex items-center justify-center overflow-hidden shadow-sm group-hover:shadow-md transition-shadow">
+                  <img 
+                    src={line.logo} 
+                    alt={line.bank}
+                    className="w-full h-full object-contain"
+                    onError={(e) => {
+                      e.target.style.display = 'none'
+                      e.target.nextSibling.style.display = 'flex'
+                    }}
+                  />
+                  <div className="hidden w-full h-full items-center justify-center text-sm font-bold text-gray-400">
+                    {line.bank.substring(0, 2)}
+                  </div>
+                </div>
+                
+                {/* Información */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start justify-between gap-3 mb-1.5">
+                    <h4 className="font-bold text-gray-900 text-base leading-tight group-hover:text-gray-900">
+                      {line.name}
+                    </h4>
+                    <span className="text-xl font-bold text-blue-600 flex-shrink-0">
+                      {line.rate}%
+                    </span>
+                  </div>
+                  <p className="text-sm text-gray-600 line-clamp-2 leading-relaxed">
+                    {line.description}
+                  </p>
+                </div>
               </div>
             </button>
           ))}

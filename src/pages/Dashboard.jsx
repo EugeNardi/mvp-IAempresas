@@ -24,7 +24,9 @@ import {
   Package,
   Crown,
   CreditCard,
-  Sparkles
+  Sparkles,
+  ChevronDown,
+  ChevronRight
 } from 'lucide-react'
 import Logo from '../components/common/Logo'
 import MyBusiness from '../components/dashboard/MyBusiness'
@@ -36,9 +38,11 @@ import CombinedDashboard from '../components/dashboard/CombinedDashboard'
 import AIProjections from '../components/dashboard/AIProjections'
 import CreditCalculator from '../components/dashboard/CreditCalculator'
 import Inventory from './Inventory'
+import Messaging from './Messaging'
 import DolarWidget from '../components/dashboard/DolarWidget'
 import AnalisisVisual from '../components/dashboard/AnalisisVisual'
 import OnboardingTour from '../components/OnboardingTour'
+import FloatingChat from '../components/chat/FloatingChat'
 
 const Dashboard = () => {
   const { user, signOut } = useAuth()
@@ -46,6 +50,8 @@ const Dashboard = () => {
   const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState('profile')
   const [sidebarOpen, setSidebarOpen] = useState(false) // Cerrado por defecto en móvil
+  const [dashboardContext, setDashboardContext] = useState(null)
+  const [pymeMenuOpen, setPymeMenuOpen] = useState(false) // Estado para el menú desplegable
 
   const handleSignOut = async () => {
     await signOut()
@@ -62,6 +68,42 @@ const Dashboard = () => {
     }
   }, [isEmprendedor, activeTab])
 
+  // Actualizar contexto del dashboard para el chat
+  useEffect(() => {
+    if (invoices && invoices.length > 0) {
+      const totalIncome = invoices
+        .filter(inv => inv.type === 'income')
+        .reduce((sum, inv) => sum + (parseFloat(inv.amount) || 0), 0)
+      
+      const totalExpenses = invoices
+        .filter(inv => inv.type === 'expense')
+        .reduce((sum, inv) => sum + (parseFloat(inv.amount) || 0), 0)
+      
+      const fixedExpenses = invoices
+        .filter(inv => inv.type === 'expense' && inv.metadata?.tipoGasto === 'Fijo')
+        .reduce((sum, inv) => sum + (parseFloat(inv.amount) || 0), 0)
+      
+      const variableExpenses = invoices
+        .filter(inv => inv.type === 'expense' && inv.metadata?.tipoGasto === 'Variable')
+        .reduce((sum, inv) => sum + (parseFloat(inv.amount) || 0), 0)
+
+      setDashboardContext({
+        period: 'General',
+        totalIncome,
+        totalExpenses,
+        grossProfit: totalIncome - totalExpenses,
+        netProfit: totalIncome - totalExpenses,
+        fixedExpenses,
+        variableExpenses,
+        liquidityRatio: totalExpenses > 0 ? totalIncome / totalExpenses : 0,
+        roi: totalExpenses > 0 ? ((totalIncome - totalExpenses) / totalExpenses) * 100 : 0,
+        productsCount: 0, // Se actualizará con datos del inventario
+        inventoryValue: 0,
+        alerts: []
+      })
+    }
+  }, [invoices])
+
   // Obtener saludo según hora del día
   const getGreeting = () => {
     const hour = new Date().getHours()
@@ -76,6 +118,7 @@ const Dashboard = () => {
     { id: 'dashboard', name: 'Panel de Control', icon: LayoutDashboard },
     { id: 'movimientos', name: 'Movimientos', icon: TrendingUp },
     { id: 'inventory', name: 'Inventario', icon: Package },
+    { id: 'messaging', name: 'Mensajería', icon: MessageSquare },
     { id: 'intelligence', name: 'Análisis', icon: BarChart3 },
     { id: 'projections', name: 'Proyecciones', icon: Brain },
     { id: 'credit', name: 'Créditos', icon: CreditCard, hideForEmprendedor: true },
@@ -121,34 +164,10 @@ const Dashboard = () => {
           </button>
         </div>
 
-        {/* Tipo de Cuenta Badge */}
-        {companyData?.businessType && (
-          <div className="px-3 pt-3 pb-2">
-            <div className={`p-3 rounded-xl ${
-              companyData.businessType === 'emprendedor'
-                ? 'bg-gradient-to-r from-gray-700 to-gray-900'
-                : 'bg-gradient-to-r from-blue-600 to-blue-800'
-            }`}>
-              <div className="flex items-center gap-2 text-white">
-                {companyData.businessType === 'emprendedor' ? (
-                  <Sparkles className="w-4 h-4 flex-shrink-0" />
-                ) : (
-                  <Building2 className="w-4 h-4 flex-shrink-0" />
-                )}
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs font-semibold opacity-90">Cuenta</p>
-                  <p className="text-sm font-bold truncate">
-                    {companyData.businessType === 'emprendedor' ? 'Emprendedor' : 'PyME'}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* Navigation */}
         <nav className="flex-1 overflow-y-auto p-3">
-          {tabs.map((tab) => (
+          {/* Tabs principales */}
+          {tabs.filter(tab => !['projections', 'credit', 'taxes'].includes(tab.id)).map((tab) => (
             <button
               key={tab.id}
               id={`${tab.id}-tab`}
@@ -173,6 +192,58 @@ const Dashboard = () => {
               <span className="truncate">{tab.name}</span>
             </button>
           ))}
+
+          {/* Menú desplegable PyME - Solo visible si NO es emprendedor */}
+          {!isEmprendedor && (
+            <div>
+              {/* Botón para desplegar */}
+              <button
+                onClick={() => setPymeMenuOpen(!pymeMenuOpen)}
+                className="w-full flex items-center justify-between gap-3 px-4 py-3 mb-1 rounded-lg transition-all duration-150 text-sm font-semibold text-gray-700 hover:bg-gray-50 group"
+              >
+                <div className="flex items-center gap-3">
+                  <Building2 className="w-5 h-5 flex-shrink-0 text-gray-500 group-hover:text-gray-700" />
+                  <span className="truncate">Herramientas PyME</span>
+                </div>
+                {pymeMenuOpen ? (
+                  <ChevronDown className="w-4 h-4 text-gray-500" />
+                ) : (
+                  <ChevronRight className="w-4 h-4 text-gray-500" />
+                )}
+              </button>
+
+              {/* Opciones desplegables */}
+              {pymeMenuOpen && (
+                <div className="ml-4 space-y-1">
+                  {tabs.filter(tab => ['projections', 'credit', 'taxes'].includes(tab.id)).map((tab) => (
+                    <button
+                      key={tab.id}
+                      id={`${tab.id}-tab`}
+                      onClick={() => {
+                        setActiveTab(tab.id)
+                        setSidebarOpen(false)
+                      }}
+                      className={`
+                        w-full flex items-center gap-3 
+                        px-4 py-3 mb-1
+                        rounded-lg transition-all duration-150 text-sm font-semibold group
+                        ${
+                          activeTab === tab.id
+                            ? 'bg-gray-900 text-white shadow-sm'
+                            : 'text-gray-700 hover:bg-gray-50'
+                        }
+                      `}
+                    >
+                      <tab.icon className={`w-5 h-5 flex-shrink-0 ${
+                        activeTab === tab.id ? 'text-white' : 'text-gray-500 group-hover:text-gray-700'
+                      }`} />
+                      <span className="truncate">{tab.name}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </nav>
 
         {/* User Profile */}
@@ -239,13 +310,6 @@ const Dashboard = () => {
                 )}
               </div>
             )}
-            <Link
-              to="/chat"
-              className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg text-sm font-semibold bg-gray-900 text-white hover:bg-gray-800 transition-colors"
-            >
-              <MessageSquare className="w-4 h-4" />
-              <span className="hidden sm:inline">Chat IA</span>
-            </Link>
             <button
               onClick={handleSignOut}
               className="hidden lg:flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white bg-red-600 hover:bg-red-700 transition-colors"
@@ -268,6 +332,9 @@ const Dashboard = () => {
           )}
           {activeTab === 'inventory' && (
             <Inventory />
+          )}
+          {activeTab === 'messaging' && (
+            <Messaging />
           )}
           {activeTab === 'taxes' && (
             isEmprendedor ? (
@@ -350,6 +417,9 @@ const Dashboard = () => {
 
       {/* Onboarding Tour para nuevos usuarios */}
       <OnboardingTour />
+
+      {/* Chat Flotante con contexto del dashboard */}
+      <FloatingChat dashboardContext={dashboardContext} />
     </div>
   )
 }

@@ -546,35 +546,6 @@ const EnhancedProductTable = ({ products, categories, onEdit, onDelete, onStockC
         </div>
       )}
 
-      {/* Summary */}
-      {filteredProducts.length > 0 && (
-        <div className="bg-gray-50 rounded-lg p-4 space-y-2">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div>
-              <p className="text-sm text-gray-600">Productos mostrados</p>
-              <p className="text-lg font-bold text-gray-900">{filteredProducts.length}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-600">Valor total en stock</p>
-              <p className="text-lg font-bold text-gray-900">
-                ${filteredProducts.reduce((sum, p) => sum + ((parseInt(p.current_stock) || 0) * (parseFloat(p.unit_cost) || 0)), 0).toLocaleString('es-AR', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}
-              </p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-600">Valor potencial de venta</p>
-              <p className="text-lg font-bold text-green-600">
-                ${filteredProducts.reduce((sum, p) => sum + ((parseInt(p.current_stock) || 0) * (parseFloat(p.sale_price) || 0)), 0).toLocaleString('es-AR', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}
-              </p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-600">Ganancia potencial</p>
-              <p className="text-lg font-bold text-blue-600">
-                ${filteredProducts.reduce((sum, p) => sum + ((parseInt(p.current_stock) || 0) * ((parseFloat(p.sale_price) || 0) - (parseFloat(p.unit_cost) || 0))), 0).toLocaleString('es-AR', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   )
 }

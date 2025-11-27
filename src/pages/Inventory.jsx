@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Package, Tag, Upload, TrendingDown, AlertTriangle, Plus, Search, Filter, X, Copy, Check, MessageCircle, ChevronDown, ChevronUp, Edit2, Trash2, Send } from 'lucide-react'
+import { Package, Tag, Upload, TrendingDown, TrendingUp, AlertTriangle, Plus, Search, Filter, X, Copy, Check, MessageCircle, ChevronDown, ChevronUp, Edit2, Trash2, Send, DollarSign } from 'lucide-react'
 import { useData } from '../context/DataContext'
 import { supabase } from '../lib/supabase'
 import CategoryManager from '../components/inventory/CategoryManager'
@@ -767,61 +767,6 @@ const Inventory = () => {
         </div>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-white rounded-lg p-6 border border-gray-200 hover:shadow-lg transition-shadow">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Total Productos</p>
-              <p className="text-3xl font-bold text-gray-900 mt-1">{stats.totalProducts}</p>
-            </div>
-            <Package className="w-5 h-5 text-gray-400" />
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg p-6 border border-gray-200 hover:shadow-lg transition-shadow">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Valor Total</p>
-              <p className="text-3xl font-bold text-gray-900 mt-1">
-                ${stats.totalValue.toLocaleString('es-AR', { minimumFractionDigits: 0 })}
-              </p>
-            </div>
-            <TrendingDown className="w-5 h-5 text-gray-400" />
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg p-6 border border-gray-200 hover:shadow-lg transition-shadow">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Stock Bajo</p>
-              <p className="text-3xl font-bold text-orange-600 mt-1">{stats.lowStock}</p>
-            </div>
-            <div className="flex flex-col items-end gap-2">
-              <AlertTriangle className="w-5 h-5 text-orange-600" />
-              <button
-                onClick={() => setShowLowStockConfig(true)}
-                className="flex items-center gap-1 px-2 py-1 text-orange-600 hover:text-orange-700 hover:bg-orange-50 rounded transition-all text-xs font-medium"
-                title="Configurar stock bajo"
-              >
-                <Edit2 className="w-3 h-3" />
-                <span>Editar</span>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg p-6 border border-gray-200 hover:shadow-lg transition-shadow">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Sin Stock</p>
-              <p className="text-3xl font-bold text-red-600 mt-1">{stats.outOfStock}</p>
-            </div>
-            <AlertTriangle className="w-5 h-5 text-red-600" />
-          </div>
-        </div>
-      </div>
-
       {/* Products Section */}
       <div className="bg-white rounded-lg border border-gray-200">
 
@@ -970,6 +915,80 @@ const Inventory = () => {
                   )}
                 </div>
               )}
+
+              {/* Stats Cards - Arriba de la tabla */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <div className="bg-white rounded-lg p-5 border border-gray-200 hover:shadow-md transition-shadow">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs font-medium text-gray-600">Productos mostrados</p>
+                      <p className="text-2xl font-bold text-gray-900 mt-1">{hasActiveFilters() ? filteredProducts.length : stats.totalProducts}</p>
+                    </div>
+                    <Package className="w-5 h-5 text-gray-400" />
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-lg p-5 border border-gray-200 hover:shadow-md transition-shadow">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs font-medium text-gray-600">Valor total en stock</p>
+                      <p className="text-2xl font-bold text-gray-900 mt-1">
+                        ${(() => {
+                          const productsToCalc = hasActiveFilters() ? filteredProducts : products
+                          const totalCost = productsToCalc.reduce((sum, p) => {
+                            const cost = parseFloat(p.purchase_price) || 0
+                            const stock = parseInt(p.current_stock) || 0
+                            return sum + (cost * stock)
+                          }, 0)
+                          return totalCost.toLocaleString('es-AR', { minimumFractionDigits: 0 })
+                        })()}
+                      </p>
+                    </div>
+                    <TrendingDown className="w-5 h-5 text-orange-600" />
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-lg p-5 border border-gray-200 hover:shadow-md transition-shadow">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs font-medium text-gray-600">Valor potencial de venta</p>
+                      <p className="text-2xl font-bold text-green-600 mt-1">
+                        ${(() => {
+                          const productsToCalc = hasActiveFilters() ? filteredProducts : products
+                          const totalSale = productsToCalc.reduce((sum, p) => {
+                            const price = parseFloat(p.sale_price) || 0
+                            const stock = parseInt(p.current_stock) || 0
+                            return sum + (price * stock)
+                          }, 0)
+                          return totalSale.toLocaleString('es-AR', { minimumFractionDigits: 0 })
+                        })()}
+                      </p>
+                    </div>
+                    <TrendingUp className="w-5 h-5 text-green-600" />
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-lg p-5 border border-gray-200 hover:shadow-md transition-shadow">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs font-medium text-gray-600">Ganancia potencial</p>
+                      <p className="text-2xl font-bold text-blue-600 mt-1">
+                        ${(() => {
+                          const productsToCalc = hasActiveFilters() ? filteredProducts : products
+                          const totalProfit = productsToCalc.reduce((sum, p) => {
+                            const salePrice = parseFloat(p.sale_price) || 0
+                            const costPrice = parseFloat(p.purchase_price) || 0
+                            const stock = parseInt(p.current_stock) || 0
+                            return sum + ((salePrice - costPrice) * stock)
+                          }, 0)
+                          return totalProfit.toLocaleString('es-AR', { minimumFractionDigits: 0 })
+                        })()}
+                      </p>
+                    </div>
+                    <DollarSign className="w-5 h-5 text-blue-600" />
+                  </div>
+                </div>
+              </div>
 
               {/* Enhanced Product Table */}
               <EnhancedProductTable
