@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from './AuthContext'
+import { categorizeInvoice } from '../services/invoiceProcessor'
+import { translateDatabaseError, createUserFriendlyError, ERROR_MESSAGES, logError } from '../utils/errorMessages'
 
 const DataContext = createContext()
 
@@ -86,7 +88,7 @@ export const DataProvider = ({ children }) => {
       
       setCompanyData(transformedData)
     } catch (error) {
-      console.error('Error loading company:', error)
+      logError(error, 'Error cargando empresa')
       setCompanyData(null)
     }
   }
@@ -140,8 +142,9 @@ export const DataProvider = ({ children }) => {
       }
 
       if (result.error) {
-        console.error('❌ Error guardando empresa:', result.error)
-        throw result.error
+        logError(result.error, 'Error guardando empresa')
+        const userMessage = createUserFriendlyError(result.error, ERROR_MESSAGES.COMPANY_SAVE_FAILED)
+        throw new Error(userMessage)
       }
 
       console.log('✅ Empresa guardada correctamente')
@@ -151,8 +154,12 @@ export const DataProvider = ({ children }) => {
       
       return result.data
     } catch (error) {
-      console.error('Error saving company:', error)
-      throw error
+      if (error.message && error.message.includes('No se pudo')) {
+        throw error
+      }
+      logError(error, 'Error al guardar empresa')
+      const userMessage = createUserFriendlyError(error, ERROR_MESSAGES.COMPANY_SAVE_FAILED)
+      throw new Error(userMessage)
     }
   }
 
@@ -180,7 +187,7 @@ export const DataProvider = ({ children }) => {
           return
         }
         
-        console.error('❌ Error cargando facturas:', error)
+        logError(error, 'Error cargando facturas')
         throw error
       }
 
@@ -204,7 +211,7 @@ export const DataProvider = ({ children }) => {
       
       setInvoices(transformedInvoices)
     } catch (error) {
-      console.error('Error loading invoices:', error)
+      logError(error, 'Error al cargar facturas')
       setInvoices([])
     } finally {
       setLoading(false)
@@ -241,9 +248,9 @@ export const DataProvider = ({ children }) => {
         .single()
 
       if (error) {
-        console.error('❌ Error guardando factura:', error)
-        console.error('Detalles del error:', error.message, error.code)
-        throw error
+        logError(error, 'Error guardando factura')
+        const userMessage = createUserFriendlyError(error, ERROR_MESSAGES.INVOICE_SAVE_FAILED)
+        throw new Error(userMessage)
       }
 
       console.log('✅ Factura guardada correctamente:', data.id)
@@ -253,8 +260,14 @@ export const DataProvider = ({ children }) => {
       
       return data
     } catch (error) {
-      console.error('Error saving invoice:', error)
-      throw error
+      // Si el error ya fue traducido, mantenerlo
+      if (error.message && error.message.includes('No se pudo')) {
+        throw error
+      }
+      // Si no, traducirlo
+      logError(error, 'Error al guardar factura')
+      const userMessage = createUserFriendlyError(error, ERROR_MESSAGES.INVOICE_SAVE_FAILED)
+      throw new Error(userMessage)
     }
   }
 

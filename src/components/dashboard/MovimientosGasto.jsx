@@ -7,6 +7,7 @@ import {
 } from 'lucide-react'
 import AudioRecorderComponent from '../common/AudioRecorder'
 import { processAudioForMovement, isOpenAIConfigured } from '../../services/aiService'
+import { createUserFriendlyError } from '../../utils/errorMessages'
 
 const MovimientosGasto = ({ movimiento, onClose, onSuccess }) => {
   const { addInvoice, updateInvoice, invoices } = useData()
@@ -110,7 +111,9 @@ const MovimientosGasto = ({ movimiento, onClose, onSuccess }) => {
         setAiAnalyzed(true)
       }
     } catch (err) {
-      setError(err.message || 'Error al analizar con IA. Por favor completa manualmente.')
+      const friendlyMessage = createUserFriendlyError(err, 'Error al analizar con IA')
+      setError(friendlyMessage || 'Error al analizar con IA. Por favor completa manualmente.')
+      console.error('Error en análisis IA:', err)
     } finally {
       setAnalyzing(false)
     }
@@ -167,7 +170,9 @@ const MovimientosGasto = ({ movimiento, onClose, onSuccess }) => {
       onSuccess?.(isEditing ? 'Gasto actualizado exitosamente.' : 'Gasto registrado exitosamente.')
       onClose?.()
     } catch (err) {
-      setError(err.message)
+      const friendlyMessage = createUserFriendlyError(err, 'Error al guardar el gasto')
+      setError(friendlyMessage)
+      console.error('Error en gasto:', err)
     } finally {
       setLoading(false)
     }

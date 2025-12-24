@@ -7,6 +7,7 @@ import {
 } from 'lucide-react'
 import AudioRecorderComponent from '../common/AudioRecorder'
 import { processAudioForMovement, isOpenAIConfigured } from '../../services/aiService'
+import { createUserFriendlyError } from '../../utils/errorMessages'
 import * as XLSX from 'xlsx'
 
 const MovimientosVenta = ({ movimiento, onClose, onSuccess }) => {
@@ -705,7 +706,9 @@ const MovimientosVenta = ({ movimiento, onClose, onSuccess }) => {
       onSuccess?.(isEditing ? 'Venta actualizada exitosamente.' : 'Venta registrada exitosamente. Inventario actualizado.')
       onClose?.()
     } catch (err) {
-      setError(err.message)
+      const friendlyMessage = createUserFriendlyError(err, 'Error al guardar la venta')
+      setError(friendlyMessage)
+      console.error('Error en venta:', err)
     } finally {
       setLoading(false)
     }
